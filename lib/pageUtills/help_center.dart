@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import '../Page/contact_us.dart';
+import 'contact.dart';
 
 class HelpCenter extends StatefulWidget {
   @override
@@ -8,89 +10,6 @@ class HelpCenter extends StatefulWidget {
 
 class _HelpCenterState extends State{
 
-  void _showContactForm(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Colors.transparent, // Make dialog background transparent
-            insetPadding: EdgeInsets.zero, // Remove inset padding
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, // Remove border radius
-            ),
-            child: Material(
-              color: Colors.white, // Set background color to white
-              borderRadius: BorderRadius.zero, // Ensure no border radius
-              child: SizedBox(
-                width: 400.0, // Set the desired width here
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Contact Us',
-                            style: TextStyle(
-                              fontSize: 25.0,
-                              fontFamily: 'Bahnschrift', // Use the font family name declared in pubspec.yaml
-                              fontWeight: FontWeight.w600, // You can also specify the font weight if needed
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            color: Colors.black,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10.0),
-                      Text("If you have a question about our service or have an issue to report, please send a request and we will get back to you as soon as possible"),
-                      SizedBox(height: 16.0),
-                      TextField(
-                        decoration: InputDecoration(labelText: 'Full Name *'),
-                      ),
-                      TextField(
-                        decoration: InputDecoration(labelText: 'Email *'),
-                      ),
-                      TextField(
-                        decoration: InputDecoration(labelText: 'Mobile No *'),
-                      ),
-                      TextField(
-                        decoration: InputDecoration(labelText: 'Message *'),
-                      ),
-                      SizedBox(height: 30.0),
-                      Center(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=> HelpCenter()));
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.pink),
-                            shape: MaterialStateProperty.all<OutlinedBorder>(
-                              ContinuousRectangleBorder(borderRadius: BorderRadius.zero),
-                            ),
-                          ),
-                          child: Text(
-                            'Submit Request',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        }
-    );
-  }
 
 
 
@@ -173,17 +92,26 @@ class _HelpCenterState extends State{
         child: Column(
           children: [
             Container(
-              height: 120.0,
+              height: 140.0,
               margin: EdgeInsets.only(top: 10.0),
               color: Colors.white,
               child: Row(
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        // Function to show form
-                        _showContactForm(context);
-                      },
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ContactFormPage();
+                            },
+                          ).then((_) {
+                            // This code will be executed when the dialog is dismissed
+                            // You can add any necessary logic here
+                          });
+                        },
+
+
                       child: Container(
                         padding: EdgeInsets.only(left: 10.0, top: 15),
                         child: Column(
@@ -229,21 +157,21 @@ class _HelpCenterState extends State{
                 children: [
                   Container(
                     height: 100.0,
-                    margin: EdgeInsets.symmetric(vertical: 5.0),
+                    margin: EdgeInsets.symmetric(vertical: 5.0,horizontal: 10),
                     // Adjust color as needed
                     child: Center(
                       child: Text(
                         'Select the order to track and manage it conveniently',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 24.0,
+                          fontSize: 20.0,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 5.0),
+                    margin: EdgeInsets.symmetric(vertical: 5.0,horizontal: 10),
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border(
@@ -256,7 +184,7 @@ class _HelpCenterState extends State{
                       child: Row(
                         children: [
                           Container(
-                            width: 100.0,
+                            width: 90.0,
                             height: 80.0,
                             margin: EdgeInsets.only(top: 10.0), // Add margin to the top
                             color: Colors.white,
@@ -278,7 +206,7 @@ class _HelpCenterState extends State{
                                     'Top',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 20.0,
+                                      fontSize: 18.0,
                                     ),
                                   ),
                                   Row(
@@ -293,7 +221,7 @@ class _HelpCenterState extends State{
                                         'Delivery On 10 May 2024',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 18.0,
+                                          fontSize: 15.0,
                                         ),
                                       ),
                                     ],
@@ -303,7 +231,7 @@ class _HelpCenterState extends State{
                             ),
                           ),
                           Container(
-                            width: 60.0, // Adjust width as needed
+
                             color: Colors.white,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -332,7 +260,7 @@ class _HelpCenterState extends State{
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 5.0),
+                    margin: EdgeInsets.symmetric(vertical: 5.0,horizontal: 10),
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border(
@@ -345,7 +273,7 @@ class _HelpCenterState extends State{
                       child: Row(
                         children: [
                           Container(
-                            width: 100.0,
+                            width: 90.0,
                             height: 80.0,
                             margin: EdgeInsets.only(top: 10.0), // Add margin to the top
                             color: Colors.white,
@@ -367,7 +295,7 @@ class _HelpCenterState extends State{
                                     'Top',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 20.0,
+                                      fontSize: 18.0,
                                     ),
                                   ),
                                   Row(
@@ -382,7 +310,7 @@ class _HelpCenterState extends State{
                                         'Delivery On 10 May 2024',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 18.0,
+                                          fontSize: 15.0,
                                         ),
                                       ),
                                     ],
@@ -392,7 +320,6 @@ class _HelpCenterState extends State{
                             ),
                           ),
                           Container(
-                            width: 60.0, // Adjust width as needed
                             color: Colors.white,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -421,7 +348,7 @@ class _HelpCenterState extends State{
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 5.0),
+                    margin: EdgeInsets.symmetric(vertical: 5.0,horizontal: 10),
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border(
@@ -434,7 +361,7 @@ class _HelpCenterState extends State{
                       child: Row(
                         children: [
                           Container(
-                            width: 100.0,
+                            width: 90.0,
                             height: 80.0,
                             margin: EdgeInsets.only(top: 10.0), // Add margin to the top
                             color: Colors.white,
@@ -448,7 +375,7 @@ class _HelpCenterState extends State{
                           Expanded(
                             child: Container(
                               color: Colors.white,
-                              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                              padding: EdgeInsets.symmetric( vertical: 5.0,horizontal: 10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -456,7 +383,7 @@ class _HelpCenterState extends State{
                                     'Top',
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 20.0,
+                                      fontSize: 18.0,
                                     ),
                                   ),
                                   Row(
@@ -471,7 +398,7 @@ class _HelpCenterState extends State{
                                         'Delivery On 10 May 2024',
                                         style: TextStyle(
                                           color: Colors.black,
-                                          fontSize: 18.0,
+                                          fontSize: 15.0,
                                         ),
                                       ),
                                     ],
@@ -481,7 +408,7 @@ class _HelpCenterState extends State{
                             ),
                           ),
                           Container(
-                            width: 60.0, // Adjust width as needed
+
                             color: Colors.white,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,

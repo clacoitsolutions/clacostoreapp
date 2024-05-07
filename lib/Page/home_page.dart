@@ -1,4 +1,5 @@
 
+import 'package:claco_store/Page/short_by.dart';
 import 'package:claco_store/Page/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -6,8 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_drawer.dart';
 import '../pageUtills/top_navbar.dart';
-import 'my_cart.dart';
-import 'my_profile.dart';
+import 'filter_page.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -52,23 +52,43 @@ class HomeBody extends StatelessWidget {
                   ),
                   const SizedBox(width: 20),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SortingPage(); // Show the SortingPage in the modal bottom sheet
+                        },
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Text('Short'),
-                        Icon(Icons.arrow_drop_down),
+                        Text(
+                          'Short',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.black,
+                        ),
                       ],
                     ),
                   ),
+
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context, // Ensure context is available
+                        MaterialPageRoute(builder: (context) => Filter()),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.black,
                       backgroundColor: Colors.white,

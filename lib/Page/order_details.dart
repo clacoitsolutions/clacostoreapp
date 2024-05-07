@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../pageUtills/bottom_navbar.dart';
+import '../pageUtills/common_appbar.dart';
 import '../pageUtills/invoice.dart';
 
+class OrderDetailsPage extends StatelessWidget {
+  const OrderDetailsPage({Key? key}) : super(key: key);
 
-class OrderDetailsPage extends StatefulWidget {
   @override
-  _OrderDetailsPageState createState() => _OrderDetailsPageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CommonAppBar(title: 'WishList'),
+      body: OrderDetailsScreen(),
+      bottomNavigationBar: CustomBottomNavigationBar(context: context),
+    );
+  }
 }
 
-class _OrderDetailsPageState extends State<OrderDetailsPage> {
+class OrderDetailsScreen extends StatefulWidget {
+  @override
+  _OrderDetailsScreenState createState() => _OrderDetailsScreenState();
+}
+
+class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   String? selectedReason; // Variable to hold the selected cancellation reason
   bool isCancelled = false; // Flag to track if the order is cancelled
   double rating = 0; // Variable to hold the star rating
@@ -16,14 +30,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

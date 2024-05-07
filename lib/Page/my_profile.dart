@@ -57,11 +57,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        backgroundColor: Colors.white,
-        toolbarHeight: 50.0,
-      ),
+
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[

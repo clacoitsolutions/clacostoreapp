@@ -1,49 +1,34 @@
 import 'package:flutter/material.dart';
 
-class MyOrdersPage extends StatefulWidget {
+import '../pageUtills/bottom_navbar.dart';
+import '../pageUtills/common_appbar.dart';
+
+class MyOrdersPage extends StatelessWidget {
   const MyOrdersPage({Key? key}) : super(key: key);
-
-  @override
-  _MyOrdersPageState createState() => _MyOrdersPageState();
-}
-
-class _MyOrdersPageState extends State<MyOrdersPage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('home page'),
+      appBar: CommonAppBar(title: 'My Orders'),
+      body: MyOrderScreen(),
 
-      ),
+    );
+  }
+}
+
+class MyOrderScreen extends StatefulWidget {
+  @override
+  _MyOrderScreenState createState() => _MyOrderScreenState();
+}
+
+class _MyOrderScreenState extends State<MyOrderScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Text(
-                    'My Orders',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
-                  ),
-                ],
-              ),
-            ),
+
             _buildRowWithShadow(context),
             _buildRowWithShadow(context),
             _buildRowWithShadow(context),
@@ -57,7 +42,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
   Widget _buildRowWithShadow(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/orderDetails');
+        Navigator.pushNamed(context, '/orderDetails'); // Navigate to order details page
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),
@@ -134,7 +119,8 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                         Text(
                           '4.5', // Rating
                           style: TextStyle(
-                            fontSize: 18,fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                             color: Colors.green,
                           ),
                         ),

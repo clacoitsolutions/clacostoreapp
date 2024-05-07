@@ -15,7 +15,7 @@ class MycardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: ' My Card '), // Instantiate CommonAppBar directly
+      appBar: CommonAppBar(title: ' My Cart '), // Instantiate CommonAppBar directly
       body: mycart(),
       bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
@@ -41,108 +41,76 @@ class _mycart extends State<mycart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-
-
       backgroundColor: Colors.blue.withOpacity(0.08), // Set the background color to light blue with opacity
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Row(
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            Text(
-              'My Cart',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(40),
-          child: Material(
-            color: Colors.white,
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 60),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedText = 'Claco'; // Update the selected text
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: selectedText == 'Claco' ? Colors.red : Colors.red, // Change border color based on selection
-                                  width: 2, // Border thickness
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              'Claco',
-                              style: TextStyle(
-                                color: selectedText == 'Claco' ? Colors.red : Colors.red, // Change text color based on selection
-                                fontSize: 16,
-                              ),
-                            ),
+        automaticallyImplyLeading: false,
+        elevation: 0, // Remove elevation
+        actions: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 60),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedText = 'Claco'; // Update the selected text
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: selectedText == 'Claco' ? Colors.red : Colors.transparent, // Change border color based on selection
+                            width: 2, // Border thickness
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedText = 'Grocery'; // Update the selected text
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: selectedText == 'Grocery' ? Colors.red : Colors.transparent, // Change border color based on selection
-                                  width: 2, // Border thickness
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              'Grocery',
-                              style: TextStyle(
-                                color: selectedText == 'Grocery' ? Colors.red : Colors.black, // Change text color based on selection
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
+                      ),
+                      child: Text(
+                        'Claco',
+                        style: TextStyle(
+                          color: selectedText == 'Claco' ? Colors.red : Colors.black, // Change text color based on selection
+                          fontSize: 16,
                         ),
-                      ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedText = 'Grocery'; // Update the selected text
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: selectedText == 'Grocery' ? Colors.red : Colors.transparent, // Change border color based on selection
+                            width: 2, // Border thickness
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        'Grocery',
+                        style: TextStyle(
+                          color: selectedText == 'Grocery' ? Colors.red : Colors.black, // Change text color based on selection
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
+        ],
       ),
+
+
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 1), // Padding goes here
         child: Column(

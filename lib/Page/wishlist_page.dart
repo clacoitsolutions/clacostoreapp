@@ -36,52 +36,6 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue.withOpacity(0.05), // Set the background color to light blue with opacity
-
-      appBar: AppBar(
-        backgroundColor: Colors.blue, // Set the app bar background color to blue
-        // shape: Border.all(width: 0), // Set border radius to none
-        title: Row(
-          children: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white, // Set the color of the icon to white
-              ),
-              onPressed: () {
-                // Handle back button click event
-                Navigator.of(context).pop();
-              },
-            ),
-            // SizedBox(width: 10), // Add space between the icon and logo
-            // Image.asset(
-            //   'assets/logo.png', // Replace 'assets/logo.png' with your logo image path
-            //   width: 32, // Adjust the width of the logo as needed
-            //   height: 32, // Adjust the height of the logo as needed
-            // ),
-            // SizedBox(width: 10), // Add space between the logo and text
-            Text(
-              'Logo', // Replace 'Your Text' with your desired text
-              style: TextStyle(
-                color: Colors.white, // Set the color of the text to white
-                fontSize: 16, // Adjust the font size of the text as needed
-              ),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.shopping_cart_outlined,
-              color: Colors.white, // Set the color of the icon to white
-            ),
-            onPressed: () {
-              // Handle cart icon click event
-              // Add your cart logic here
-            },
-          ),
-        ],
-      ),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20), // Adjust the padding value
@@ -95,14 +49,14 @@ class _WishlistPageState extends State<WishlistPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            'My Wishlist:', // Adjust the text as needed
-                            style: TextStyle(
-                              color: Colors.black, // Set text color
-                              fontWeight: FontWeight.bold, // Make text bold
-                              fontSize: 20, // Set font size to 20
-                            ),
-                          ),
+                          // Text(
+                          //   'My Wishlist:', // Adjust the text as needed
+                          //   style: TextStyle(
+                          //     color: Colors.black, // Set text color
+                          //     fontWeight: FontWeight.bold, // Make text bold
+                          //     fontSize: 20, // Set font size to 20
+                          //   ),
+                          // ),
                           SizedBox(height: 5), // Add space between text and icon
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center, // Align children vertically at the center
