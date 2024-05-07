@@ -2,6 +2,7 @@ import 'package:claco_store/pageUtills/get_started.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import 'Page/home_page.dart';
 import 'Page/order_details.dart';
 
 
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home:GetStartedPage(),
+      home:HomeScreen(),
       routes: {
         '/orderDetails': (context) => OrderDetailsPage(),
       },
@@ -28,7 +29,6 @@ class MyApp extends StatelessWidget {
 }
 
 // import 'package:flutter/material.dart';
-//
 // void main() {
 //   runApp(MyApp());
 // }
@@ -143,4 +143,3 @@ class MyApp extends StatelessWidget {
 //     );
 //   }
 // }
-//

@@ -1,5 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../pageUtills/bottom_navbar.dart';
+import '../pageUtills/common_appbar.dart';
+import '../pageUtills/common_drawer.dart';
+import '../pageUtills/top_navbar.dart';
+
+
+
+
+
+class MycardScreen extends StatelessWidget {
+  const MycardScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CommonAppBar(title: ' My Card '), // Instantiate CommonAppBar directly
+      body: mycart(),
+      bottomNavigationBar: CustomBottomNavigationBar(context: context),
+    );
+  }
+}
+
+
 class mycart extends StatefulWidget {
   @override
   _mycart createState() => _mycart();
@@ -18,6 +41,9 @@ class _mycart extends State<mycart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+
+
       backgroundColor: Colors.blue.withOpacity(0.08), // Set the background color to light blue with opacity
       appBar: AppBar(
         backgroundColor: Colors.white,

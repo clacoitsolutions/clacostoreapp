@@ -1,5 +1,23 @@
 import 'package:flutter/material.dart';
 
+import '../pageUtills/bottom_navbar.dart';
+import '../pageUtills/common_appbar.dart';
+import '../pageUtills/top_navbar.dart';
+
+class WishListScreen extends StatelessWidget {
+  const WishListScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CommonAppBar(title: 'WishList'),
+      body: WishlistPage(),
+      bottomNavigationBar: CustomBottomNavigationBar(context: context),
+    );
+  }
+}
+
+
 class WishlistPage extends StatefulWidget {
   @override
   _WishlistPageState createState() => _WishlistPageState();
@@ -69,7 +87,7 @@ class _WishlistPageState extends State<WishlistPage> {
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20), // Adjust the padding value
           child: Column(
             children: <Widget>[
-              Row(
+              const Row(
                 children: <Widget>[
                   Expanded(
                     child: Padding(

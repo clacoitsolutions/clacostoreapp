@@ -3,6 +3,9 @@ import 'package:claco_store/Page/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import '../pageUtills/bottom_navbar.dart';
+import '../pageUtills/common_drawer.dart';
+import '../pageUtills/top_navbar.dart';
 import 'my_cart.dart';
 import 'my_profile.dart';
 
@@ -12,159 +15,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black.withOpacity(0.02),
-        actions: [
-          const Row(
-            children: [
-              Text(
-                'Ayush', // Replace 'Your App Name' with your app's name
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () {
-              // Add functionality for person icon
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: Material(
-            color: Colors.black.withOpacity(0.02),
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: [
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                          hintText: 'Search any products..',
-                          hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
-                          border: InputBorder.none,
-                          prefixIcon: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.mic, color: Colors.grey.withOpacity(0.7)),
-                    SizedBox(width: 8),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text('XYZ'),
-              accountEmail: Text('abcd@example.com'),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Text(
-                  'T',
-                  style: TextStyle(fontSize: 40.0),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Add functionality for Settings
-                Navigator.pop(context); // Close the drawer
-                // Add your navigation logic here
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                // Add functionality for Logout
-                Navigator.pop(context); // Close the drawer
-                // Add your logout logic here
-              },
-            ),
-          ],
-        ),
-      ),
+      appBar: HomeAppBar(), // Instantiate CommonAppBar directly
+      drawer: CommonDrawer(), // Using the CommonDrawer
       body: HomeBody(),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        height: 60, // Set the height of the bottom navigation bar
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.home_outlined),
-              onPressed: () {
-                Navigator.push(
-                  context, // Ensure context is available
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
-              color: Colors.red, // Optional: Set button color to red
-            ),
-            IconButton(
-              icon: Icon(Icons.favorite_outline),
-              onPressed: () {
-                Navigator.push(
-                  context, // Ensure context is available
-                  MaterialPageRoute(builder: (context) => WishlistPage()),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.shopping_cart_outlined),
-              onPressed: () {
-                Navigator.push(
-                  context, // Ensure context is available
-                  MaterialPageRoute(builder: (context) => mycart()),
-                );
-              },
-              iconSize: 28, // Set the size of the icon
-            ),
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                Navigator.push(
-                  context, // Ensure context is available
-                  MaterialPageRoute(builder: (context) => MyProfilePage(title: "claco")),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.settings_outlined),
-              onPressed: () {
-                // Handle settings icon tap
-              },
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 }
@@ -175,6 +29,8 @@ class HomeBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+
+
       color: Colors.black.withOpacity(0.02),
       child: SingleChildScrollView(
         child: Padding(
@@ -552,7 +408,7 @@ class HomeBody extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -613,7 +469,7 @@ class HomeBody extends StatelessWidget {
                   // Background image with button
                   Container(
                     height: 200, // Adjust the height as needed
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: NetworkImage('https://cdn.pixabay.com/photo/2020/05/26/07/43/skateboard-5221914_640.jpg'),
                         fit: BoxFit.cover,
@@ -837,7 +693,7 @@ class HomeBody extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -910,7 +766,7 @@ class HomeBody extends StatelessWidget {
                           width: double.infinity, // Make it full width
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5), // Add border radius
-                            image: DecorationImage(
+                            image: const DecorationImage(
                               image: NetworkImage('https://cdn.pixabay.com/photo/2017/09/26/17/34/ballet-2789416_640.jpg'),
                               fit: BoxFit.cover,
                             ),
@@ -920,7 +776,7 @@ class HomeBody extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Padding(
+                            const Padding(
                               padding: EdgeInsets.only(left: 20), // Add left padding to the column
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -981,7 +837,7 @@ class HomeBody extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
                         children: [
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Padding(
@@ -999,7 +855,7 @@ class HomeBody extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                              ),
+              ),
 
                             ],
                           ),
@@ -1070,9 +926,4 @@ class HomeBody extends StatelessWidget {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: HomeScreen(),
-  ));
-}
+

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../Page/onboarding_page.dart';
 
 class GetStartedPage extends StatelessWidget {
+  const GetStartedPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         constraints: const BoxConstraints.expand(), // Make container fill the entire screen
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/images/getstart1.jpg"), // Replace with your image path
             fit: BoxFit.cover, // Cover the whole screen
@@ -26,7 +28,7 @@ class GetStartedPage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            Text(
+            const Text(
               'Finf it hare ,buy it now! ', // Modify the text with line breaks
               textAlign: TextAlign.center, // Align text to the center
               style: TextStyle(
@@ -47,8 +49,8 @@ class GetStartedPage extends StatelessWidget {
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red), // Set button background color to red
                 minimumSize: MaterialStateProperty.all<Size>(Size(200, 60)), // Set minimum button size
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0), // Add padding to the button
+              child: const Padding(
+                padding: EdgeInsets.all(4.0), // Add padding to the button
                 child: Text(
                   'Get Started',
                   style: TextStyle(
