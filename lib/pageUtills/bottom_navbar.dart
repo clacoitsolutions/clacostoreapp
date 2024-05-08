@@ -17,9 +17,6 @@ class CustomBottomNavigationBar extends StatefulWidget {
 class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   int _selectedIndex = 0;
 
-  // List to maintain the selected state of each button
-  List<bool> _isSelected = [true, false, false, false, false];
-
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -41,15 +38,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   Widget _buildIconButton(IconData icon, int index) {
     return IconButton(
       onPressed: () {
-        // Update the selected state of each button
+        // Update the selected index
         setState(() {
-          for (int i = 0; i < _isSelected.length; i++) {
-            if (i == index) {
-              _isSelected[i] = true;
-            } else {
-              _isSelected[i] = false;
-            }
-          }
+          _selectedIndex = index;
         });
 
         // Navigate to the corresponding page based on the index
@@ -86,7 +77,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             break;
         }
       },
-      color: _isSelected[index] ? Colors.white : Colors.grey,
+      color: Colors.transparent,
       iconSize: 28,
       padding: EdgeInsets.all(0), // To remove default padding
       splashRadius: 30, // Increase splash radius for better touch feedback
@@ -100,9 +91,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
         padding: EdgeInsets.all(12), // Adjust padding to fit the icon
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: _isSelected[index] ? Colors.pink : Colors.transparent,
+          color: _selectedIndex == index ? Colors.white : Colors.transparent,
         ),
-        child: Icon(icon, color: _isSelected[index] ? Colors.white : Colors.grey),
+        child: Icon(icon, color: Colors.pink),
       ),
     );
   }

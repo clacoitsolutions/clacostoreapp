@@ -8,6 +8,7 @@ import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_drawer.dart';
 import '../pageUtills/top_navbar.dart';
 import 'filter_page.dart';
+import 'order_summary_page.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -823,7 +824,10 @@ class HomeBody extends StatelessWidget {
                               padding: EdgeInsets.only(right: 10), // Add right padding to the button
                               child: ElevatedButton.icon(
                                 onPressed: () {
-                                  // Add functionality for the button
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => Order_Summary()),
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(horizontal: 20), // Add padding to the button
