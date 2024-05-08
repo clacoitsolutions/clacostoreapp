@@ -25,32 +25,69 @@ class CommonDrawer extends StatelessWidget {
           ),
 
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
+            leading: Icon(Icons.home),
+            title: Text('Home'),
             onTap: () {
-              // Add functionality for Settings
+              // Navigate to home page
               Navigator.pop(context); // Close the drawer
               // Add your navigation logic here
             },
           ),
           ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Logout'),
+            leading: Icon(Icons.shopping_cart),
+            title: Text('My Cart'),
             onTap: () {
-              // Add functionality for Logout
+              // Navigate to my cart page
               Navigator.pop(context); // Close the drawer
-              // Add your logout logic here
+              // Add your navigation logic here
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.shopping_bag),
+            title: Text('My Orders'),
+            onTap: () {
+              // Navigate to my orders page
+              Navigator.pop(context); // Close the drawer
+              // Add your navigation logic here
             },
           ),
           ListTile(
             leading: Icon(Icons.favorite_border_outlined),
-            title: Text('My Wishlist'),
+            title: Text('Wishlist'),
             onTap: () {
-              // Add functionality for Logout
+              // Navigate to wishlist page
               Navigator.pop(context); // Close the drawer
-              // Add your logout logic here
+              // Add your navigation logic here
             },
           ),
+          ListTile(
+            leading: Icon(Icons.local_offer),
+            title: Text('Coupons'),
+            onTap: () {
+              // Navigate to coupons page
+              Navigator.pop(context); // Close the drawer
+              // Add your navigation logic here
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.mail),
+            title: Text('Contact Us'),
+            onTap: () {
+              // Navigate to contact us page
+              Navigator.pop(context); // Close the drawer
+              // Add your navigation logic here
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.headset_mic),
+            title: Text('Customer Support'),
+            onTap: () {
+              // Navigate to customer support page
+              Navigator.pop(context); // Close the drawer
+              // Add your navigation logic here
+            },
+          ),
+          // Add more options as needed
         ],
       ),
     );
