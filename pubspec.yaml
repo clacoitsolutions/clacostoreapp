@@ -8,7 +8,11 @@ environment:
 
 dependencies:
   flutter:
-    sdk: flutter # Include the Flutter SDK as a dependency
+    sdk: flutter
+  firebase_auth: ^4.5.0
+  image_picker: ^0.8.4+4
+
+ # Include the Flutter SDK as a dependency
 
   # Dependencies for carousel slider, icons, pdf handling, webview, url launching, sharing, font awesome icons, and HTTP requests
   carousel_slider: ^4.0.0 # Dependency for carousel slider widget
