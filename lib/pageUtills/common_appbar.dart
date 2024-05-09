@@ -40,6 +40,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
+
         IconButton(
           icon: Icon(
             Icons.shopping_cart_outlined,
@@ -52,6 +53,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
           },
         ),
+
       ],
 
     );

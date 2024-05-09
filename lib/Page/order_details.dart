@@ -10,7 +10,7 @@ class OrderDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'WishList'),
+      appBar: CommonAppBar(title: 'OrderDetails'),
       body: OrderDetailsScreen(),
       bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
@@ -35,44 +35,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      Text(
-                        'Orders Details',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: () {
-                          // Add your search functionality here
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.shopping_cart),
-                        onPressed: () {
-                          // Add your add to cart functionality here
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -97,7 +60,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     child: Container(
                       padding: EdgeInsets.all(20),
                       child: Image.asset(
-                        'assets/image/kurti1.png',
+                        'assets/images/kurti1.png',
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -133,8 +96,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           Text(
                             '₹350',
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 5),
+                          )
                         ],
                       ),
                     ),
@@ -158,7 +120,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   SizedBox(height: 10),
                   _buildTrackingItem('Placed', true),
                   _buildVerticalLine(true),
-                  _buildTrackingItem('On the Way', true),
+                  _buildTrackingItem('On the Way', false),
                   _buildVerticalLine(true),
                   _buildTrackingItem('Delivered', false),
                   _buildVerticalLine(false),
@@ -291,7 +253,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       color: Colors.grey,
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -515,11 +476,11 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: _buildProductCard('assets/image/saree.png', 'Mouni Roy Black Saree For Farewell ', '4.5', '₹1550'),
+                    child: _buildProductCard('assets/images/saree.png', 'Mouni Roy Black Saree For Farewell ', '4.5', '₹1550'),
                   ),
                   SizedBox(width: 10),
                   Expanded(
-                    child: _buildProductCard('assets/image/saree1.png', 'Black Georgette Saree With Full Heavy', '4.5', '₹2050'),
+                    child: _buildProductCard('assets/images/saree1.png', 'Black Georgette Saree With Full Heavy', '4.5', '₹2050'),
                   ),
                 ],
               ),
@@ -622,7 +583,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         child: Container(
           height: 70,
           width: 5,
-          color: lineColor,
+          color:Colors.grey,
         ),
       );
     } else {

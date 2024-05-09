@@ -875,7 +875,7 @@ class HomeBody extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-              ),
+                              ),
 
                             ],
                           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../Page/home_page.dart';
 import '../Page/my_cart.dart';
 import '../Page/my_profile.dart';
+import '../Page/search_product.dart';
 import '../Page/wishlist_page.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
@@ -75,7 +76,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
           case 3:
             Navigator.push(
               widget.context,
-              MaterialPageRoute(builder: (context) => MyProfileScreen()),
+              MaterialPageRoute(builder: (context) => SearchProduct()),
             );
             break;
           case 4:

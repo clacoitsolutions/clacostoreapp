@@ -14,6 +14,7 @@ dependencies:
   # Dependencies for carousel slider, icons, pdf handling, webview, url launching, sharing, and font awesome icons
   carousel_slider: ^4.0.0 # Dependency for carousel slider widget
   cupertino_icons: ^1.0.6 # Dependency for Cupertino icons
+  http:
   pdf: ^3.10.8 # Dependency for handling PDF files
   path_provider: ^2.1.3 # Dependency for accessing file system paths
   webview_flutter: ^2.0.13 # Dependency for displaying web content within the app
