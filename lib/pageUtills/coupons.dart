@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'coupon_dilog_box.dart';
+
 class coupons extends StatelessWidget {
-  const coupons({super.key});
+  const coupons({key});
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +103,7 @@ class coupons extends StatelessWidget {
                               Expanded(
                                 child: Container(
                                   padding: EdgeInsets.all(16.0), // Adding padding inside the container
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     borderRadius: BorderRadius.only(
                                       topRight: Radius.circular(10), // Adding rounded corners to the top right of the container
                                       bottomRight: Radius.circular(10), // Adding rounded corners to the bottom right of the container
@@ -113,14 +113,14 @@ class coupons extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
-                                      Text(
+                                      const Text(
                                         'Get 20% off',
                                         style: TextStyle(
                                           fontSize: 20.0,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      Text(
+                                      const Text(
                                         'Coupons Name',
                                         style: TextStyle(
                                           fontSize: 14.0,
