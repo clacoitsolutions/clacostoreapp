@@ -1,17 +1,20 @@
 name: claco_store
 description: "A new Flutter project."
 publish_to: 'none' # Set to 'none' if you're not publishing the app to any package repository
-
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.3 <4.0.0' # Specify the minimum and maximum version of the Flutter SDK
+  sdk: '>=2.12.0 <3.0.0' # Specify the minimum and maximum version of the Flutter SDK
 
 dependencies:
   flutter:
-    sdk: flutter # Include the Flutter SDK as a dependency
+    sdk: flutter
+  firebase_auth: ^4.5.0
+  image_picker: ^0.8.4+4
 
-  # Dependencies for carousel slider, icons, pdf handling, webview, url launching, sharing, and font awesome icons
+ # Include the Flutter SDK as a dependency
+
+  # Dependencies for carousel slider, icons, pdf handling, webview, url launching, sharing, font awesome icons, and HTTP requests
   carousel_slider: ^4.0.0 # Dependency for carousel slider widget
   cupertino_icons: ^1.0.6 # Dependency for Cupertino icons
   http:
@@ -21,6 +24,7 @@ dependencies:
   url_launcher: ^6.0.0 # Dependency for launching URLs
   share: ^2.0.4 # Dependency for sharing content from the app
   font_awesome_flutter: ^9.2.0 # Dependency for Font Awesome icons
+  http: ^0.13.3 # Dependency for making HTTP requests
 
 dev_dependencies:
   flutter_test:
@@ -28,7 +32,7 @@ dev_dependencies:
   flutter_lints: ^3.0.0 # Include flutter_lints for linting checks
 
 assets:
-  - assets/images # Include assets folder with images
+  - assets/images/ # Include assets folder with images
 
 flutter:
   uses-material-design: true # Use material design for the app UI

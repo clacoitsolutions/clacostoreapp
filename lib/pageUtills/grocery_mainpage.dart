@@ -1,31 +1,32 @@
 
 import 'package:claco_store/Page/short_by.dart';
 import 'package:claco_store/Page/wishlist_page.dart';
+import 'package:claco_store/pageUtills/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-import '../pageUtills/bottom_navbar.dart';
-import '../pageUtills/common_drawer.dart';
-import '../pageUtills/top_navbar.dart';
+import '../../pageUtills/bottom_navbar.dart';
+import '../../pageUtills/common_drawer.dart';
+import '../../pageUtills/top_navbar.dart';
+import '../Page/filter_page.dart';
 import 'filter_page.dart';
-import 'order_summary_page.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class GroceryMain extends StatelessWidget {
+  const GroceryMain({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: HomeAppBar(), // Instantiate CommonAppBar directly
-      drawer: CommonDrawer(), // Using the CommonDrawer
-      body: HomeBody(),
-      bottomNavigationBar: CustomBottomNavigationBar(context: context),
+      appBar: CommonAppBar(title: 'Grocery'), // Displaying the app bar with a title
+      drawer: CommonDrawer(), // Using the CommonDrawer for the drawer
+      body: GroceryMainPage(), // Displaying the main content
+      bottomNavigationBar: CustomBottomNavigationBar(context: context), // Displaying the bottom navigation bar
     );
   }
 }
 
-class HomeBody extends StatelessWidget {
-  const HomeBody({Key? key}) : super(key: key);
+class GroceryMainPage extends StatelessWidget {
+  const GroceryMainPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -108,142 +109,7 @@ class HomeBody extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: 65,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.network(
-                            'https://cdn.pixabay.com/photo/2017/06/06/23/57/birds-2378923_640.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text('Birds1'),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        width: 65,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.network(
-                            'https://cdn.pixabay.com/photo/2024/01/24/15/10/ai-generated-8529788_640.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text('Dog'),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        width: 65,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.network(
-                            'https://cdn.pixabay.com/photo/2023/10/19/21/08/ai-generated-8327632_640.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text('Birds3'),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        width: 65,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.network(
-                            'https://cdn.pixabay.com/photo/2019/04/14/20/05/duck-meet-4127713_640.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text('Duck'),
-                    ],
-                  ),
 
-                  Column(
-                    children: [
-                      Container(
-                        width: 65,
-                        height: 65,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.white,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: Image.network(
-                            'https://cdn.pixabay.com/photo/2024/02/15/16/57/cat-8575768_640.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text('Cat'),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              CarouselSlider(
-                options: CarouselOptions(
-                  aspectRatio: 16 / 9,
-                  autoPlay: true,
-                  viewportFraction: 1,
-                  enlargeCenterPage: true,
-                ),
-                items: [
-                  'https://cdn.pixabay.com/photo/2017/01/25/12/31/bitcoin-2007769_640.jpg',
-                  'https://cdn.pixabay.com/photo/2016/06/01/08/40/money-1428594_640.jpg',
-                  'https://cdn.pixabay.com/photo/2018/03/26/02/08/woman-3261425_640.jpg',
-                ].map((item) {
-                  return Container(
-                    margin: const EdgeInsets.all(1.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      image: DecorationImage(
-                        image: NetworkImage(item),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -824,10 +690,7 @@ class HomeBody extends StatelessWidget {
                               padding: EdgeInsets.only(right: 10), // Add right padding to the button
                               child: ElevatedButton.icon(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => Order_Summary()),
-                                  );
+                                  // Add functionality for the button
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(horizontal: 20), // Add padding to the button
@@ -949,5 +812,3 @@ class HomeBody extends StatelessWidget {
     );
   }
 }
-
-

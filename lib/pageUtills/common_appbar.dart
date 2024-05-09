@@ -31,7 +31,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           SizedBox(width: 10), // Added SizedBox for spacing
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 18, // Adjusted the font size
@@ -42,7 +42,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
 
         IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.shopping_cart_outlined,
             color: Colors.white, // Set the color of the icon to white
           ),

@@ -10,34 +10,8 @@ class MyOrdersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'My Orders'),
-      body: Column(
-        children: [
-          _buildSearchAndFiltersRow(context),
-          Expanded(
-            child: MyOrderScreen(),
-          ),
-        ],
-      ),
-    );
-  }
+      body: MyOrderScreen(),
 
-  Widget _buildSearchAndFiltersRow(BuildContext context) {
-    return Container(
-      height: 70,
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search Your order here...',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -48,39 +22,30 @@ class MyOrderScreen extends StatefulWidget {
 }
 
 class _MyOrderScreenState extends State<MyOrderScreen> {
-  int rating = 0; // Variable to store rating
-
-  // Sample list of orders
-  List<Order> orders = [
-    Order(
-      deliveryDate: 'Delivery Expected by Fri April 26',
-      availability: 'Available (in Stock)',
-      productName: 'Fancy Kurti',
-      price: '₹350',
-      quantity: 'Quantity: 1',
-      imagePath: 'assets/images/kurti1.png',
-    ),
-    // Add more orders as needed
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: orders.map((order) {
-          return _buildOrderContainer(context, order);
-        }).toList(),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+
+            _buildRowWithShadow(context),
+            _buildRowWithShadow(context),
+            _buildRowWithShadow(context),
+            _buildRowWithShadow(context),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildOrderContainer(BuildContext context, Order order) {
+  Widget _buildRowWithShadow(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, '/orderDetails'); // Navigate to order details page
       },
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        margin: EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
@@ -90,88 +55,84 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
               offset: Offset(0, 3),
             ),
           ],
-          border: Border.all(
-            color: Colors.grey, // Set border color to grey
-            width: 1, // Set border width to 1px
-          ),
         ),
-        child: Row(
-          children: <Widget>[
-            Container(
-              height: 110,
-              width: 110, // Set width as per your requirement
-              child: Center(
-                child: Image.asset(
-                  order.imagePath, // Path to your image asset
-                  height: 100,
-                  width: 100,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey, // Set border color to grey
+              width: 1, // Set border width to 1px
+            ),
+          ),
+          child: Row(
+            children: <Widget>[
+              Container(
+                height: 170,
+                width: 146, // Set width as per your requirement
+                child: Center(
+                  child: Image.asset(
+                    'assets/image/kurti1.png', // Path to your image asset
+                    height: 130,
+                    width: 130,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 10), // Added spacing between image and details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    order.productName, // Product name
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+              Container(
+                height: 160,
+                width: 300, // Set width as per your requirement
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Delivery Expected by Fri April 26 ', // Text with currency symbol
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    order.deliveryDate, // Delivery date
-                    style: TextStyle(
-                      fontSize: 16,
+                    SizedBox(height: 5),
+                    Text(
+                      'Available (in Stock)', // Text with currency symbol
+                      style: TextStyle(fontSize: 16),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    order.availability, // Availability
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    order.price, // Price
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.pinkAccent,
+                    SizedBox(height: 5),
+                    Text(
+                      'Fancy Kurti', // Text with currency symbol
+                      style: TextStyle(
+                        fontSize: 23,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    order.quantity, // Quantity
-                    style: TextStyle(
-                      fontSize: 16,
+                    SizedBox(height: 5),
+                    Text(
+                      '₹350', // Text with currency symbol
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.pinkAccent,
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.green),
+                        SizedBox(width: 5),
+                        Text(
+                          '4.5', // Rating
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-}
-
-class Order {
-  final String deliveryDate;
-  final String availability;
-  final String productName;
-  final String price;
-  final String quantity;
-  final String imagePath;
-
-  Order({
-    required this.deliveryDate,
-    required this.availability,
-    required this.productName,
-    required this.price,
-    required this.quantity,
-    required this.imagePath,
-  });
 }

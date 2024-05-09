@@ -31,19 +31,30 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        IconButton(
-          icon: Icon(
-            Icons.shopping_cart_outlined,
-            color: Colors.white, // Set the color of the icon to white
-          ),
-          onPressed: () {
+        GestureDetector(
+          onTap: () {
             Navigator.push(
-              context, // Ensure context is available
-              MaterialPageRoute(builder: (context) => mycart()), // Corrected mycart to MyCart
+              context,
+              MaterialPageRoute(builder: (context) => MycardScreen()),
             );
           },
+          child:
+
+             SizedBox(
+              width: 80, // Set the width of the circular image
+              height: 80, // Set the height of the circular image
+              child: CircleAvatar(
+                radius: 20, // Adjust the radius as per your requirement
+                backgroundImage: NetworkImage(
+                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjdx6kwUFu3LgLTVh0t2t38H4-RjFPOQdPr0JunoiQRQ&s",
+                ),
+              ),
+            ),
+
         ),
       ],
+
+
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(40),
         child: Material(
@@ -56,19 +67,21 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(5),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 children: [
+                  Padding(
+                    padding: EdgeInsets.all(8.0), // Increased padding for the search icon
+                    child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
+                  ),
                   Expanded(
-                    child: TextField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                        hintText: 'Search any products..',
-                        hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
-                        border: InputBorder.none,
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.all(8.0), // Increased padding for the search icon
-                          child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
+                    child: Center( // Wrap TextField with Center widget
+                      child: TextField(
+                        style: TextStyle(color: Colors.black),
+                        decoration: InputDecoration(
+                          hintText: 'Search any products..',
+                          hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.only(bottom: 8.0), // Adding padding to the bottom of the text
                         ),
                       ),
                     ),
@@ -80,6 +93,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
+
+
+
     );
   }
 }
+
+

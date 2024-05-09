@@ -3,11 +3,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
+import '../pageUtills/coupons.dart';
 import '../pageUtills/help_center.dart';
 import '../pageUtills/top_navbar.dart';
 import '../pageUtills/update_user_profile.dart';
 import '../pageUtills/user_profile_review.dart';
 import 'my_order.dart';
+import 'package:claco_store/pageUtills/coupons.dart';
+
 
 class MyProfileScreen extends StatelessWidget {
   const MyProfileScreen({Key? key}) : super(key: key);
@@ -246,7 +249,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               width: 150, // Set a fixed width for the button
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                  // Add your onPressed logic here
+                             Navigator.push(context, MaterialPageRoute(builder: (context)=>coupons()));
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(color: Colors.grey), // Set grey border
@@ -317,7 +320,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           ),
                         ),
                         SizedBox(width: 10.0), // Add some space between the image and the text
-                        Expanded(
+                        const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -446,11 +449,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child: Column(
                 children: [
                   // First Row (Heading)
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+                        padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
                         child: Text(
                           'Account Setting',
                           style: TextStyle(
@@ -466,9 +469,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   Row(
                     children: [
                       // First Part
-                      Expanded(
+                      const Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
