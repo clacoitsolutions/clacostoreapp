@@ -317,7 +317,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           ),
                         ),
                         SizedBox(width: 10.0), // Add some space between the image and the text
-                        Expanded(
+                        const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -446,11 +446,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child: Column(
                 children: [
                   // First Row (Heading)
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+                        padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
                         child: Text(
                           'Account Setting',
                           style: TextStyle(
@@ -466,9 +466,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   Row(
                     children: [
                       // First Part
-                      Expanded(
+                      const Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [

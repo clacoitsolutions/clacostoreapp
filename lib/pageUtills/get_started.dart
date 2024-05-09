@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../Page/onboarding_page.dart';
 
 class GetStartedPage extends StatelessWidget {
-  const GetStartedPage({super.key});
+  const GetStartedPage({key});
 
   @override
   Widget build(BuildContext context) {
