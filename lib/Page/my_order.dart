@@ -66,7 +66,7 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
           child: Row(
             children: <Widget>[
               Container(
-                height: 120,
+                height: 170,
                 width: 146, // Set width as per your requirement
                 child: Center(
                   child: Image.asset(
@@ -79,7 +79,7 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
               Container(
                 height: 160,
                 width: 300, // Set width as per your requirement
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

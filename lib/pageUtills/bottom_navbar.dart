@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import '../Page/home_page.dart';
 import '../Page/my_cart.dart';
 import '../Page/my_profile.dart';
-import '../Page/user_signin.dart';
+import '../Page/search_product.dart';
 import '../Page/wishlist_page.dart';
-import 'grocery_mainpage.dart';
-
 
 class CustomBottomNavigationBar extends StatefulWidget {
   final BuildContext context;
@@ -19,9 +17,6 @@ class CustomBottomNavigationBar extends StatefulWidget {
 
 class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   int _selectedIndex = 0;
-
-  // List to maintain the selected state of each button
-  List<bool> _isSelected = [true, false, false, false, false];
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +39,9 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   Widget _buildIconButton(IconData icon, int index) {
     return IconButton(
       onPressed: () {
-        // Update the selected state of each button
+        // Update the selected index
         setState(() {
-          for (int i = 0; i < _isSelected.length; i++) {
-            if (i == index) {
-              _isSelected[i] = true;
-            } else {
-              _isSelected[i] = false;
-            }
-          }
+          _selectedIndex = index;
         });
 
         // Navigate to the corresponding page based on the index
@@ -78,7 +67,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
           case 3:
             Navigator.push(
               widget.context,
-              MaterialPageRoute(builder: (context) => SignInPage()),
+              MaterialPageRoute(builder: (context) => SearchProduct()),
             );
             break;
           case 4:
@@ -89,14 +78,23 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             break;
         }
       },
-
+      color: Colors.transparent,
+      iconSize: 28,
+      padding: EdgeInsets.all(0), // To remove default padding
+      splashRadius: 30, // Increase splash radius for better touch feedback
+      tooltip: "", // Remove tooltip to avoid displaying text on long press
+      splashColor: Colors.transparent, // Remove splash color
+      highlightColor: Colors.transparent, // Remove highlight color
+      // Use a container to change the background color dynamically
+      // and ensure the icon button covers the entire area
+      // This will make the entire button clickable
       icon: Container(
         padding: EdgeInsets.all(12), // Adjust padding to fit the icon
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: _isSelected[index] ? Colors.pink : Colors.transparent,
+          color: _selectedIndex == index ? Colors.white : Colors.transparent,
         ),
-        child: Icon(icon, color: _isSelected[index] ? Colors.white : Colors.grey),
+        child: Icon(icon, color: Colors.pink),
       ),
     );
   }
