@@ -5,10 +5,10 @@ import 'package:claco_store/pageUtills/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-import '../pageUtills/bottom_navbar.dart';
-import '../pageUtills/common_drawer.dart';
-import '../pageUtills/top_navbar.dart';
-import 'Page/filter_page.dart';
+import '../../pageUtills/bottom_navbar.dart';
+import '../../pageUtills/common_drawer.dart';
+import '../../pageUtills/top_navbar.dart';
+import '../Page/filter_page.dart';
 import 'filter_page.dart';
 
 class GroceryMain extends StatelessWidget {

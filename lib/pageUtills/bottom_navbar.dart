@@ -5,7 +5,7 @@ import '../Page/my_cart.dart';
 import '../Page/my_profile.dart';
 import '../Page/user_signin.dart';
 import '../Page/wishlist_page.dart';
-import '../grocery_mainpage.dart';
+import 'grocery_mainpage.dart';
 
 
 class CustomBottomNavigationBar extends StatefulWidget {
@@ -89,16 +89,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
             break;
         }
       },
-      color: _isSelected[index] ? Colors.white : Colors.grey,
-      iconSize: 28,
-      padding: EdgeInsets.all(0), // To remove default padding
-      splashRadius: 30, // Increase splash radius for better touch feedback
-      tooltip: "", // Remove tooltip to avoid displaying text on long press
-      splashColor: Colors.transparent, // Remove splash color
-      highlightColor: Colors.transparent, // Remove highlight color
-      // Use a container to change the background color dynamically
-      // and ensure the icon button covers the entire area
-      // This will make the entire button clickable
+
       icon: Container(
         padding: EdgeInsets.all(12), // Adjust padding to fit the icon
         decoration: BoxDecoration(
