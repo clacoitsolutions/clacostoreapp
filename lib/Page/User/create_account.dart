@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 class MyApp extends StatelessWidget {
   @override
@@ -31,14 +31,55 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _showPassword = false;
 
   Future<void> _register() async {
-    // Register user logic
+    final url = Uri.parse('https://clacostoreapi.onrender.com/getregister');
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'name': _nameController.text,
+          'mobileno': _phoneNumberController.text,
+          'UsedReferal': _referralCodeController.text,
+          'EmailId': _emailController.text,
+          'Password': _passwordController.text,
+          'Action': '1',
+        },
+      );
+      if (response.statusCode == 200) {
+        // Handle success
+        print('Registration successful');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Registration Successful'),
+          ),
+        );
+      } else {
+        // Handle other status codes
+        print('Registration failed');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Registration Failed'),
+          ),
+        );
+      }
+    } catch (error) {
+      // Handle errors
+      print('Error: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Error: $error'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('E-commerce Registration'),
+        title: const Text('E-commerce Registration'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -229,14 +270,4 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
-}
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-class Firebase {
-  static initializeApp() {}
 }

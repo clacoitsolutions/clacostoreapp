@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'forget_update_password.dart';
+import '../../pageUtills/forget_update_password.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
   void forgotPassword(BuildContext context) {

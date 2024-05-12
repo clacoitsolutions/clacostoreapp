@@ -1,4 +1,5 @@
-import 'package:claco_store/pageUtills/login_with_otp.dart';
+import 'package:claco_store/Page/User/create_account.dart';
+import 'package:claco_store/Page/User/login_with_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home:LoginScreen (),
+      home:RegistrationScreen(),
       routes: {
         '/orderDetails': (context) => const OrderDetailsPage(),
       },
