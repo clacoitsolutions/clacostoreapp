@@ -1,40 +1,66 @@
 
-import 'package:claco_store/Page/short_by.dart';
-import 'package:claco_store/Page/wishlist_page.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_drawer.dart';
 import '../pageUtills/top_navbar.dart';
-import 'filter_page.dart';
 import 'home/category.dart';
 import 'home/slider.dart';
 import 'home/top_section_filtter.dart';
 import 'home/trandingProduct.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: HomeAppBar(), // Instantiate CommonAppBar directly
       drawer: CommonDrawer(), // Using the CommonDrawer
       body: HomeBody(),
-      bottomNavigationBar:CustomBottomNavigationBar(context: context),
+      bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 }
 
-class HomeBody extends StatelessWidget {
+class HomeBody extends StatefulWidget {
   const HomeBody({Key? key}) : super(key: key);
+
+  @override
+  State<HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<HomeBody> {
+  bool _showTrending = true; // Initial state for trending products
+  String? _userName; // For displaying user name in the drawer
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('name');
+    });
+  }
+
+  void toggleTrending() {
+    setState(() {
+      _showTrending = !_showTrending;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-
-
       color: Colors.black.withOpacity(0.02),
       child: SingleChildScrollView(
         child: Padding(
@@ -49,7 +75,16 @@ class HomeBody extends StatelessWidget {
               homeCategory(),
               SizedBox(height: 20),
               homeScreenSlider(),
-              trendingProduct(),
+              // Toggle Trending Products
+              ElevatedButton(
+                onPressed: toggleTrending,
+                child: Text(_showTrending ? 'Hide Trending' : 'Show Trending'),
+              ),
+              // Show Trending Products conditionally
+              if (_showTrending) trendingProduct(),
+              SizedBox(height: 20),
+              // ... rest of your widgets ...
+
               Row(
                 children: [
                   Expanded(
@@ -57,13 +92,15 @@ class HomeBody extends StatelessWidget {
                       height: 60,
                       decoration: BoxDecoration(
                         color: Colors.pink.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(10), // Border radius for all sides
+                        borderRadius: BorderRadius.circular(
+                            10), // Border radius for all sides
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Padding(
-                            padding: EdgeInsets.only(left: 10, top: 8), // Add top padding here
+                            padding: EdgeInsets.only(
+                                left: 10, top: 8), // Add top padding here
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -82,7 +119,9 @@ class HomeBody extends StatelessWidget {
                                       color: Colors.white,
                                       size: 16, // Adjust the size as needed
                                     ),
-                                    SizedBox(width: 4), // Add some space between the icon and the text
+                                    SizedBox(
+                                        width:
+                                            4), // Add some space between the icon and the text
                                     Text(
                                       '22h 55m 20s remaining',
                                       style: TextStyle(
@@ -92,16 +131,15 @@ class HomeBody extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                               ],
                             ),
                           ),
-
                           const SizedBox(
                             width: 10, // Add space between text and button
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(right: 10), // Add padding to the right
+                            padding: const EdgeInsets.only(
+                                right: 10), // Add padding to the right
                             child: ElevatedButton(
                               onPressed: () {
                                 // Add functionality for the button
@@ -109,9 +147,11 @@ class HomeBody extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 backgroundColor: Colors.pink,
-                                side: const BorderSide(color: Colors.white), // Add border
+                                side: const BorderSide(
+                                    color: Colors.white), // Add border
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(3), // Border radius for button
+                                  borderRadius: BorderRadius.circular(
+                                      3), // Border radius for button
                                 ),
                               ),
                               child: const Row(
@@ -162,7 +202,9 @@ class HomeBody extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               const Padding(
-                                padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
+                                padding: EdgeInsets.only(
+                                    left:
+                                        10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -190,10 +232,14 @@ class HomeBody extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
                                         Icon(
                                           Icons.star_half,
                                           color: Colors.grey,
@@ -211,7 +257,6 @@ class HomeBody extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -237,7 +282,9 @@ class HomeBody extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               const Padding(
-                                padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
+                                padding: EdgeInsets.only(
+                                    left:
+                                        10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -265,10 +312,14 @@ class HomeBody extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
                                         Icon(
                                           Icons.star_half,
                                           color: Colors.grey,
@@ -286,12 +337,10 @@ class HomeBody extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
                       ),
-
                     ],
                   ),
                   const SizedBox(
@@ -302,25 +351,31 @@ class HomeBody extends StatelessWidget {
                     width: double.infinity, // Make it full width
                     color: Colors.white,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start, // Align text to the left
                       children: [
                         Container(
                           height: 200, // 80% of the container's height
                           width: double.infinity, // Make it full width
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5), // Add border radius
+                            borderRadius:
+                                BorderRadius.circular(5), // Add border radius
                             image: const DecorationImage(
-                              image: NetworkImage('https://cdn.pixabay.com/photo/2017/09/26/17/34/ballet-2789416_640.jpg'),
+                              image: NetworkImage(
+                                  'https://cdn.pixabay.com/photo/2017/09/26/17/34/ballet-2789416_640.jpg'),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        SizedBox(height: 10), // Add some space between the image and the text
+                        SizedBox(
+                            height:
+                                10), // Add some space between the image and the text
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Padding(
-                              padding: EdgeInsets.only(left: 20), // Add left padding to the column
+                              padding: EdgeInsets.only(
+                                  left: 20), // Add left padding to the column
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -343,124 +398,130 @@ class HomeBody extends StatelessWidget {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(right: 10), // Add right padding to the button
+                              padding: EdgeInsets.only(
+                                  right: 10), // Add right padding to the button
                               child: ElevatedButton.icon(
                                 onPressed: () {
                                   // Add functionality for the button
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(horizontal: 20), // Add padding to the button
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal:
+                                          20), // Add padding to the button
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5), // Border radius for button
+                                    borderRadius: BorderRadius.circular(
+                                        5), // Border radius for button
                                   ),
                                 ),
-                                icon: Icon(Icons.arrow_forward), // Right arrow icon
+                                icon: Icon(
+                                    Icons.arrow_forward), // Right arrow icon
                                 label: Text('Button'), // Text of the button
                               ),
                             ),
                           ],
                         ),
-
-
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20), // Add some space between the image and the text
-              Column(
-                  children:
-                  [
-                    Container(
-                      height: 310, // Set the height as needed
-                      width: double.infinity, // Make it full width
-                      color: Colors.white,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+              SizedBox(
+                  height: 20), // Add some space between the image and the text
+              Column(children: [
+                Container(
+                  height: 310, // Set the height as needed
+                  width: double.infinity, // Make it full width
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align text to the left
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 20,top:5,bottom:5), // Add left padding to the column
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Sponserd ', // Your additional text
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 20,
+                                top: 5,
+                                bottom: 5), // Add left padding to the column
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Sponserd ', // Your additional text
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-              ),
-
-                            ],
+                              ],
+                            ),
                           ),
-                          Container(
-                            height: 230, // 80% of the container's height
-                            width: double.infinity, // Make it full width
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10), // Add border radius
-                              image: const DecorationImage(
-                                image: NetworkImage('https://cdn.pixabay.com/photo/2020/05/03/19/09/nike-5126389_640.jpg'),
-                                fit: BoxFit.cover,
+                        ],
+                      ),
+                      Container(
+                        height: 230, // 80% of the container's height
+                        width: double.infinity, // Make it full width
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(10), // Add border radius
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://cdn.pixabay.com/photo/2020/05/03/19/09/nike-5126389_640.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                          height:
+                              10), // Add some space between the image and the text
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                left: 20), // Add left padding to the column
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Up to 50% off ', // Your additional text
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                right: 10), // Add right padding to the button
+                            child: GestureDetector(
+                              onTap: () {
+                                // Add functionality for the icon
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20), // Add padding to the icon
+                                child: Icon(
+                                  Icons.arrow_forward, // Right arrow icon
+                                  color: Colors.black, // Set icon color
+                                  size: 24, // Set icon size
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 10), // Add some space between the image and the text
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(left: 20), // Add left padding to the column
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Up to 50% off ', // Your additional text
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(right: 10), // Add right padding to the button
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Add functionality for the icon
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 20), // Add padding to the icon
-                                    child: Icon(
-                                      Icons.arrow_forward, // Right arrow icon
-                                      color: Colors.black, // Set icon color
-                                      size: 24, // Set icon size
-                                    ),
-                                  ),
-                                ),
-
-                              ),
-                            ],
-                          ),
-
-
                         ],
                       ),
-                    ),
-
-                  ]
-              )
-
+                    ],
+                  ),
+                ),
+              ])
             ],
           ),
         ),
@@ -468,5 +529,3 @@ class HomeBody extends StatelessWidget {
     );
   }
 }
-
-

@@ -24,6 +24,8 @@ dependencies:
   share: ^2.0.4 # Dependency for sharing content from the app
   font_awesome_flutter: ^9.2.0 # Dependency for Font Awesome icons
   http: ^0.13.3 # Dependency for making HTTP requests
+  shared_preferences: ^2.1.0
+
 
 dev_dependencies:
   flutter_test:

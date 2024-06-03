@@ -44,7 +44,7 @@ class _BannerScreenState extends State<BannerScreen> {
                       Text('Banner Image: ${banner.bannerImage}'),
                       Text('Is Active: ${banner.isActive}'),
                       Text('Entry Date: ${banner.entryDate}'),
-                      Text('Entry By: ${banner.entryBy}'),
+
                       SizedBox(height: 10),
                     ],
                   );

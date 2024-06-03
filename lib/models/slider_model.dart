@@ -7,8 +7,8 @@ class Banner {
   final String categoryId;
   final String bannerImage;
   final bool isActive;
-  final DateTime entryDate;
-  final String entryBy;
+  final String entryDate;
+  final dynamic entryBy; // Use dynamic to handle null values
 
   Banner({
     required this.srNo,
@@ -33,7 +33,7 @@ class Banner {
       categoryId: json['CategoryId'],
       bannerImage: json['BannerImage'],
       isActive: json['IsActive'],
-      entryDate: DateTime.parse(json['EntryDate']),
+      entryDate: json['EntryDate'],
       entryBy: json['EntryBy'],
     );
   }

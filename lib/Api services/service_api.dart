@@ -19,35 +19,42 @@ Future<List<Banner>> fetchBanners() async {
 }
 
 
-Future<void> registerUser({
-  required String name,
-  required String phoneNumber,
-  required String referralCode,
-  required String email,
-  required String password,
-}) async {
-  final url = Uri.parse('$apiUrl/getregister');
-  try {
-    final response = await http.post(
-      url,
-      body: {
-        'name': name,
-        'mobileno': phoneNumber,
-        'UsedReferal': referralCode,
-        'EmailId': email,
-        'Password': password,
-        'Action': '1',
-      },
-    );
-    if (response.statusCode == 200) {
-      // Handle success
-      print('Registration successful');
-    } else {
-      // Handle other status codes
-      print('Registration failed');
-    }
-  } catch (error) {
-    // Handle errors
-    print('Error: $error');
-  }
-}
+
+
+
+
+
+
+
+// Future<void> registerUser({
+//   required String name,
+//   required String phoneNumber,
+//   required String referralCode,
+//   required String email,
+//   required String password,
+// }) async {
+//   final url = Uri.parse('$apiUrl/getregister');
+//   try {
+//     final response = await http.post(
+//       url,
+//       body: {
+//         'name': name,
+//         'mobileno': phoneNumber,
+//         'UsedReferal': referralCode,
+//         'EmailId': email,
+//         'Password': password,
+//         'Action': '1',
+//       },
+//     );
+//     if (response.statusCode == 200) {
+//       // Handle success
+//       print('Registration successful');
+//     } else {
+//       // Handle other status codes
+//       print('Registration failed');
+//     }
+//   } catch (error) {
+//     // Handle errors
+//     print('Error: $error');
+//   }
+// }
