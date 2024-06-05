@@ -1,19 +1,7 @@
+// lib/registration_screen.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'E-commerce Registration',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: RegistrationScreen(),
-    );
-  }
-}
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:claco_store/Api services/service_api.dart';
 class RegistrationScreen extends StatefulWidget {
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
@@ -29,50 +17,40 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _showPassword = false;
+  String _registrationMessage = '';
 
-  Future<void> _register() async {
-    final url = Uri.parse('https://clacostoreapi.onrender.com/getregister');
-    try {
-      final response = await http.post(
-        url,
-        body: {
-          'name': _nameController.text,
-          'mobileno': _phoneNumberController.text,
-          'UsedReferal': _referralCodeController.text,
-          'EmailId': _emailController.text,
-          'Password': _passwordController.text,
-          'Action': '1',
-        },
-      );
-      if (response.statusCode == 200) {
-        // Handle success
-        print('Registration successful');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.green,
-            content: Text('Registration Successful'),
-          ),
-        );
-      } else {
-        // Handle other status codes
-        print('Registration failed');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Registration Failed'),
-          ),
-        );
-      }
-    } catch (error) {
-      // Handle errors
-      print('Error: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Error: $error'),
-        ),
-      );
+  Future<void> register() async {
+    var data = {
+      'Name': _nameController.text,
+      'MobileNo': _phoneNumberController.text,
+      'ReferCode': _referralCodeController.text,
+      'Email': _emailController.text,
+      'Password': _passwordController.text,
+    };
+
+    APIService apiService = APIService();
+    var responseData = await apiService.register(data);
+
+    if (responseData['message'] != null && responseData['message'].contains('Successful')) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('Name', _nameController.text);
+      await prefs.setString('MobileNo', _phoneNumberController.text);
+      await prefs.setString('ReferCode', _referralCodeController.text);
+      await prefs.setString('Email', _emailController.text);
+      await prefs.setString('Password', _passwordController.text);
+
+      setState(() {
+        _registrationMessage = responseData['message'] ?? 'Registration Successful!';
+      });
+
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      setState(() {
+        _registrationMessage = responseData['message'] ?? 'Registration Failed. Please try again.';
+      });
     }
+
+    print(responseData);
   }
 
   @override
@@ -92,16 +70,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Create an',
                       style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                     ),
-                    Text(
+                    const Text(
                       'Account',
                       style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
                     ),
-
-                    SizedBox(height: 10), // Adding some space between the text and the text field
+                    SizedBox(height: 10),
                     TextFormField(
                       controller: _nameController,
                       decoration: InputDecoration(
@@ -112,7 +89,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           borderRadius: BorderRadius.circular(18.0),
                         ),
                         filled: true,
-                        fillColor: Color.fromRGBO(243, 243, 243, 1), // Setting background color
+                        fillColor: Color.fromRGBO(243, 243, 243, 1),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -123,7 +100,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                   ],
                 ),
-
                 SizedBox(height: 10.0),
                 TextFormField(
                   controller: _emailController,
@@ -180,7 +156,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     fillColor: Color.fromRGBO(243, 243, 243, 1),
                   ),
                   validator: (value) {
-                    // Add validation logic if needed
                     return null;
                   },
                 ),
@@ -248,21 +223,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      _register();
+                      register();
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Background color
+                    backgroundColor: Colors.pink,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(2), // Border radius
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    minimumSize: Size(double.infinity, 55), // Button height
+                    minimumSize: Size(double.infinity, 55),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Register',
-                    style: TextStyle(color: Colors.white), // Text color
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
+                SizedBox(height: 10),
+                if (_registrationMessage.isNotEmpty)
+                  Text(
+                    _registrationMessage,
+                    style: TextStyle(
+                      color: _registrationMessage.contains('Successful') ? Colors.green : Colors.red,
+                    ),
+                  ),
               ],
             ),
           ),

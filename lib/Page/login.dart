@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Api services/authservice.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage1 extends StatefulWidget {
   const LoginPage1({Key? key}) : super(key: key);
@@ -62,6 +62,22 @@ class _LoginPageState extends State<LoginPage1> {
           _message = 'An error occurred';
         });
       }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus(); // Check login status on app start
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final customerId = prefs.getString('customerId');
+
+    if (customerId != null) {
+      // User is already logged in
+      Navigator.pushReplacementNamed(context, '/home');
     }
   }
 
@@ -190,5 +206,3 @@ class _LoginPageState extends State<LoginPage1> {
     );
   }
 }
-
-// ... (rest of the code: AuthService, HomeScreen, main.dart)
