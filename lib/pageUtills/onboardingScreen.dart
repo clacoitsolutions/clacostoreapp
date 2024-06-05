@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'package:claco_store/Page/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../Page/User/create_account.dart';
+import '../Page/login.dart';
 import 'effects/onboarding_custom_effect.dart';
-
-
-
 
 class SplashScreens extends StatefulWidget {
   @override
@@ -20,6 +20,7 @@ class _SplashScreensState extends State<SplashScreens> {
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus(); // Check login status on app start
     _timer = Timer.periodic(Duration(seconds: 2), (Timer timer) {
       int nextPage = _pageController.page!.round() + 1;
       if (nextPage == 3) {
@@ -47,6 +48,17 @@ class _SplashScreensState extends State<SplashScreens> {
     // );
   }
 
+
+
+  Future<void> _checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final customerId = prefs.getString('customerId');
+
+    if (customerId != null) {
+      // User is already logged in
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,10 +108,10 @@ class _SplashScreensState extends State<SplashScreens> {
             right: 0,
             child: TextButton(
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => registerotp()), // Ensure this widget exists
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>HomeScreen()), // Ensure this widget exists
+                );
               },
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
@@ -136,7 +148,10 @@ class _SplashScreensState extends State<SplashScreens> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>RegistrationScreen()), // Ensure this widget exists
+                      );
                     },
                     style: ButtonStyle(
                       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(10.0)),
@@ -171,7 +186,7 @@ class _SplashScreensState extends State<SplashScreens> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => RegistrationScreen()), // Navigate to WebViewPage
+                        MaterialPageRoute(builder: (context) => LoginPage1()), // Navigate to WebViewPage
                       );
                     },
                     style: ButtonStyle(
