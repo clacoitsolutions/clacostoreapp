@@ -1,26 +1,11 @@
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../Api services/slder_service.dart';
 
-// Replace this with your actual API URL
-const String apiUrl = 'https://clacostoreapi.onrender.com/getBanner';
 
-Future<List<dynamic>> fetchBannerData() async {
-  final response = await http.get(Uri.parse(apiUrl));
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['data']; // Access the 'data' array directly
-  } else if (response.statusCode == 404) {
-    throw Exception('API endpoint not found');
-  } else if (response.statusCode >= 500) {
-    throw Exception('Server error');
-  } else {
-    throw Exception('Failed to load banner data');
-  }
-}
 
 Widget homeScreenSlider() {
   return FutureBuilder<List<dynamic>>(
@@ -36,15 +21,26 @@ Widget homeScreenSlider() {
             enlargeCenterPage: true,
           ),
           items: bannerData.map((banner) {
-            return Container(
-              margin: const EdgeInsets.all(1.0),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                  image: NetworkImage(banner['BannerImage']), // Access 'BannerImage' correctly
-                  fit: BoxFit.cover,
-                ),
-              ),
+            return Builder(
+              builder: (BuildContext context) {
+                return Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(horizontal: 5.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: CachedNetworkImage(
+                      imageUrl: banner['BannerImage'], // Use CachedNetworkImage directly
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) =>
+                          Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) =>
+                          const Center(
+                            child: Icon(Icons.error),
+                          ),
+                    ),
+                  ),
+                );
+              },
             );
           }).toList(),
         );

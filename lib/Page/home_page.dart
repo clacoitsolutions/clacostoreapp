@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_drawer.dart';
 import '../pageUtills/top_navbar.dart';
-import 'home/banner.dart';
 import 'home/category.dart';
 import 'home/slider.dart';
 import 'home/top_section_filtter.dart';
@@ -73,17 +72,12 @@ class _HomeBodyState extends State<HomeBody> {
               SizedBox(width: 15),
               topSectionFilter(context),
               SizedBox(height: 20),
-              homeCategory(),
+              HomeCategory(),
               SizedBox(height: 20),
-              BannerWithModel(),
+              homeScreenSlider(),
               SizedBox(height: 20),
               // Toggle Trending Products
-              ElevatedButton(
-                onPressed: toggleTrending,
-                child: Text(_showTrending ? 'Hide Trending' : 'Show Trending'),
-              ),
-              // Show Trending Products conditionally
-              if (_showTrending) trendingProduct(),
+              trendingProduct(),
               SizedBox(height: 20),
               // ... rest of your widgets ...
 

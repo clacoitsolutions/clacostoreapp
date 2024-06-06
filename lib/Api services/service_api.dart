@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../models/category_model.dart';
 import '../models/slider_model.dart'; // Import the models class once
 
 
@@ -41,4 +42,17 @@ class APIService {
       return responseData;
     }
   }
+
+
+  static Future<List<Map<String, dynamic>>> fetchCategories() async {
+    final response = await http.get(Uri.parse('https://clacostoreapi.onrender.com/category/getCategory'));
+    if (response.statusCode == 200) {
+      List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(json.decode(response.body));
+      return categories;
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
+
+
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:html';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../Api services/slder_service.dart' as serviceapi;
-import '../../models/slider_model.dart';
+
 
 class BannerWithModel extends StatefulWidget {
   const BannerWithModel({Key? key}) : super(key: key);
@@ -13,88 +15,71 @@ class BannerWithModel extends StatefulWidget {
 }
 
 class _BannerWithModelState extends State<BannerWithModel> {
-  List<Banner> _banners = [];
+  late Future<List<Banner>> _bannersFuture;
 
   @override
   void initState() {
     super.initState();
-    _fetchBanners();
-  }
-
-  Future<void> _fetchBanners() async {
-    try {
-      final banners = await serviceapi.fetchBanners();
-      setState(() {
-        _banners = banners;
-        for (var banner in banners) {
-          print('Banner Image URL: ${banner.bannerImage}'); // Print the URL
-        }
-      });
-    } catch (e) {
-      print('Failed to fetch banners: $e');
-    }
+    _bannersFuture = serviceapi.fetchBanners();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _banners.isEmpty
-        ? Center(child: CircularProgressIndicator())
-        : SizedBox(
-      height: 150, // Adjust banner height as needed
-      child: CarouselSlider.builder(
-        itemCount: _banners.length,
-        itemBuilder: (context, index, realIndex) {
-          final banner = _banners[index];
-          return Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              CachedNetworkImage(
-                imageUrl: banner.bannerImage, // Use the bannerImage from your API response
-                placeholder: (context, url) =>
-                    CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 150, // Adjust height as needed
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.0),
-                      Colors.black.withOpacity(0.5),
-                    ],
-                  ),
-                ),
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  banner.bannerTitle,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
+    return FutureBuilder<List<Banner>>(
+      future: _bannersFuture, // Use the future for banner data
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator()); // Show a loading indicator
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}')); // Show an error message
+        } else if (snapshot.hasData) {
+          final banners = snapshot.data!;
+          return CarouselSlider(
+            options: CarouselOptions(
+              autoPlay: true,
+              enlargeCenterPage: true,
+              aspectRatio: 16 / 9,
+              autoPlayAnimationDuration: Duration(milliseconds: 800),
+              autoPlayCurve: Curves.fastOutSlowIn,
+              pauseAutoPlayOnTouch: true,
+              viewportFraction: 1,
+            ),
+            items: banners.map((banner) {
+              return Builder(
+                builder: (BuildContext context) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: SizedBox(
+                        height: 150,
+                        child: CachedNetworkImage(
+                          imageUrl: banner.bannerImage,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              Center(
+                                child: Icon(Icons.error),
+                              ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }).toList(),
           );
-        },
-        options: CarouselOptions(
-          height: 150, // Adjust height as needed
-          autoPlay: true,
-          enlargeCenterPage: true,
-          aspectRatio: 16 / 9,
-          autoPlayAnimationDuration: Duration(milliseconds: 800),
-          autoPlayCurve: Curves.fastOutSlowIn,
-          pauseAutoPlayOnTouch: true,
-          viewportFraction: 1,
-        ),
-      ),
+        } else {
+          return Center(child: Text('No banners available')); // Handle the case where there's no data
+        }
+      },
     );
   }
 }
+
+// ... (Your existing slider_model.dart and API service code) ...
 
 // Your slider model (slider_model.dart)
 class Banner {
