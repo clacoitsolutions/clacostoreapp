@@ -6,7 +6,6 @@ import '../models/slider_model.dart'; // Import the models class once
 const String apiUrl = 'https://clacostoreapi.onrender.com'; // URL variable
 class APIService {
 
-
   Future<List<Banner>> fetchBanners() async {
     final response = await http.get(
         Uri.parse('$apiUrl/getBanner')); // Using the URL variable
@@ -21,7 +20,6 @@ class APIService {
       throw Exception('Failed to load banner data');
     }
   }
-
 
   Future<Map<String, dynamic>> register(Map<String, dynamic> data) async {
     var url = '$apiUrl/getregister';

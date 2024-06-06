@@ -7,8 +7,8 @@ class Banner {
   final String categoryId;
   final String bannerImage;
   final bool isActive;
-  final String entryDate;
-  final dynamic entryBy; // Use dynamic to handle null values
+  final DateTime? entryDate; // Make entryDate nullable
+  final String entryBy;
 
   Banner({
     required this.srNo,
@@ -19,22 +19,22 @@ class Banner {
     required this.categoryId,
     required this.bannerImage,
     required this.isActive,
-    required this.entryDate,
+    this.entryDate, // No longer required, can be null
     required this.entryBy,
   });
 
   factory Banner.fromJson(Map<String, dynamic> json) {
     return Banner(
-      srNo: json['SrNo'],
-      bannerType: json['BannerType'],
-      bannerTitle: json['Bannertitle'],
-      discountType: json['DiscountType'],
-      discountValue: json['DiscountValue'],
-      categoryId: json['CategoryId'],
-      bannerImage: json['BannerImage'],
-      isActive: json['IsActive'],
-      entryDate: json['EntryDate'],
-      entryBy: json['EntryBy'],
+      srNo: json['SrNo'] ?? "",
+      bannerType: json['BannerType'] ?? "",
+      bannerTitle: json['Bannertitle']?? "",
+      discountType: json['DiscountType']?? "",
+      discountValue: json['DiscountValue']?? "",
+      categoryId: json['CategoryId']?? "",
+      bannerImage: json['BannerImage']?? "",
+      isActive: json['IsActive']?? "",
+      entryDate: json['EntryDate'] != null ? DateTime.parse(json['EntryDate']) : null, // Handle null value
+      entryBy: json['EntryBy']?? "",
     );
   }
 }

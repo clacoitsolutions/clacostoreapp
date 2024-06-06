@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_drawer.dart';
 import '../pageUtills/top_navbar.dart';
+import 'home/banner.dart';
 import 'home/category.dart';
 import 'home/slider.dart';
 import 'home/top_section_filtter.dart';
@@ -74,7 +75,8 @@ class _HomeBodyState extends State<HomeBody> {
               SizedBox(height: 20),
               homeCategory(),
               SizedBox(height: 20),
-              homeScreenSlider(),
+              BannerWithModel(),
+              SizedBox(height: 20),
               // Toggle Trending Products
               ElevatedButton(
                 onPressed: toggleTrending,
