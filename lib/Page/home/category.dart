@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Api services/service_api.dart';
+import 'Category_details_product.dart';
 
 class HomeCategory extends StatefulWidget {
   @override
@@ -51,7 +52,7 @@ class SlidingCategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
+      height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
@@ -85,10 +86,26 @@ class SlidingCategoryList extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(50),
-                      child: Image.network(
-                        categories[index]['CategoryImage'],
-                        fit: BoxFit.cover,
-                      ),
+                     child:  Image.network(
+                       categories[index]['CategoryImage'],
+                       fit: BoxFit.cover,
+                       errorBuilder: (context, error, stackTrace) {
+                         // Placeholder image or error message widget
+                         return Container(
+                           width: 65,
+                           height: 65,
+                           color: Colors.grey, // Placeholder color
+                           child: Center(
+                             child: Icon(
+                               Icons.error, // Error icon
+                               color: Colors.red,
+                             ),
+                           ),
+                         );
+                       },
+                     ),
+
+
                     ),
                   ),
                   SizedBox(height: 5),
@@ -110,56 +127,4 @@ class SlidingCategoryList extends StatelessWidget {
   }
 }
 
-class CategoryDetailsPage extends StatefulWidget {
-  final String categoryName;
-  final List<String> srNoList;
 
-  const CategoryDetailsPage({
-    required this.categoryName,
-    required this.srNoList,
-  });
-
-  @override
-  _CategoryDetailsPageState createState() => _CategoryDetailsPageState();
-}
-
-class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
-  String? selectedCategoryName;
-  String? selectedSrNo;
-
-  @override
-  void initState() {
-    super.initState();
-    getCategoryDetails();
-  }
-
-  void getCategoryDetails() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      selectedCategoryName = prefs.getString('selectedCategoryName');
-      selectedSrNo = prefs.getString('selectedSrNo');
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(selectedCategoryName ?? "Category Details"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Category Name: $selectedCategoryName',
-            ),
-            Text(
-              'SrNo: $selectedSrNo',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

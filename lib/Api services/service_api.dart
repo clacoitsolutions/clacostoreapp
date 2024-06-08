@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/category_model.dart';
 import '../models/slider_model.dart'; // Import the models class once
@@ -54,5 +56,22 @@ class APIService {
     }
   }
 
+  static Future<String> uploadImageToFirebase(String filePath) async {
+    File file = File(filePath);
+    try {
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref = storage.ref().child('uploads/${DateTime.now().millisecondsSinceEpoch}.png');
+      UploadTask uploadTask = ref.putFile(file);
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print(e);
+      throw e;
+    }
+  }
+
 
 }
+
+
