@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "811975379858",
+    "project_id": "clacostore-7303d",
+    "storage_bucket": "clacostore-7303d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:811975379858:android:ccb793a514ab3e5cc3cf4b",
+        "android_client_info": {
+          "package_name": "com.claco.store.claco_store"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1Td07Kuv52jJoo9QsHDnhh9M8RSygPEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

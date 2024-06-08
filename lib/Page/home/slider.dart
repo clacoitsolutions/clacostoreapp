@@ -5,8 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../Api services/slder_service.dart';
 
-
-
 Widget homeScreenSlider() {
   return FutureBuilder<List<dynamic>>(
     future: fetchBannerData(),
