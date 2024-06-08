@@ -1,7 +1,8 @@
-import 'dart:convert';
+// trending_product.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../../Api services/service_api.dart';
+
 
 class TrendingProduct extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class TrendingProduct extends StatefulWidget {
 
 class _TrendingProductState extends State<TrendingProduct> {
   List<dynamic> products = [];
+  final APIService apiService = APIService();
 
   @override
   void initState() {
@@ -18,25 +20,14 @@ class _TrendingProductState extends State<TrendingProduct> {
   }
 
   Future<void> fetchProducts() async {
-    final response = await http.post(
-      Uri.parse('https://clacostoreapi.onrender.com/category/getCatwithid'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'MainCategoryCode': '13',
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-
+    try {
+      final fetchedProducts = await apiService.fetchProducts('13');
       setState(() {
-        products = responseData['data'] ?? [];
+        products = fetchedProducts;
       });
-    } else {
+    } catch (e) {
       // Handle the error
-      throw Exception('Failed to load products');
+      print(e);
     }
   }
 
@@ -59,7 +50,6 @@ class _TrendingProductState extends State<TrendingProduct> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
             child: Image.network(
@@ -83,29 +73,27 @@ class _TrendingProductState extends State<TrendingProduct> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-
                 SizedBox(height: 8),
-
-              Row(
-                children: [
-                  Text(
-                    'Price: ₹${product['OnlinePrice']}', // Product price with null check
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.black87,
+                Row(
+                  children: [
+                    Text(
+                      'Price: ₹${product['OnlinePrice']}', // Product price with null check
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 3,),
-                  Text(
-                    ' ₹${product['RegularPrice']}', // Product price with null check
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                        decoration: TextDecoration.lineThrough
+                    SizedBox(width: 3),
+                    Text(
+                      ' ₹${product['RegularPrice']}', // Product price with null check
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[500],
+                        decoration: TextDecoration.lineThrough,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
                 SizedBox(height: 8),
                 Row(
                   children: [

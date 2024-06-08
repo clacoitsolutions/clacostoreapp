@@ -1,22 +1,18 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/category_model.dart';
-import '../models/slider_model.dart'; // Import the models class once
+import '../models/slider_model.dart';
 
+const String apiUrl = 'https://clacostoreapi.onrender.com';
 
-const String apiUrl = 'https://clacostoreapi.onrender.com'; // URL variable
 class APIService {
-
   Future<List<Banner>> fetchBanners() async {
-    final response = await http.get(
-        Uri.parse('$apiUrl/getBanner')); // Using the URL variable
+    final response = await http.get(Uri.parse('$apiUrl/getBanner'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       List<Banner> banners = [];
       for (var item in data) {
-        banners.add(Banner.fromJson(item)); // Use the models class directly
+        banners.add(Banner.fromJson(item));
       }
       return banners;
     } else {
@@ -41,13 +37,12 @@ class APIService {
     if (response.statusCode == 200) {
       return responseData;
     } else {
-      return responseData;
+      throw Exception('Failed to register user');
     }
   }
 
-
   static Future<List<Map<String, dynamic>>> fetchCategories() async {
-    final response = await http.get(Uri.parse('https://clacostoreapi.onrender.com/category/getCategory'));
+    final response = await http.get(Uri.parse('$apiUrl/category/getCategory'));
     if (response.statusCode == 200) {
       List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(json.decode(response.body));
       return categories;
@@ -56,22 +51,22 @@ class APIService {
     }
   }
 
-  static Future<String> uploadImageToFirebase(String filePath) async {
-    File file = File(filePath);
-    try {
-      FirebaseStorage storage = FirebaseStorage.instance;
-      Reference ref = storage.ref().child('uploads/${DateTime.now().millisecondsSinceEpoch}.png');
-      UploadTask uploadTask = ref.putFile(file);
-      TaskSnapshot taskSnapshot = await uploadTask;
-      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print(e);
-      throw e;
+  Future<List<dynamic>> fetchProducts(String mainCategoryCode) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/category/getCatwithid'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'MainCategoryCode': mainCategoryCode,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      return responseData['data'] ?? [];
+    } else {
+      throw Exception('Failed to load products');
     }
   }
-
-
 }
-
-
