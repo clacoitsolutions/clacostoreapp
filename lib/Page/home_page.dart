@@ -73,11 +73,11 @@ class _HomeBodyState extends State<HomeBody> {
               topSectionFilter(context),
               SizedBox(height: 20),
               HomeCategory(),
-              SizedBox(height: 20),
+              SizedBox(height: 0),
               homeScreenSlider(),
-              SizedBox(height: 20),
+              SizedBox(height: 5),
               // Toggle Trending Products
-              trendingProduct(),
+              TrendingProduct(),
               SizedBox(height: 20),
               // ... rest of your widgets ...
 
