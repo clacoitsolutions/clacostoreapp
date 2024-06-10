@@ -56,97 +56,79 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
     }
   }
 
-  Widget buildProductCard(dynamic product) {
-    return Container(
-      margin: EdgeInsets.all(0),
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 2,
-            offset: Offset(0, 3), // changes position of shadow
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-            child: Image.network(
-              product['ProductMainImageUrl'] ?? '', // Use product's image URL with null check
-              width: double.infinity,
-              height: 100,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(4), // Adjust padding as needed
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product['ProductName'] ?? 'No name', // Product name with null check
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Price: ₹${product['OnlinePrice']}', // Product price with null check
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star_half, color: Colors.grey, size: 15),
-                    SizedBox(width: 5),
-                    Text(
-                      product['rating']?.toString() ?? '0', // Product rating with null check
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.grey,
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(selectedCategoryName ?? "Category Details"),
+        title: Text(
+          selectedCategoryName ?? "Category Details",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.pink, // Set the background color to pink
+        iconTheme: IconThemeData(color: Colors.white), // Set the color of the back arrow button to white
       ),
       body: Center(
         child: products.isEmpty
             ? CircularProgressIndicator()
-            : ListView.builder(
+            : GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Two items per row
+            mainAxisSpacing: 5.0,
+            crossAxisSpacing: 5.0,
+            childAspectRatio: 0.7, // Adjust this value to change the card size ratio
+          ),
           itemCount: products.length,
           itemBuilder: (context, index) {
             final product = products[index];
             return Card(
-              elevation: 3,
-              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: buildProductCard(product),
+              elevation: 5,
+              color: Colors.white,
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.network(
+                    product['ProductMainImageUrl'],
+                    width: double.infinity,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      product['ProductName'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                 child:  Row(
+                    children: [
+                      Text(
+                        'Price: ₹${product['OnlinePrice']}', // Product price with null check
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(width: 3),
+                      Text(
+                        ' ₹${product['RegularPrice']}', // Product price with null check
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    ],
+                  ),
+              ),
+                ],
+              ),
             );
           },
         ),

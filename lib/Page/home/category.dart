@@ -17,11 +17,8 @@ class _CategoryListPageState extends State<HomeCategory> {
   @override
   void initState() {
     super.initState();
-    futureCategories = APIService.fetchCategories(); // Using the API provider
+    futureCategories = APIService.fetchCategories();
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +29,10 @@ class _CategoryListPageState extends State<HomeCategory> {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text("${snapshot.error}"));
-        } else if (snapshot.hasData) {
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return SlidingCategoryList(categories: snapshot.data!);
         } else {
-          return Center(child: Text("No data available"));
+          return Center(child: Text("No categories available"));
         }
       },
     );
@@ -74,7 +71,7 @@ class SlidingCategoryList extends StatelessWidget {
               );
             },
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              padding: EdgeInsets.symmetric(horizontal: 7.0, vertical: 5),
               child: Column(
                 children: [
                   Container(
@@ -86,26 +83,23 @@ class SlidingCategoryList extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(50),
-                     child:  Image.network(
-                       categories[index]['CategoryImage'],
-                       fit: BoxFit.cover,
-                       errorBuilder: (context, error, stackTrace) {
-                         // Placeholder image or error message widget
-                         return Container(
-                           width: 65,
-                           height: 65,
-                           color: Colors.grey, // Placeholder color
-                           child: Center(
-                             child: Icon(
-                               Icons.error, // Error icon
-                               color: Colors.red,
-                             ),
-                           ),
-                         );
-                       },
-                     ),
-
-
+                      child: Image.network(
+                        categories[index]['CategoryImage'],
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 65,
+                            height: 65,
+                            color: Colors.grey,
+                            child: Center(
+                              child: Icon(
+                                Icons.error,
+                                color: Colors.red,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                   SizedBox(height: 5),
@@ -126,5 +120,3 @@ class SlidingCategoryList extends StatelessWidget {
     );
   }
 }
-
-

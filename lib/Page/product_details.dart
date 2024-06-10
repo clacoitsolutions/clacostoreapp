@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductDetails extends StatefulWidget {
   @override
@@ -7,89 +10,124 @@ class ProductDetails extends StatefulWidget {
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
+  String? srno;
+  String? productId;
+  Map<String, dynamic>? productDetails;
   int _currentIndex = 0;
-  List<String> _images = [
-    'https://cdn.pixabay.com/photo/2024/02/15/15/29/crocus-8575610_640.jpg',
-    'https://cdn.pixabay.com/photo/2023/09/17/22/25/witch-8259351_640.jpg',
-    'https://cdn.pixabay.com/photo/2023/05/23/07/05/royal-gramma-basslet-8012082_640.jpg',
-    // Add more image URLs as needed
-  ];
+  List<String> _images = [];
 
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   CarouselController _carouselController = CarouselController();
 
+  bool isLoading = true;
+  Map<String, dynamic>? productDetailss;
+  bool showFullDescription = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadProductDetails();
+  }
+
+  Future<void> loadProductDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      srno = prefs.getString('SrNo');
+      productId = prefs.getString('ProductCode');
+    });
+
+    if (srno != null && productId != null) {
+      await fetchProductDetails(srno!, productId!);
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchProductDetails(String srno, String productId) async {
+    final url = 'https://clacostoreapi.onrender.com/getProductDetails';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'CatId': srno, 'productId': productId}),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        productDetailss = json.decode(response.body)['data'][0];
+        _images = [
+          productDetailss!['ProductMainImageUrl'],
+          // Add other image URLs if available in productDetailss
+        ];
+        isLoading = false;
+      });
+    } else {
+      // Handle error
+      setState(() {
+        isLoading = false;
+      });
+      print('Failed to load product details');
+    }
+  }
+
+  double calculateDiscountPercentage(double regularPrice, double salePrice) {
+    return ((regularPrice - salePrice) / regularPrice) * 100;
+  }
+
+  double? parsePrice(dynamic price) {
+    if (price is String) {
+      return double.tryParse(price);
+    } else if (price is int) {
+      return price.toDouble();
+    } else if (price is double) {
+      return price;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    double? regularPrice = parsePrice(productDetailss?['RegularPrice']);
+    double? salePrice = parsePrice(productDetailss?['SalePrice']);
+    double? discountPercentage;
+
+    if (regularPrice != null && salePrice != null) {
+      discountPercentage = calculateDiscountPercentage(regularPrice, salePrice);
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            _scaffoldKey.currentState!.openDrawer();
-          },
+        title: Text(
+          "${productDetailss?['ProductCategory'] ?? ''}",
+          style: TextStyle(color: Colors.white),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: () {
-              // Handle cart icon tap
-            },
-          ),
-        ],
+        backgroundColor: Colors.pink,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text(
-                'Drawer Header',
-                style: TextStyle(color: Colors.white),
-              ),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              title: Text('Item 1'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // Close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // Update the UI based on the item selected
-                // Close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            // Add more items if needed
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: 8),
             Stack(
               children: [
                 CarouselSlider(
                   carouselController: _carouselController,
                   options: CarouselOptions(
-                    height: 200, // Adjust the height as needed
-                    viewportFraction: 1.0, // Full width
+                    height: 200,
+                    viewportFraction: 1.0,
                     onPageChanged: (index, _) {
                       setState(() {
                         _currentIndex = index;
                       });
                     },
-                    autoPlay: true, // Enable automatic sliding
-                    autoPlayInterval: Duration(seconds: 3), // Set interval duration
-                    autoPlayAnimationDuration: Duration(milliseconds: 800), // Animation duration
-                    autoPlayCurve: Curves.fastOutSlowIn, // Animation curve
+                    autoPlay: true,
+                    autoPlayInterval: Duration(seconds: 3),
+                    autoPlayAnimationDuration: Duration(milliseconds: 800),
+                    autoPlayCurve: Curves.fastOutSlowIn,
                   ),
                   items: _images.map((image) {
                     return Builder(
@@ -149,33 +187,87 @@ class _ProductDetailsState extends State<ProductDetails> {
               }).toList(),
             ),
             Padding(
-              padding: EdgeInsets.all(16.0), // Adjust the padding as needed
+              padding: EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Size: m",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
+                    "${productDetailss?['ProductName'] != null ? (productDetailss!['ProductName'].length > 200 ? productDetailss!['ProductName'].substring(0, 200) + '...' : productDetailss!['ProductName']) : 'Product Name'}",
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 16), // Add space between the text and buttons
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle button tap
-                        },
-                        style: ElevatedButton.styleFrom(
-                          side: BorderSide(color: Colors.red, width: 1), // Border color and width
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
+                  SizedBox(height: 4),
+                  if (regularPrice != null && salePrice != null && regularPrice > salePrice)
+                    Row(
+                      children: [
+                        Text(
+                          '${regularPrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            fontSize: 15,
+                            color: Colors.black,
                           ),
                         ),
-                        child: Text('s'),
+                        SizedBox(width: 5),
+                        Text(
+                          '₹${salePrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        if (discountPercentage != null && discountPercentage > 0)
+                          Text(
+                            '${discountPercentage.toStringAsFixed(2)}% off',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.green,
+                            ),
+                          ),
+                        SizedBox(width: 5),
+                      ],
+                    )
+                  else if (salePrice != null)
+                    Text(
+                      '₹${salePrice.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
                       ),
-                      SizedBox(width: 16), // Add space between buttons
+                    ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // Handle button tap
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.red, width: 1), // Border color and width
+                            borderRadius: BorderRadius.zero, // Border radius
+                          ),
+                          child: const Center(
+                            child: Text(
+                              's',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.pink,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+
+
+                      SizedBox(width: 5), // Add space between buttons
                       ElevatedButton(
                         onPressed: () {
                           // Handle button tap
@@ -190,7 +282,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                         child: Text('m'),
                       ),
-                      SizedBox(width: 16), // Add space between buttons
+                      SizedBox(width: 5), // Add space between buttons
                       ElevatedButton(
                         onPressed: () {
                           // Handle button tap
@@ -203,7 +295,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                         child: Text('xl'),
                       ),
-                      SizedBox(width: 16), // Add space between buttons
+                      SizedBox(width: 5), // Add space between buttons
                       ElevatedButton(
                         onPressed: () {
                           // Handle button tap
@@ -218,105 +310,58 @@ class _ProductDetailsState extends State<ProductDetails> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16), // Add space between the text and buttons
-                  Text(
-                    "Best Image",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10), // Add space between the text and buttons
-                  Text(
-                    "Vision Alta Men’s Shoes Size (All Colours)",
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  SizedBox(height: 10), // Add space between the text and buttons
+                  SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.star, color: Colors.yellow),
-                      Icon(Icons.star, color: Colors.yellow),
-                      Icon(Icons.star, color: Colors.yellow),
-                      Icon(Icons.star, color: Colors.yellow),
-                      Icon(Icons.star_half,
-                        color: Colors.grey,),
-                      Text("80,699",
+                      Icon(Icons.star, color: Colors.yellow, size:
+                      15),
+                      Icon(Icons.star, color: Colors.yellow, size: 15),
+                      Icon(Icons.star, color: Colors.yellow, size: 15),
+                      Icon(Icons.star, color: Colors.yellow, size: 15),
+                      Icon(Icons.star_half, color: Colors.grey, size: 15),
+                      SizedBox(width: 5),
+                      Text(
+                        "${productDetailss?['rating'] ?? ''} ", // Product rating with null check
                         style: TextStyle(
-                          fontSize: 15, // Adjust the font size as needed
-                          color: Colors.grey, // Adjust the color as needed
+                          fontSize: 13,
+                          color: Colors.grey,
                         ),
                       )
                     ],
                   ),
-                  SizedBox(height: 10), // Add space between the text and buttons
-                  Row(
-                    children: [
-                      Text(
-                        '₹2999',
-                        style: TextStyle(
-                          decoration: TextDecoration.lineThrough,
-                          fontSize: 15, // Adjust the font size as needed
-                          color: Colors.black, // Adjust the color as needed
-                        ),
-                      ),
-                      SizedBox(width: 12), // Add space between buttons
-                      Text(
-                        '₹1500',
-                        style: TextStyle(
-                          fontSize: 15, // Adjust the font size as needed
-                          color: Colors.black, // Adjust the color as needed
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        '50% off',
-                        style: TextStyle(
-                          fontSize: 15, // Adjust the font size as needed
-                          color: Colors.red, // Adjust the color as needed
-                        ),
-                      ),
-                      SizedBox(width: 12), // Add space between buttons
-                    ],
-                  ),
-                  SizedBox(height: 10), // Add space between the text and buttons
+                  SizedBox(height: 4),
                   Text(
-                    " Image Details",
-                    style: TextStyle(
-                      fontSize: 16,
+                    " ${productDetailss?['size'] ?? ''}",
+                    style: const TextStyle(
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 10), // Add space between the text and buttons
+
                   Text(
-                    " Perhaps the most iconic sneaker of all-time, this origina Chicago? colorway is the cornerstone to any sneaker collection. Made famous in 1985 by Michael Jordan, the famous colorway of the Air Jordan 1. This 2015 release saw",
-                    style: TextStyle(
+                    "${productDetailss?['ProductDescription'] != null ? (showFullDescription ? productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '') : (productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').length > 10000000 ? productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').substring(0, 100000) + '...' : productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), ''))) : 'Image Details'}",
+                    style: const TextStyle(
                       fontSize: 14,
                     ),
+                    maxLines: showFullDescription ? null : 5,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "  the.",
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
+                  if (productDetailss?['ProductDescription'] != null && productDetailss!['ProductDescription'].length > 100)
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          showFullDescription = !showFullDescription;
+                        });
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 4),
+                        child: Text(
+                          showFullDescription ? "Read less..." : "Read more...",
+                          style: TextStyle(color: Colors.blue),
                         ),
-                        TextSpan(
-                          text: " More..",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.red.withOpacity(0.6),
-                          ),
-                        ),
-
-                      ],
+                      ),
                     ),
-                  ),
-
-                  SizedBox(height: 10), // Add space between the text and buttons
+                  SizedBox(height: 10),
                   Row(
                     children: [
                       ElevatedButton(
@@ -327,19 +372,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0), // Set border radius here
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         child: Row(
-                          mainAxisSize: MainAxisSize.min, // Align children to center
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.shopping_cart), // Add cart icon
-                            SizedBox(width: 8), // Add space between icon and text
-                            Text('Go to cart'), // Add button text
+                            Icon(Icons.shopping_cart),
+                            SizedBox(width: 8),
+                            Text('Go to cart'),
                           ],
                         ),
                       ),
-                      SizedBox(width: 12), // Add space between buttons
+                      SizedBox(width: 12),
                       ElevatedButton(
                         onPressed: () {
                           // Handle button tap
@@ -348,356 +393,26 @@ class _ProductDetailsState extends State<ProductDetails> {
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0), // Set border radius here
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         child: Row(
-                          mainAxisSize: MainAxisSize.min, // Align children to center
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.touch_app), // Add cart icon
-                            SizedBox(width: 8), // Add space between icon and text
-                            Text('Buy Now'), // Add button text
+                            Icon(Icons.touch_app),
+                            SizedBox(width: 8),
+                            Text('Buy Now'),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.pink.withOpacity(0.2), // Set pink background with opacity 0.7
-                      borderRadius: BorderRadius.circular(5), // Set border radius to 5
-                    ),
-                    constraints: BoxConstraints(
-                      minHeight: 60,
-                      minWidth: double.infinity, // Set minimum width to infinity for 100% width
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 50, top: 10), // Adjust the left and top padding as needed
-                          child: Text(
-                            "Delivery in ",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: AutofillHints.addressCity,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 50, bottom: 10), // Adjust the left and bottom padding as needed
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "1 within Hour",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Handle button tap
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black54,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0), // Set border radius here
-                            ),
-                            fixedSize: Size(MediaQuery.of(context).size.width * 0.5, 50), // Set width to 50% of screen width and height to 50
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min, // Align children to center
-                            children: [
-                              Icon(Icons.visibility), // Add cart icon
-                              Text('View Similar'), // Add button text
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8), // Add space between buttons
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Handle button tap
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black45,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5.0), // Set border radius here
-                            ),
-                            fixedSize: Size(MediaQuery.of(context).size.width * 0.5, 50), // Set width to 50% of screen width and height to 50
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min, // Align children to center
-                            children: [
-                              Icon(Icons.compare_arrows), // Add cart icon
-                              Text('Add to Compare'), // Add button text
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  SizedBox(height: 16), // Add space between the text and buttons
-                  Text(
-                    "Similer To",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5), // Add space between the text and buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "500+ items",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 80), // Add space between text and buttons
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle button tap
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 7), // Adjust padding as needed
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0), // Set border radius here
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Text('Short'),
-                            Icon(Icons.arrow_drop_down), // Downward arrow icon
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle button tap
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 7), // Adjust padding as needed
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0), // Set border radius here
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.filter_list), // Filter icon
-                            SizedBox(width: 4), // Add space between icon and text
-                            Text('Filter', style: TextStyle(fontSize: 14)), // Adjust text size as needed
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15), // Add space between the text and buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: double.infinity,
-                                height: 200, // Set the desired height
-                                child: Image.network(
-                                  'https://cdn.pixabay.com/photo/2016/03/27/22/16/fashion-1284496_640.jpg',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: 8), // Add space between image and text
-                            const Text(
-                              'Girls Shoes',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8), // Add space between text and description
-                            const Text(
-                              'Mid Peach Mocha Shoes For Man White Black Pink S...',
-                              style: TextStyle(
-                                fontSize: 12,
-                              ),
-                            ),
-                            SizedBox(height: 10), // Add space between description and price
-                            Text(
-                              '₹1500',
-                              style: TextStyle(
-                                fontSize: 15, // Adjust the font size as needed
-                                color: Colors.black, // Adjust the color as needed
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(
-                                  Icons.star_half,
-                                  color: Colors.grey,
-                                  size: 15,
-                                ),
-                                Text("44,399",
-                                  style: TextStyle(
-                                    fontSize: 15, // Adjust the font size as needed
-                                    color: Colors.grey, // Adjust the color as needed
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 8), // Add space between images
-                      Expanded(
-                        flex: 1,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                width: double.infinity,
-                                height: 200, // Set the desired height
-                                child: Image.network(
-                                  'https://cdn.pixabay.com/photo/2023/08/25/07/37/shoes-8212405_640.jpg',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: 8), // Add space between image and text
-                            Text(
-                              'Boys Shoes',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8), // Add space between text and description
-                            Text(
-                              'Nike Air Jordan Retro 1 Low Mystic Black',
-                              style: TextStyle(
-                                fontSize: 12,
-                              ),
-                            ),
-                            SizedBox(height: 10), // Add space between description and price
-                            Text(
-                              '₹1500',
-                              style: TextStyle(
-                                fontSize: 15, // Adjust the font size as needed
-                                color: Colors.black, // Adjust the color as needed
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(Icons.star, color: Colors.yellow, size: 15), // Adjust the size as needed
-                                Icon(
-                                  Icons.star_half,
-                                  color: Colors.grey,
-                                  size: 15,
-                                ),
-                                Text("2,55,999",
-                                  style: TextStyle(
-                                    fontSize: 15, // Adjust the font size as needed
-                                    color: Colors.grey, // Adjust the color as needed
-                                  ),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-
                 ],
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        height:   60,// Set the background color to yellow
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.home_outlined),
-              onPressed: () {
-                // Handle home icon tap
-              },
-            ),
-            IconButton(
-              icon: Icon(  Icons.favorite_outline,),
-              onPressed: () {
-                // Handle wishlist icon tap
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.shopping_cart_outlined),
-              onPressed: () {
-                // Handle add to cart icon tap
-              },
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50.0), // Set border radius here
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                // Handle search icon tap
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.settings_outlined),
-              onPressed: () {
-                // Handle settings icon tap
-              },
-            ),
-          ],
-        ),
-      ),
-
     );
   }
 }
