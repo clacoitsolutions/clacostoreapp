@@ -6,9 +6,11 @@ import 'Page/firebase_connection_test.dart';
 import 'Page/home/banner.dart';
 import 'Page/home/slider.dart';
 import 'Page/home_page.dart';
+import 'Page/my_cart.dart';
 import 'Page/order_details.dart';
 import 'Page/user_signin.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'Page/wishlist_page.dart';
 import 'firebase_options.dart'; // Make sure to import this
 
 void main() async {
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home: ContactFormPage(), // This is your new login page with OTP removed
+      home: HomeScreen(), // This is your new login page with OTP removed
       routes: {
         '/orderDetails': (context) => const OrderDetailsPage(),
         '/home': (context) => const HomeScreen(), // Assuming this is your home page

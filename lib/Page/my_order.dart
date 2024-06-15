@@ -1,17 +1,26 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'order_details.dart';
 
-import '../pageUtills/bottom_navbar.dart';
-import '../pageUtills/common_appbar.dart';
 
-class MyOrdersPage extends StatelessWidget {
-  const MyOrdersPage({Key? key}) : super(key: key);
+void main() {
+  runApp(MyApp());
+}
 
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(title: 'My Orders'),
-      body: MyOrderScreen(),
-
+    return MaterialApp(
+      title: 'My Orders',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyOrderScreen(),
+      routes: {
+        '/orderDetails': (context) => OrderDetailsPage(),
+      },
     );
   }
 }
@@ -22,114 +31,234 @@ class MyOrderScreen extends StatefulWidget {
 }
 
 class _MyOrderScreenState extends State<MyOrderScreen> {
+  late Future<List<dynamic>> _futureOrderItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureOrderItems = fetchOrderItems();
+  }
+
+  Future<List<dynamic>> fetchOrderItems() async {
+    final response = await http.post(
+      Uri.parse('https://clacostoreapi.onrender.com/getorderitems'),
+      body: jsonEncode({'CustomerId': 'CUST000394'}),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      return data['orderItems'];
+    } else {
+      throw Exception('Failed to load order items');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
+      appBar: AppBar(
+        title: Text('My Orders'),
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: _futureOrderItems,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<dynamic> orderItems = snapshot.data!;
+            return SingleChildScrollView(
+              child: Column(
+                children: orderItems.map((item) {
+                  return FlippableCard(item: item);
+                }).toList(),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
 
-            _buildRowWithShadow(context),
-            _buildRowWithShadow(context),
-            _buildRowWithShadow(context),
-            _buildRowWithShadow(context),
+          // By default, show a loading spinner
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+}
+
+class FlippableCard extends StatefulWidget {
+  final Map<String, dynamic> item;
+
+  const FlippableCard({Key? key, required this.item}) : super(key: key);
+
+  @override
+  _FlippableCardState createState() => _FlippableCardState();
+}
+
+class _FlippableCardState extends State<FlippableCard> {
+  bool _isFrontVisible = true;
+
+  void toggleCard() {
+    setState(() {
+      _isFrontVisible = !_isFrontVisible;
+    });
+  }
+
+  Future<void> _saveProductIdAndNavigate(String productId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('productId', productId);
+    Navigator.pushNamed(context, '/orderDetails');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _saveProductIdAndNavigate(widget.item['OrderId']);
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
           ],
+          color: Colors.white,
+        ),
+        child: AnimatedSwitcher(
+          duration: Duration(milliseconds: 300),
+          child: _isFrontVisible
+              ? _buildOrderItemFront(widget.item)
+              : _buildOrderItemBack(),
         ),
       ),
     );
   }
 
-  Widget _buildRowWithShadow(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, '/orderDetails'); // Navigate to order details page
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white,
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey, // Set border color to grey
-              width: 1, // Set border width to 1px
-            ),
+  Widget _buildOrderItemFront(Map<String, dynamic> item) {
+    bool isCancelled = item['DeliveryStatus'] == 'cancelled';
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Order ID: ${item['OrderId']}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    width: 15,
+                    height: 15,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isCancelled ? Colors.red : Colors.green,
+                    ),
+                  ),
+                  SizedBox(width: 1),
+                  Text(
+                    ' ${item['DeliveryStatus']}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          child: Row(
+          SizedBox(height: 18), // Adjust spacing as needed
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
-                height: 170,
-                width: 146, // Set width as per your requirement
-                child: Center(
-                  child: Image.asset(
-                    'assets/image/kurti1.png', // Path to your image asset
-                    height: 130,
-                    width: 130,
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: DecorationImage(
+                    image: NetworkImage(item['ProductMainImageUrl']),
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
-              Container(
-                height: 160,
-                width: 300, // Set width as per your requirement
+              SizedBox(width: 16),
+              Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 8),
                     Text(
-                      'Delivery Expected by Fri April 26 ', // Text with currency symbol
+                      'Product Name: ${item['ProductName']}',
                       style: TextStyle(
-                        fontSize: 16,
-                      ),
+                          fontSize: 16,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w400),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Available (in Stock)', // Text with currency symbol
-                      style: TextStyle(fontSize: 16),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.orange, size: 20),
+                        SizedBox(width: 5),
+                        Text(
+                          '${item['Rating']}', // Assuming Rating is part of the item details
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 8),
                     Text(
-                      'Fancy Kurti', // Text with currency symbol
-                      style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      '₹350', // Text with currency symbol
+                      '₹${item['TotalAmount']}',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.pinkAccent,
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.green),
-                        SizedBox(width: 5),
-                        Text(
-                          '4.5', // Rating
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
+                    SizedBox(height: 8),
+                    Text(
+                      'Delivery Time: ${item['DeliveryTime']}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderItemBack() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Center(
+        child: Text(
+          'Additional Details or Actions',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
           ),
         ),
       ),

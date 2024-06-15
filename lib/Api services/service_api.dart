@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../models/Add_address_model.dart';
 import '../models/category_model.dart';
 import '../models/slider_model.dart';
+import '../models/wishlist_model.dart';
 
 const String apiUrl = 'https://clacostoreapi.onrender.com';
 
@@ -69,4 +71,176 @@ class APIService {
       throw Exception('Failed to load products');
     }
   }
+
+//Contact Us
+  Future<Map<String, dynamic>> submitContactForm({
+    required String fullName,
+    required String email,
+    required String mobileNo,
+    required String message,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/ContactUs'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'FullNames': fullName,
+        'EmailAddresss': email,
+        'MobileNos': mobileNo,
+        'Messages': message,
+      }),
+    );
+
+    final responseBody = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return responseBody;
+    } else {
+      throw Exception(responseBody['message'] ?? 'Failed to submit form: ${response.statusCode}');
+    }
+  }
+ static Future<List<dynamic>> fetchProductsdetails(List<String> srNoList) async {
+    List<dynamic> products = [];
+    for (String srNo in srNoList) {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/category/getCatwithid'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'MainCategoryCode': srNo,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        products.addAll(json.decode(response.body)['data']);
+      } else {
+        throw Exception('Failed to load products');
+      }
+    }
+    return products;
+  }
+
+
+
+  // add to cart
+
+  Future<List<dynamic>> fetchData(String customerId) async {
+    final url = Uri.parse('$apiUrl/addToCart');
+    final response = await http.post(
+      url,
+      body: jsonEncode({'CustomerId': customerId}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      return responseData['data'];
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  // add to cart remove product
+  Future<void> removeItemFromCart(String customerId, String cartListId) async {
+    final url = Uri.parse('$apiUrl/deletecart');
+    final response = await http.delete(
+      url,
+      body: jsonEncode({
+        'CustomerID': customerId,
+        'CartListID': cartListId,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to remove item from cart');
+    }
+  }
+
+
+// ProductDetails api
+  Future<Map<String, dynamic>?> fetchProductDetails(String srno, String productId) async {
+    final url = '$apiUrl/getProductDetails';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'CatId': srno, 'productId': productId}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'][0];
+      return data;
+    } else {
+      print('Failed to load product details');
+      return null;
+    }
+  }
+
+
+
+  Future<List<dynamic>> fetchProduct(String categoryId) async {
+    final response = await http.get(Uri.parse('$apiUrl/products?category=$categoryId'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load products');
+    }
+  }
+
+
+  Future<List<WishList>> fetchWishlist(String customerId) async {
+    try {
+      var response = await http.post(
+        Uri.parse('$apiUrl/wishlist'),
+        body: jsonEncode({'CustomerId': customerId}),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        return List<WishList>.from(
+          responseData['data'].map((item) => WishList.fromJson(item)),
+        );
+      } else {
+        throw Exception('Failed to load wishlist. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error occurred while loading wishlist: $e');
+    }
+  }
+
+  Future<void> removeItemFromWishlist(String customerId, String productId) async {
+    try {
+      var response = await http.delete(
+        Uri.parse('$apiUrl/DeleteWishlist'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'ProductId': productId,
+          'EntryBy': customerId,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to remove item from wishlist. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error occurred while removing item from wishlist: $e');
+    }
+  }
+
+  addToWishlist(String customerId, String productId) {}
+
+  // New method to add a product to the wishlist
+
+
+
+
+
+
 }

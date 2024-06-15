@@ -1,6 +1,7 @@
+// lib/contact_form_page.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
+import '../Api services/service_api.dart';  // Adjust the import path as necessary
 
 class ContactFormPage extends StatefulWidget {
   @override
@@ -13,48 +14,37 @@ class _ContactFormPageState extends State<ContactFormPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _mobileNoController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  final APIService _apiService = APIService();
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final response = await http.post(
-          Uri.parse('https://clacostoreapi.onrender.com/ContactUs'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(<String, String>{
-            'FullNames': _fullNameController.text,
-            'EmailAddresss': _emailController.text,
-            'MobileNos': _mobileNoController.text,
-            'Messages': _messageController.text,
-          }),
+        final response = await _apiService.submitContactForm(
+          fullName: _fullNameController.text,
+          email: _emailController.text,
+          mobileNo: _mobileNoController.text,
+          message: _messageController.text,
         );
 
-        final responseBody = jsonDecode(response.body);
-
-        if (response.statusCode == 200) {
-          setState(() {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(
-                responseBody['message'] ?? 'Request submitted successfully!',
-                style: TextStyle(color: Colors.green),
-              ),),
-            );
-          });
-        } else {
-          print('Response status: ${response.statusCode}');
-          print('Response body: ${response.body}');
-          setState(() {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(responseBody['message'] ?? '',style: TextStyle(color: Colors.green),)),
-            );
-          });
-        }
-      } catch (error) {
-        print('Error: $error');
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('An error occurred. Please try again later.')),
+            SnackBar(
+              content: Text(
+                response['message'] ?? 'Request submitted successfully!',
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+          );
+        });
+      } catch (error) {
+        setState(() {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                error.toString(),
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
           );
         });
       }
@@ -108,7 +98,9 @@ class _ContactFormPageState extends State<ContactFormPage> {
                         ),
                       ),
                       SizedBox(height: 10.0),
-                      Text("If you have a question about our service or have an issue to report, please send a request and we will get back to you as soon as possible"),
+                      Text(
+                        "If you have a question about our service or have an issue to report, please send a request and we will get back to you as soon as possible",
+                      ),
                       SizedBox(height: 16.0),
                       TextFormField(
                         controller: _fullNameController,

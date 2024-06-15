@@ -100,7 +100,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   SizedBox(width: 4),
                   Text(
                     ' ₹${productDetails!['RegularPrice']}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       color: Colors.red,
                       decoration: TextDecoration.lineThrough,

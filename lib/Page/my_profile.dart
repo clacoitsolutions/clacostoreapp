@@ -1,15 +1,24 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../pageUtills/add_address_form.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
 import '../pageUtills/coupons.dart';
 import '../pageUtills/help_center.dart';
+import '../pageUtills/recent_view_product.dart';
 import '../pageUtills/top_navbar.dart';
 import '../pageUtills/update_user_profile.dart';
 import '../pageUtills/user_profile_review.dart';
+import 'addressscreen.dart';
 import 'my_order.dart';
 import 'package:claco_store/pageUtills/coupons.dart';
+
+import 'order_details.dart';
+import 'order_summary_page.dart';
 
 
 class MyProfileScreen extends StatelessWidget {
@@ -32,7 +41,15 @@ class MyProfilePage extends StatefulWidget {
 
   final String title;
 
+  Future<List<dynamic>> getRecentProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> recentProducts = prefs.getStringList('recentProducts') ?? [];
 
+    // Reverse the list so that most recent products come first
+    recentProducts = recentProducts.reversed.toList();
+
+    return recentProducts.map((productJson) => jsonDecode(productJson)).toList();
+  }
 
   @override
   State<MyProfilePage> createState() => _MyProfilePageState();
@@ -96,7 +113,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 style: ElevatedButton.styleFrom(
                                   side: BorderSide(color: Colors.black, width: 1.0), // Add border
                                 ),
-                                child: Row(
+                                child: const Row(
                                   children: [
                                     Icon(
                                       Icons.monetization_on,
@@ -127,7 +144,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       padding: EdgeInsets.symmetric(horizontal: 10.0), // Add margin horizontally
                       child: Row(
                         children: [
-                          Text(
+                          const Text(
                             'Explore',
                             style: TextStyle(
                               color: Colors.black, // Set text color to blue
@@ -135,7 +152,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             ),
                           ),
                           SizedBox(width: 4.0), // Add space between "Explore" and "Plus"
-                          Text(
+                          const Text(
                             'Plus',
                             style: TextStyle(
                               color: Colors.pink, // Set text color to blue
@@ -157,7 +174,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
                               ),
                               child: RichText(
-                                text: TextSpan(
+                                text: const TextSpan(
                                   children: [
                                     WidgetSpan(
                                       alignment: PlaceholderAlignment.middle,
@@ -198,7 +215,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               width: 150, // Set a fixed width for the button
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MyOrdersPage()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MyOrderScreen()));
                                   // Add your onPressed logic here
                                 },
                                 style: OutlinedButton.styleFrom(
@@ -209,7 +226,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ),
                                 ),
                                 icon: Icon(Icons.shopping_bag, color: Colors.pink), // Add icon for 'Order' button
-                                label: Text(
+                                label: const Text(
                                   'Order',
                                   style: TextStyle(
                                     color: Colors.black,
@@ -231,7 +248,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ),
                                 ),
                                 icon: Icon(Icons.favorite_border, color: Colors.pink), // Add icon for 'Wishlist' button
-                                label: Text(
+                                label: const Text(
                                   'Wishlist',
                                   style: TextStyle(
                                     color: Colors.black,
@@ -259,7 +276,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ),
                                 ),
                                 icon: Icon(Icons.card_giftcard, color: Colors.pink), // Add icon for 'Coupons' button
-                                label: Text(
+                                label: const Text(
                                   'Coupons',
                                   style: TextStyle(
                                     color: Colors.black,
@@ -284,7 +301,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   ),
                                 ),
                                 icon: Icon(Icons.help, color: Colors.pink), // Add icon for 'Help Center' button
-                                label: Text(
+                                label: const Text(
                                   'Help',
                                   style: TextStyle(
                                     color: Colors.black,
@@ -383,7 +400,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     color: Colors.pink,
                     padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     alignment: Alignment.centerLeft,
-                    child: Text(
+                    child: const Text(
                       'Recently Viewed',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -522,9 +539,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   Row(
                     children: [
                       // First Part
-                      Expanded(
+                      const Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -552,6 +569,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         child: InkWell(
                           onTap: () {
                             // Add your onTap functionality here
+
                           },
                           child: Container(
                             width: 30.0,
@@ -574,9 +592,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   Row(
                     children: [
                       // First Part
-                      Expanded(
+                      const Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -602,10 +620,16 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       Padding(
                         padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
                         child: InkWell(
-                          // onTap: () {
-                          //   // Navigator.push(context,MaterialPageRoute(builder: (context)=> user_address(),
-                          //   ));
-                          // },
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddAddressPage(),
+                            ),
+                          );
+                           },
+
+
                           child: Container(
                             width: 30.0,
                             height: 30.0,
@@ -613,7 +637,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               shape: BoxShape.circle,
                               color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.black,
                               size: 12.0,
@@ -628,9 +652,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   Row(
                     children: [
                       // First Part
-                      Expanded(
+                      const Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -666,7 +690,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               shape: BoxShape.circle,
                               color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.black,
                               size: 12.0,
@@ -759,9 +783,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   Row(
                     children: [
                       // First Part
-                      Expanded(
+                      const Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [

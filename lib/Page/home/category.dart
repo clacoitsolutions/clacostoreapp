@@ -91,7 +91,7 @@ class SlidingCategoryList extends StatelessWidget {
                             width: 65,
                             height: 65,
                             color: Colors.grey,
-                            child: Center(
+                            child: const Center(
                               child: Icon(
                                 Icons.error,
                                 color: Colors.red,
@@ -106,7 +106,7 @@ class SlidingCategoryList extends StatelessWidget {
                   Text(
                     categories[index]['ProductCategory'],
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
@@ -119,4 +119,5 @@ class SlidingCategoryList extends StatelessWidget {
       ),
     );
   }
+
 }

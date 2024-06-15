@@ -1,8 +1,11 @@
+// lib/screens/product_details.dart
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+import '../Api services/service_api.dart';
+
 
 class ProductDetails extends StatefulWidget {
   @override
@@ -12,16 +15,16 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   String? srno;
   String? productId;
-  Map<String, dynamic>? productDetails;
   int _currentIndex = 0;
   List<String> _images = [];
-
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   CarouselController _carouselController = CarouselController();
 
   bool isLoading = true;
-  Map<String, dynamic>? productDetailss;
+  Map<String, dynamic>? productDetails;
   bool showFullDescription = false;
+
+  final APIService _productService = APIService();
 
   @override
   void initState() {
@@ -46,29 +49,15 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
   Future<void> fetchProductDetails(String srno, String productId) async {
-    final url = 'https://clacostoreapi.onrender.com/getProductDetails';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'CatId': srno, 'productId': productId}),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        productDetailss = json.decode(response.body)['data'][0];
-        _images = [
-          productDetailss!['ProductMainImageUrl'],
-          // Add other image URLs if available in productDetailss
-        ];
-        isLoading = false;
-      });
-    } else {
-      // Handle error
-      setState(() {
-        isLoading = false;
-      });
-      print('Failed to load product details');
-    }
+    final data = await _productService.fetchProductDetails(srno, productId);
+    setState(() {
+      productDetails = data;
+      _images = [
+        productDetails!['ProductMainImageUrl'],
+        // Add other image URLs if available in productDetails
+      ];
+      isLoading = false;
+    });
   }
 
   double calculateDiscountPercentage(double regularPrice, double salePrice) {
@@ -88,8 +77,8 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   @override
   Widget build(BuildContext context) {
-    double? regularPrice = parsePrice(productDetailss?['RegularPrice']);
-    double? salePrice = parsePrice(productDetailss?['SalePrice']);
+    double? regularPrice = parsePrice(productDetails?['RegularPrice']);
+    double? salePrice = parsePrice(productDetails?['SalePrice']);
     double? discountPercentage;
 
     if (regularPrice != null && salePrice != null) {
@@ -100,7 +89,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          "${productDetailss?['ProductCategory'] ?? ''}",
+          "${productDetails?['ProductCategory'] ?? ''}",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.pink,
@@ -192,7 +181,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${productDetailss?['ProductName'] != null ? (productDetailss!['ProductName'].length > 200 ? productDetailss!['ProductName'].substring(0, 200) + '...' : productDetailss!['ProductName']) : 'Product Name'}",
+                    "${productDetails?['ProductName'] != null ? (productDetails!['ProductName'].length > 200 ? productDetails!['ProductName'].substring(0, 200) + '...' : productDetails!['ProductName']) : 'Product Name'}",
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -321,7 +310,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       Icon(Icons.star_half, color: Colors.grey, size: 15),
                       SizedBox(width: 5),
                       Text(
-                        "${productDetailss?['rating'] ?? ''} ", // Product rating with null check
+                        "${productDetails?['rating'] ?? ''} ", // Product rating with null check
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey,
@@ -331,7 +320,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    " ${productDetailss?['size'] ?? ''}",
+                    " ${productDetails?['size'] ?? ''}",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -339,14 +328,14 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ),
 
                   Text(
-                    "${productDetailss?['ProductDescription'] != null ? (showFullDescription ? productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '') : (productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').length > 10000000 ? productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').substring(0, 100000) + '...' : productDetailss!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), ''))) : 'Image Details'}",
+                    "${productDetails?['ProductDescription'] != null ? (showFullDescription ? productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '') : (productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').length > 10000000 ? productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').substring(0, 100000) + '...' : productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), ''))) : 'Image Details'}",
                     style: const TextStyle(
                       fontSize: 14,
                     ),
                     maxLines: showFullDescription ? null : 5,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (productDetailss?['ProductDescription'] != null && productDetailss!['ProductDescription'].length > 100)
+                  if (productDetails?['ProductDescription'] != null && productDetails!['ProductDescription'].length > 100)
                     InkWell(
                       onTap: () {
                         setState(() {

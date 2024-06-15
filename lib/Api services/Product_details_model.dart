@@ -3,6 +3,7 @@ class ProductDetails {
   final String productName;
   final double regularPrice;
   final double salePrice;
+  final double onlinePrice;
   final String productMainImageUrl;
   final String productDescription;
   final int stockStatus;
@@ -14,6 +15,7 @@ class ProductDetails {
     required this.productName,
     required this.regularPrice,
     required this.salePrice,
+    required this.onlinePrice,
     required this.productMainImageUrl,
     required this.productDescription,
     required this.stockStatus,
@@ -27,6 +29,7 @@ class ProductDetails {
       productName: json['ProductName'] ?? '',
       regularPrice: json['RegularPrice'] ?? 0.0,
       salePrice: json['SalePrice'] ?? 0.0,
+      onlinePrice: json['OnlinePrice'] ?? 0.0,
       productMainImageUrl: json['ProductMainImageUrl'] ?? '',
       productDescription: json['ProductDescription'] ?? '',
       stockStatus: json['StockStatus'] ?? 0,
