@@ -6,6 +6,7 @@ import 'Page/home/slider.dart';
 import 'Page/home_page.dart';
 import 'Page/order_details.dart';
 import 'Page/user_signin.dart';
+import 'Page/my_profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home: HomeScreen(), // This is your new login page with OTP removed
+      home: SplashScreen(), // This is your new login page with OTP removed
       routes: {
         '/orderDetails': (context) => const OrderDetailsPage(),
         '/home': (context) => const HomeScreen(), // Assuming this is your home page

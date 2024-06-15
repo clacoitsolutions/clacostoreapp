@@ -73,7 +73,7 @@ class _SplashScreensState extends State<SplashScreens> {
             },
             children: [
               SplashScreenContent(
-                imagePath: 'images/image3.jpeg',
+                imagePath: 'images/image1.jpeg',
                 title: 'Welcome To Claco',
                 description: 'Learn from the best teachers of India in a simple and easy way',
               ),
@@ -83,7 +83,7 @@ class _SplashScreensState extends State<SplashScreens> {
                 description: 'Learn whatever you want to learn with the best content at an affordable price by looking for courses and batches.',
               ),
               SplashScreenContent(
-                imagePath: 'images/image1.jpeg',
+                imagePath: 'images/image3.jpeg',
                 title: 'It’s not just learning, It’s a promise!',
                 description: 'We will deliver our best to make you the best and it\'s our promise.',
               ),

@@ -4,6 +4,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
 import '../pageUtills/coupons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../pageUtills/help_center.dart';
 import '../pageUtills/top_navbar.dart';
 import '../pageUtills/update_user_profile.dart';
@@ -46,6 +48,23 @@ class ImageInfo {
 }
 
 class _MyProfilePageState extends State<MyProfilePage> {
+  String? _mobileNo;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMobileNo();
+  }
+
+  Future<void> _loadMobileNo() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _mobileNo = prefs.getString('mobileNo') ?? '+91 2034567890'; // Fallback number
+    });
+  }
+
   // Define a list of ImageInfo objects with image paths and names
   List<ImageInfo> imageList = [
     ImageInfo('assets/images/sliderimg1.jpg', 'Suit'),
@@ -79,7 +98,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '+91 2034567890',
+                            _mobileNo ?? 'Loading...',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20.0,
