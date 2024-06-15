@@ -5,8 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../Api services/slder_service.dart';
 
-
-
 Widget homeScreenSlider() {
   return FutureBuilder<List<dynamic>>(
     future: fetchBannerData(),
@@ -25,7 +23,7 @@ Widget homeScreenSlider() {
               builder: (BuildContext context) {
                 return Container(
                   width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(horizontal: 5.0),
+                  margin: EdgeInsets.symmetric(horizontal: 0.0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.0),
                     child: CachedNetworkImage(

@@ -49,7 +49,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context, // Ensure context is available
-              MaterialPageRoute(builder: (context) => mycart()), // Corrected mycart to MyCart
+              MaterialPageRoute(builder: (context) => MycardScreen ()), // Corrected mycart to MyCart
             );
           },
         ),

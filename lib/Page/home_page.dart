@@ -64,20 +64,23 @@ class _HomeBodyState extends State<HomeBody> {
       color: Colors.black.withOpacity(0.02),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              SizedBox(height: 5),
-              SizedBox(width: 15),
-              topSectionFilter(context),
-              SizedBox(height: 20),
-              HomeCategory(),
-              SizedBox(height: 20),
+              SizedBox(height: 0),
               homeScreenSlider(),
-              SizedBox(height: 20),
+
+              SizedBox(height: 10),
+
+              HomeCategory(),
+              SizedBox(height: 5),
+
+
+              topSectionFilter(context),
+              SizedBox(height: 0),
               // Toggle Trending Products
-              trendingProduct(),
+              TrendingProduct(),
               SizedBox(height: 20),
               // ... rest of your widgets ...
 
