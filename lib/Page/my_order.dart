@@ -1,9 +1,11 @@
+// main.dart
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Api services/Product_order_api.dart';
+import '../pageUtills/common_appbar.dart';
 import 'order_details.dart';
-
 
 void main() {
   runApp(MyApp());
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       home: MyOrderScreen(),
       routes: {
-        '/orderDetails': (context) => OrderDetailsPage(),
+        '/orderDetails': (context) => OrderDetailsScreen(),
       },
     );
   }
@@ -36,32 +38,14 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
   @override
   void initState() {
     super.initState();
-    _futureOrderItems = fetchOrderItems();
-  }
-
-  Future<List<dynamic>> fetchOrderItems() async {
-    final response = await http.post(
-      Uri.parse('https://clacostoreapi.onrender.com/getorderitems'),
-      body: jsonEncode({'CustomerId': 'CUST000394'}),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data = jsonDecode(response.body);
-      return data['orderItems'];
-    } else {
-      throw Exception('Failed to load order items');
-    }
+    _futureOrderItems = fetchOrderItems('CUST000394'); // Call fetchOrderItems from api_service.dart
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('My Orders'),
-      ),
+      appBar: const CommonAppBar(title: 'My Order'),
+
       body: FutureBuilder<List<dynamic>>(
         future: _futureOrderItems,
         builder: (context, snapshot) {
@@ -104,9 +88,9 @@ class _FlippableCardState extends State<FlippableCard> {
     });
   }
 
-  Future<void> _saveProductIdAndNavigate(String productId) async {
+  Future<void> _saveProductIdAndNavigate(String orderId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('productId', productId);
+    await prefs.setString('orderId', orderId);
     Navigator.pushNamed(context, '/orderDetails');
   }
 
@@ -117,15 +101,15 @@ class _FlippableCardState extends State<FlippableCard> {
         _saveProductIdAndNavigate(widget.item['OrderId']);
       },
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 7,
-              offset: Offset(0, 3),
+              color: Colors.grey.withOpacity(0.4),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: Offset(0, 5),
             ),
           ],
           color: Colors.white,
@@ -142,8 +126,9 @@ class _FlippableCardState extends State<FlippableCard> {
 
   Widget _buildOrderItemFront(Map<String, dynamic> item) {
     bool isCancelled = item['DeliveryStatus'] == 'cancelled';
+
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -160,8 +145,8 @@ class _FlippableCardState extends State<FlippableCard> {
               Row(
                 children: [
                   Container(
-                    width: 15,
-                    height: 15,
+                    width: 10,
+                    height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isCancelled ? Colors.red : Colors.green,
@@ -226,7 +211,7 @@ class _FlippableCardState extends State<FlippableCard> {
                     Text(
                       '₹${item['TotalAmount']}',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.pinkAccent,
                       ),
