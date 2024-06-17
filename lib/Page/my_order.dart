@@ -1,10 +1,9 @@
-// main.dart
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Api services/Product_order_api.dart';
 import '../pageUtills/common_appbar.dart';
+
 import 'order_details.dart';
 
 void main() {
@@ -38,13 +37,13 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
   @override
   void initState() {
     super.initState();
-    _futureOrderItems = fetchOrderItems('CUST000394'); // Call fetchOrderItems from api_service.dart
+    _futureOrderItems = fetchOrderItems('CUST000458'); // Replace 'CUST000458' with actual customerId logic
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: 'My Order'),
+      appBar: const CommonAppBar(title: 'My Orders'),
 
       body: FutureBuilder<List<dynamic>>(
         future: _futureOrderItems,
@@ -103,7 +102,7 @@ class _FlippableCardState extends State<FlippableCard> {
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.4),

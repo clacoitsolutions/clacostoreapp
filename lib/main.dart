@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home: HomeScreen(), // This is your new login page with OTP removed
+      home:SplashScreen(),// This is your new login page with OTP removed
       routes: {
         '/orderDetails': (context) =>  OrderDetailsScreen(),
         '/home': (context) => const HomeScreen(), // Assuming this is your home page

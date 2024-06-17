@@ -19,3 +19,26 @@ Future<List<dynamic>> fetchOrderItems(String customerId) async {
     throw Exception('Failed to load order items');
   }
 }
+
+
+Future<List<dynamic>> fetchOrderItem(String customerId) async {
+  final String apiUrl = 'https://clacostoreapi.onrender.com/clickorderitems';
+  final response = await http.post(Uri.parse(apiUrl), body: {'customerId': customerId});
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body)['orderItems'];
+  } else {
+    throw Exception('Failed to load order items');
+  }
+}
+
+Future<Map<String, dynamic>> fetchOrderDetails(String orderId) async {
+  final String apiUrl = 'https://clacostoreapi.onrender.com/clickorderdetails';
+  final response = await http.post(Uri.parse(apiUrl), body: {'orderId': orderId});
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to load order details');
+  }
+}

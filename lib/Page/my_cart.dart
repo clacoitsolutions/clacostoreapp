@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Api services/service_api.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
 
 class MycardScreen extends StatelessWidget {
   const MycardScreen({Key? key}) : super(key: key);
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,8 @@ class MyCart extends StatefulWidget {
 class _MyCartState extends State<MyCart> {
   final APIService _cartService = APIService();
   String selectedText = '';
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +102,7 @@ class _MyCartState extends State<MyCart> {
         ],
       ),
       body: FutureBuilder<List<dynamic>>(
-        future: _cartService.fetchData('CUST000394'),
+        future: _cartService.fetchData(""),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

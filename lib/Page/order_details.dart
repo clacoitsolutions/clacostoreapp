@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
-import '../pageUtills/invoice.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   @override
@@ -11,10 +11,11 @@ class OrderDetailsScreen extends StatefulWidget {
 }
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
-  String? selectedReason; // Variable to hold the selected cancellation reason
-  bool isCancelled = false; // Flag to track if the order is cancelled
-  double rating = 0; // Variable to hold the star rating
-  String? orderId; // Variable to hold the order ID from shared preferences
+  String? orderId;
+  bool isCancelled = false;
+  double rating = 0;
+  List<Map<String, dynamic>> orderItems = [];
+  String? deliveryStatus; // Define delivery status variable
 
   @override
   void initState() {
@@ -27,90 +28,132 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     setState(() {
       orderId = prefs.getString('orderId');
     });
+    if (orderId != null) {
+      await _fetchOrderDetails(orderId!);
+      // Example of setting deliveryStatus based on conditions (adjust as per your logic)
+      setState(() {
+        if (orderItems.isNotEmpty) {
+          if (orderItems[0]['DeliveryStatus'] != null) {
+            deliveryStatus = orderItems[0]['DeliveryStatus'];
+          }
+        }
+      });
+    }
+  }
+
+  Future<void> _fetchOrderDetails(String orderId) async {
+    var apiUrl = 'https://clacostoreapi.onrender.com/clickorderdetails';
+    try {
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'orderId': orderId}),
+      );
+
+      if (response.statusCode == 200) {
+        var jsonData = json.decode(response.body);
+        setState(() {
+          orderItems = List<Map<String, dynamic>>.from(jsonData['orderItems']);
+        });
+      } else {
+        throw Exception('Failed to load order details');
+      }
+    } catch (e) {
+      print('Error fetching order details: $e');
+      // Handle error as needed, e.g., show a snackbar or retry option
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(title: 'Order Details'),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Order ID - ${orderId ?? 'Loading...'}',
-                style: TextStyle(fontSize: 14),
-              ),
+            Text(
+              'Order ID - ${orderId ?? 'Loading...'}',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.green,
-                  width: 1,
-                ),
-                color: Colors.white,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      padding: EdgeInsets.all(20),
-                      child: Image.asset(
-                        'assets/images/kurti1.png',
-                        height: 200,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+            // Display order items fetched from API
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: orderItems.length,
+              itemBuilder: (context, index) {
+                var item = orderItems[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green, width: 1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Fancy Kurti Black , Gold',
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Image.network(
+                            item['ProductMainImageUrl'],
+                            height: 120,
+                            fit: BoxFit.cover,
                           ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Size: L , Color: Black',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Seller: STIPVTLTD',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          SizedBox(height: 5),
-                          Text(
-                            'Quantity: 1',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          Text(
-                            '₹350',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          )
-                        ],
+                        ),
                       ),
-                    ),
+                      Expanded(
+                        flex: 3,
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['ProductName'].length > 20
+                                    ? '${item['ProductName'].substring(0, 20)}...'
+                                    : item['ProductName'],
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                'Seller: ${item['Seller'] ?? 'NA'}',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                'Quantity: ${item['Quantity']}',
+                                style: TextStyle(fontSize: 15),
+                              ),
+                              Text(
+                                '₹ ${item['TotalAmount']}',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
             Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,31 +163,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildTrackingItem('Placed', true),
-                  _buildVerticalLine(true),
-                  _buildTrackingItem('On the Way', false),
-                  _buildVerticalLine(true),
-                  _buildTrackingItem('Delivered', false),
-                  _buildVerticalLine(false),
-                  if (isCancelled) ...[
-                    _buildTrackingItem('Cancel', false),
-                    _buildVerticalLine(false, isCancelled),
-                    _buildTrackingItem('Return', false),
-                    _buildVerticalLine(false, isCancelled),
-                    _buildTrackingItem('Refund', false),
-                    _buildVerticalLine(false, isCancelled),
+                  _buildTrackingItem('Placed', deliveryStatus == 'cancelled' || deliveryStatus == null),
+                  _buildVerticalLine(deliveryStatus != 'Delivered'),
+                  _buildTrackingItem('On the Way', deliveryStatus == 'cancelled' || deliveryStatus == null),
+                  _buildVerticalLine(deliveryStatus != 'Cancelled'),
+                  if (deliveryStatus == 'cancelled') ...[
+                    _buildTrackingItem('cancelled', true),
+                    SizedBox(height: 20),
+                  ] else ...[
+                    _buildTrackingItem('Delivered', deliveryStatus == 'Delivered'),
+                    _buildVerticalLine(false),
                   ],
-                  SizedBox(height: 5),
+                  if (isCancelled || deliveryStatus == 'Cancelled') ...[
+                    _buildTrackingItem('Cancel', deliveryStatus == 'Cancelled'),
+                    _buildVerticalLine(false, deliveryStatus == 'Cancelled'),
+                    _buildTrackingItem('Return', deliveryStatus == 'Cancelled'),
+                    _buildVerticalLine(false, deliveryStatus == 'Cancelled'),
+                    _buildTrackingItem('Refund', deliveryStatus == 'Cancelled'),
+                    _buildVerticalLine(false, deliveryStatus == 'Cancelled'),
+                  ],
                 ],
               ),
             ),
-            SizedBox(height: 20),
+
+
+            SizedBox(height: 10),
             InkWell(
               onTap: () {
                 _showCancelOrderDialog(context);
               },
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5),
@@ -159,95 +208,45 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ),
             SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0.0),
-              child: Container(
-                height: 70,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF5F5F5), // Background color
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.white,
-                      offset: Offset(0, 3),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
+            Container(
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(width: 1.0, color: Colors.grey),
+                  bottom: BorderSide(width: 1.0, color: Colors.grey),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    5,
-                        (index) =>
-                        IconButton(
-                          icon: Icon(
-                            index < rating ? Icons.star : Icons.star_border,
-                            color: index < rating ? Colors.green : Colors.grey,
-                            size: 44, // Set star size to 24
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              rating = index + 1;
-                            });
-                          },
-                        ),
-                  ),
-                ),
+                color: Color(0xFFF5F5F5), // Background color
               ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.chat,
-                  size: 30,
-                  color: Colors.pinkAccent,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'Need help?',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            InkWell(
-              onTap: () {
-                // Navigate to invoice page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => InvoicePage()),
-                );
-              },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.chat,
-                          color: Colors.pinkAccent,
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'Invoice download',
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ),
                   Padding(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 26,
-                      color: Colors.grey,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 2, horizontal: 10),
+                    child: Text(
+                      'Shipping details',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                   ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildShippingDetail(
+                      'Customer Name:', orderItems.isNotEmpty ? orderItems[0]['CustomerName'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail(
+                      'Customer Mobile:', orderItems.isNotEmpty ? orderItems[0]['CustomerMobile'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail(
+                      'Customer Address:', orderItems.isNotEmpty ? orderItems[0]['CustomerAddress'] ?? 'Loading...' : 'Loading...'),
                 ],
               ),
             ),
@@ -266,90 +265,151 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
+                        vertical: 2, horizontal: 10),
                     child: Text(
-                      'Shipping details',
+                      'Payment details',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Shipped Date: 10/06/2023',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    'Shipping Method: Standard Shipping',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    'Shipping Address:',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    'Snehal Dangade',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    '34/78, Near Max mall, Bapunagar, Ahmedabad',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  Text(
-                    'Contact: +91 9823894793',
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  _buildShippingDetail('Payment Mode:',
+                      orderItems.isNotEmpty ? orderItems[0]['PaymentMode'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Delivery Time:',
+                      orderItems.isNotEmpty ? orderItems[0]['DeliveryTime'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Delivery Charges:',
+                      orderItems.isNotEmpty ? orderItems[0]['DeliveryCharges'].toString() ?? 'Loading...' : 'Loading...'),
+                  _buildDivider(),
+                  _buildShippingDetailprice('Gross Amount:',
+                      orderItems.isNotEmpty ? orderItems[0]['GrossAmount'].toString() ?? 'Loading...' : 'Loading...'),
                 ],
               ),
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTrackingItem(String title, bool isComplete) {
+  Widget _buildTrackingItem(String title, bool isActive) {
     return Row(
-      children: <Widget>[
+      children: [
         Container(
-          width: 24.0,
-          height: 24.0,
+          width: 10,
+          height: 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isComplete ? Colors.green : Colors.grey,
-          ),
-          child: Icon(
-            Icons.check,
-            color: Colors.white,
-            size: 16.0,
+            color: isActive ? Colors.red : Colors.grey,
           ),
         ),
-        SizedBox(width: 8.0),
+        SizedBox(width: 10),
         Text(
           title,
-          style: TextStyle(
-            color: isComplete ? Colors.green : Colors.grey,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 16, color: isActive ? Colors.black : Colors.grey),
         ),
       ],
     );
   }
 
-  Widget _buildVerticalLine(bool isActive, [bool isVisible = true]) {
-    return Visibility(
-      visible: isVisible,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.0),
-        width: 1.0,
-        height: 30.0,
-        color: isActive ? Colors.green : Colors.grey,
+  Widget _buildVerticalLine(bool isActive, [bool isCancelled = false]) {
+    return Container(
+      width: 2,
+      height: 20,
+      color: isActive ? Colors.red : (isCancelled ? Colors.grey : Colors.transparent),
+    );
+  }
+
+  Widget _buildShippingDetail(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: Colors.black54),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  value,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShippingDetailprice(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(width: 10),
+              Text(
+                '₹ $value',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.pink),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentDetail(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 5),
+          Text(
+            value,
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Divider(
+        color: Colors.grey,
+        height: 1,
       ),
     );
   }
@@ -359,48 +419,19 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Cancel Order'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text('Please select a reason for cancellation:'),
-                  DropdownButton<String>(
-                    value: selectedReason,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedReason = newValue;
-                      });
-                    },
-                    items: <String>[
-                      'Change of mind',
-                      'Ordered by mistake',
-                      'Found a better price',
-                      'Product not needed',
-                      'Other'
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              );
-            },
-          ),
+          title: Text("Cancel Order"),
+          content: Text("Are you sure you want to cancel this order?"),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: Text("CANCEL"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            ElevatedButton(
-              child: Text('Submit'),
+            TextButton(
+              child: Text("CONFIRM"),
               onPressed: () {
-                // Handle cancellation logic here
+                // Implement cancel order logic here
                 setState(() {
                   isCancelled = true;
                 });
@@ -413,3 +444,4 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 }
+

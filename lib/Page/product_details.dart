@@ -1,11 +1,10 @@
-// lib/screens/product_details.dart
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../Api services/service_api.dart';
-
 
 class ProductDetails extends StatefulWidget {
   @override
@@ -16,6 +15,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   String? srno;
   String? productId;
   int _currentIndex = 0;
+  String? customerId;
   List<String> _images = [];
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   CarouselController _carouselController = CarouselController();
@@ -73,6 +73,59 @@ class _ProductDetailsState extends State<ProductDetails> {
       return price;
     }
     return null;
+  }
+
+  Future<void> addToCart() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    customerId = prefs.getString('customerId');
+    if (customerId == null || productId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Customer ID or Product ID is missing'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final url = Uri.parse('https://clacostoreapi.onrender.com/addtocart3');
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode({
+          'customerid': customerId,
+          'productid': productId,
+          'quantity': '1',
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        print('Item added to cart. Response: $responseData');
+
+        // Assuming the API returns a message in the response
+        var apiMessage = responseData['message'];
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(apiMessage),
+        ));
+      } else {
+        print('Failed to add item to cart. Status code: ${response.statusCode}');
+        var errorMessage = 'Failed to add item to cart. Status code: ${response.statusCode}';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   @override
@@ -253,9 +306,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                           ),
                         ),
                       ),
-
-
-
                       SizedBox(width: 5), // Add space between buttons
                       ElevatedButton(
                         onPressed: () {
@@ -302,8 +352,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.star, color: Colors.yellow, size:
-                      15),
+                      Icon(Icons.star, color: Colors.yellow, size: 15),
                       Icon(Icons.star, color: Colors.yellow, size: 15),
                       Icon(Icons.star, color: Colors.yellow, size: 15),
                       Icon(Icons.star, color: Colors.yellow, size: 15),
@@ -326,7 +375,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   Text(
                     "${productDetails?['ProductDescription'] != null ? (showFullDescription ? productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '') : (productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').length > 10000000 ? productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), '').substring(0, 100000) + '...' : productDetails!['ProductDescription'].replaceAll(RegExp(r'<[^>]*>'), ''))) : 'Image Details'}",
                     style: const TextStyle(
@@ -354,9 +402,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   Row(
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          // Handle button tap
-                        },
+                        onPressed: addToCart,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
