@@ -26,8 +26,11 @@ class WishlistPage extends StatefulWidget {
 
 class _WishlistPageState extends State<WishlistPage> {
   List<WishList> wishList = [];
-  String customerId = 'ayush@gmail.com'; // Default customerId, can be updated from SharedPreferences
-  String message = ''; // Message to display based on API response
+  String message = '';
+  String? userName;
+  String? userEmail;
+  String? customerId;
+  String? mobileNo;
 
   @override
   void initState() {
@@ -36,10 +39,23 @@ class _WishlistPageState extends State<WishlistPage> {
   }
 
   Future<void> _loadUserData() async {
-    print("Loading user data...");
     final prefs = await SharedPreferences.getInstance();
-    customerId = prefs.getString('CustomerId') ?? 'ayush@gmail.com';
+    setState(() {
+      userName = prefs.getString('name');
+      userEmail = prefs.getString('emailAddress');
+      customerId = prefs.getString('customerId');
+      mobileNo = prefs.getString('mobileNo');
 
+      if (customerId != null) {
+        _loadUserDataApi();
+      } else {
+        message = 'Please login to view your wishlist';
+      }
+    });
+  }
+
+  Future<void> _loadUserDataApi() async {
+    print("Loading user data...");
     try {
       var response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/wishlist'),

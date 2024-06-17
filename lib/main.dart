@@ -1,16 +1,8 @@
 import 'package:claco_store/pageUtills/splashScreen.dart';
 import 'package:flutter/material.dart';
-import 'Page/User/create_account.dart';
-import 'Page/contact_us.dart';
-import 'Page/firebase_connection_test.dart';
-import 'Page/home/banner.dart';
-import 'Page/home/slider.dart';
 import 'Page/home_page.dart';
-import 'Page/my_cart.dart';
 import 'Page/order_details.dart';
-import 'Page/user_signin.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'Page/wishlist_page.dart';
 import 'firebase_options.dart'; // Make sure to import this
 
 void main() async {
@@ -39,3 +31,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
