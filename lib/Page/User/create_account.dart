@@ -60,11 +60,26 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       prefs.setString('emailAddress', _emailController.text);
       prefs.setString('Password', responseData['data'][0]['Password']);
 
+
+    // Split and store first name and last name
+   // saveNameToPreferences(responseData['data'][0]['name']);
+
       setState(() {
         _registrationMessage = responseData['message'] ?? 'Registration Successful!';
       });
 
-      // Delay the navigation for a second to show the message
+    void saveNameToPreferences(String fullName) async {
+      final prefs = await SharedPreferences.getInstance();
+      List<String> nameParts = fullName.split(' ');
+      String firstName = nameParts.isNotEmpty ? nameParts[0] : '';
+      String lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+      await prefs.setString('firstName', firstName);
+      await prefs.setString('lastName', lastName);
+    }
+
+
+    // Delay the navigation for a second to show the message
       await Future.delayed(const Duration(seconds: 1));
       Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
     // } else {
