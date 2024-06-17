@@ -64,3 +64,31 @@ class OrderItem {
     );
   }
 }
+class Product {
+  final String productCode;
+  final String productName;
+  final double regularPrice;
+  final double salePrice;
+  final String productMainImageUrl;
+  final String productDescription;
+
+  Product({
+    required this.productCode,
+    required this.productName,
+    required this.regularPrice,
+    required this.salePrice,
+    required this.productMainImageUrl,
+    required this.productDescription,
+  });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      productCode: json['ProductCode'],
+      productName: json['ProductName'],
+      regularPrice: json['RegularPrice'].toDouble(),
+      salePrice: json['SalePrice'].toDouble(),
+      productMainImageUrl: json['ProductMainImageUrl'],
+      productDescription: json['ProductDescription'],
+    );
+  }
+}
