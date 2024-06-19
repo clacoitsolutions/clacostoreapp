@@ -16,7 +16,6 @@ import 'Page/order_summary_page.dart';
 import 'Page/OrderSuccesful_page.dart';
 import 'Page/filter_page.dart';
 import 'Page/search_product.dart';
-import 'Page/bb.dart';
 import 'pageUtills/update_user_profile.dart';
 import 'Page/onboarding_page.dart';
 import 'pageUtills/onboardingScreen.dart';
@@ -44,7 +43,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home:Filter(), // This is your new login page with OTP removed
+      home:SplashScreen(), // This is your new login page with OTP removed
       routes: {
         '/orderDetails': (context) => const OrderDetailsPage(),
         '/home': (context) => const HomeScreen(), // Assuming this is your home page

@@ -73,7 +73,7 @@ class _FilterState extends State<Filter> {
 
   Future<void> fetchCategoryData() async {
     final response = await http.get(
-      Uri.parse('https://clacostoreapi.onrender.com/Bindmain'),
+      Uri.parse('https://clacostoreapi.onrender.com/Bindmdain'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -90,6 +90,7 @@ class _FilterState extends State<Filter> {
       throw Exception('Failed to load category products');
     }
   }
+
   void applyFilter() async {
     List<dynamic> filteredProducts = [];
     if (selectedText == 'Price') {
@@ -112,7 +113,7 @@ class _FilterState extends State<Filter> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SearchProduct ( categoryProducts: categoryProducts,products: filteredProducts,
+      MaterialPageRoute(builder: (context) => SearchProduct (
         )),
     );//products: filteredProducts,
   }

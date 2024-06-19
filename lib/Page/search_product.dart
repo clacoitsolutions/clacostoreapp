@@ -3,10 +3,10 @@ import 'filter_page.dart';
 import 'package:claco_store/models/Category_filter.dart';
 
 class SearchProduct extends StatefulWidget {
-  final List<dynamic> products;
-  final List<CategoryProduct> categoryProducts;
+  List<dynamic> products = [];
+  List<CategoryProduct> categoryProducts = [];
 
-  SearchProduct({Key? key, required this.products, required this.categoryProducts}) : super(key: key);
+  SearchProduct({Key? key,}) : super(key: key);
 
   @override
   State<SearchProduct> createState() => _SearchProductState();
@@ -28,10 +28,10 @@ class _SearchProductState extends State<SearchProduct> {
     setState(() {
       _isAdditionalRowVisible = _searchController.text.isNotEmpty;
       _isSearching = _searchController.text.isNotEmpty;
-      // filteredCategoryProducts = widget.categoryProducts
-      //     .where((categoryProduct) =>
-      //     categoryProduct.productCategory.toLowerCase().contains(_searchController.text.toLowerCase()))
-      //     .toList();
+      filteredCategoryProducts = widget.categoryProducts
+          .where((categoryProduct) =>
+          categoryProduct.productCategory.toLowerCase().contains(_searchController.text.toLowerCase()))
+          .toList();
     });
   }
 

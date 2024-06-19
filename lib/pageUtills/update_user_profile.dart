@@ -406,6 +406,7 @@ class _UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
 
   /// Email API INTEGRATION  /////////////////////////////////////////
 
+
   Future<void> _updateEmail() async {
     final prefs = await SharedPreferences.getInstance();
     final customerId = prefs.getString('CustomerId') ?? 'CUST000485';
@@ -423,10 +424,16 @@ class _UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
 
     if (response.statusCode == 201) {
       print('Email updated successfully!');
-      // You can add a message to the user here
+      // Show success toast
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Email updated successfully!')),
+      );
     } else {
       print('Error updating email: ${response.statusCode}');
       // Handle error accordingly (e.g., show an error message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating email. Please try again.')),
+      );
     }
   }
 
@@ -450,10 +457,16 @@ class _UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
 
     if (response.statusCode == 201) {
       print('Name updated successfully!');
-      // You can add a message to the user here
+      // Show success toast
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Name updated successfully!')),
+      );
     } else {
       print('Error updating name: ${response.statusCode}');
       // Handle error accordingly (e.g., show an error message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating name. Please try again.')),
+      );
     }
   }
 
@@ -477,10 +490,16 @@ class _UpdateUserProfileFormState extends State<UpdateUserProfileForm> {
 
     if (response.statusCode == 201) {
       print('Mobile updated successfully!');
-      // You can add a message to the user here
+      // Show success toast
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Mobile number updated successfully!')),
+      );
     } else {
       print('Error updating name: ${response.statusCode}');
       // Handle error accordingly (e.g., show an error message)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating mobile number. Please try again.')),
+      );
     }
   }
   @override
