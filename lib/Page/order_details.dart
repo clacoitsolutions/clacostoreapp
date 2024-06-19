@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
@@ -26,20 +28,176 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   String? selectedReason; // Variable to hold the selected cancellation reason
   bool isCancelled = false; // Flag to track if the order is cancelled
   double rating = 0; // Variable to hold the star rating
+  Map<String, dynamic>? orderDetails;
+  bool isLoading = true; // Variable to track loading state
 
+  final TextEditingController _cancelReasonController = TextEditingController();
+
+  void _showCancelOrderDialog(BuildContext context, String orderId, String initialReason) {
+    _cancelReasonController.text = initialReason;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          title: Container(
+            decoration: BoxDecoration(
+              color: Color(0xFFe83e8c), // Set header background color to pink
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Cancel Order',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,// Set header text color to white
+                  ),
+                ),
+                Text(
+                  //'Order ID: $orderId', // Display order ID dynamically
+                  'Order ID: ORD101001116',
+                  style: TextStyle(
+                    color: Colors.white, // Set header text color to white
+                    fontSize: 12, // Set font size to 15
+                  ),
+                ),
+              ],
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _cancelReasonController,
+                decoration: InputDecoration(
+                  labelText: 'Cancel Reason',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _cancelOrder(orderId, _cancelReasonController.text);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFe83e8c), // Set button background color to pink
+                ),
+                child: Text(
+                  'Proceed',
+                  style: TextStyle(
+                    color: Colors.white, // Set button text color to white
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _cancelOrder(String orderId, String cancelReason) async {
+    final String apiUrl = 'https://clacostoreapi.onrender.com/CancelOrder';
+    final Map<String, dynamic> body = {
+      // 'OrderId': orderId,
+      // 'CancelReason': cancelReason,
+      'OrderId': 'ORD101001116',
+      'CancelReason': cancelReason,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      final responseData = jsonDecode(response.body);
+      final String message = responseData['message'];
+      final String serverMessage = responseData['data'][0]['msg'];
+
+      print('Response: $message - $serverMessage'); // Print response to console
+
+      Navigator.of(context).pop(); // Close the dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Response: $message - $serverMessage')),
+      );
+    } catch (e) {
+      Navigator.of(context).pop(); // Close the dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    fetchOrderDetails(); // Fetch order details when screen initializes
+  }
+
+  Future<void> fetchOrderDetails() async {
+    final apiUrl = 'https://clacostoreapi.onrender.com/getOrderConfirm';
+    final body = jsonEncode({"OrderID": "ORD101001092"});
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        if (jsonData['data'] != null && jsonData['data'].isNotEmpty) {
+          setState(() {
+            orderDetails = jsonData['data'][0];
+            isLoading = false; // Set loading to false when data is fetched
+          });
+        } else {
+          setState(() {
+            isLoading = false; // Set loading to false even if no data is found
+          });
+          print('No order details found.');
+        }
+      } else {
+        setState(() {
+          isLoading = false; // Set loading to false on failure
+        });
+        print('Failed to load order details. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false; // Set loading to false on error
+      });
+      print('Error fetching order details: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator()) // Show loading indicator
+          : orderDetails == null
+          ? Center(child: Text('No order details found.')) // Show message if no details found
+          : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Order ID - OD43108436740534100',
+                'Order ID - ${orderDetails!['OrderId']}',
                 style: TextStyle(fontSize: 14),
               ),
             ),
@@ -144,26 +302,51 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               ),
             ),
             SizedBox(height: 20),
+            // InkWell(
+            //   onTap: () {
+            //     _showCancelOrderDialog(context);
+            //   },
+            //   child: Container(
+            //     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(5),
+            //     ),
+            //     child: Text(
+            //       'Cancel Order',
+            //       style: TextStyle(
+            //         fontWeight: FontWeight.bold,
+            //         fontSize: 20,
+            //       ),
+            //     ),
+            //   ),
+            // ),
             InkWell(
               onTap: () {
-                _showCancelOrderDialog(context);
+                _showCancelOrderDialog(context, 'ORD101001092', 'Aise hi');
               },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Text(
-                  'Cancel Order',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20.0), // Add left padding here
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFe83e8c), // Set background color to pink
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text(
+                    'Cancel Order',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white, // Set text color to white
+                    ),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 10),
+
+
+          SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 0.0),
               child: Container(
@@ -291,14 +474,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Shailja Tiwari',
+                          'Name: ${orderDetails!['Name']}',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 5),
-                        Text(
-                          'Depali General store sunderpur polytechnic road, varanasi,          utter pradesh- 221005\nPhone number: 63877069650',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                        Text('Address: ${orderDetails!['Address']}'),
+                        Text('Mobile No: ${orderDetails!['MobileNo']}'),
+
                       ],
                     ),
                   ),
@@ -420,7 +602,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '₹169',
+                          '₹${orderDetails!['NetPayable'].toStringAsFixed(2)}',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -591,56 +773,58 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     }
   }
 
-  void _showCancelOrderDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text("Cancel Order"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Select a reason for cancellation:"),
-                  SizedBox(height: 10),
-                  _buildCancellationOption(context, "Item not needed", setState),
-                  _buildCancellationOption(context, "Found better price elsewhere", setState),
-                  _buildCancellationOption(context, "Delivery delayed", setState),
-                  _buildCancellationOption(context, "Other", setState),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Cancel"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (selectedReason != null) {
-                      print("Selected Reason: $selectedReason");
-                      if (selectedReason == "Item not needed") {
-                        setState(() {
-                          isCancelled = true;
-                        });
-                      }
-                    } else {
-                      print("Please select a reason for cancellation");
-                    }
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK"),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
+  //
+  // void _showCancelOrderDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             title: Text("Cancel Order"),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Text("Select a reason for cancellation:"),
+  //                 SizedBox(height: 10),
+  //                 _buildCancellationOption(context, "Item not needed", setState),
+  //                 _buildCancellationOption(context, "Found better price elsewhere", setState),
+  //                 _buildCancellationOption(context, "Delivery delayed", setState),
+  //                 _buildCancellationOption(context, "Other", setState),
+  //               ],
+  //             ),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text("Cancel"),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () {
+  //                   if (selectedReason != null) {
+  //                     print("Selected Reason: $selectedReason");
+  //                     if (selectedReason == "Item not needed") {
+  //                       setState(() {
+  //                         isCancelled = true;
+  //                       });
+  //                     }
+  //                   } else {
+  //                     print("Please select a reason for cancellation");
+  //                   }
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text("OK"),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
 
   Widget _buildCancellationOption(BuildContext context, String option, Function(void Function()) setState) {
     return InkWell(

@@ -12,6 +12,18 @@ import 'Page/user_signin.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Page/wishlist_page.dart';
 import 'firebase_options.dart'; // Make sure to import this
+import 'Page/order_summary_page.dart';
+import 'Page/OrderSuccesful_page.dart';
+import 'Page/filter_page.dart';
+import 'Page/search_product.dart';
+import 'Page/bb.dart';
+import 'pageUtills/update_user_profile.dart';
+import 'Page/onboarding_page.dart';
+import 'pageUtills/onboardingScreen.dart';
+import 'pageUtills/refer_earn.dart';
+
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +32,7 @@ void main() async {
   );
   runApp(MyApp());
 }
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -31,7 +44,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home:SplashScreen(), // This is your new login page with OTP removed
+      home:Filter(), // This is your new login page with OTP removed
       routes: {
         '/orderDetails': (context) => const OrderDetailsPage(),
         '/home': (context) => const HomeScreen(), // Assuming this is your home page
