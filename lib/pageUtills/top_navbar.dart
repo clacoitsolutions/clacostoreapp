@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../Page/my_cart.dart';
+import '../Page/search_product.dart'; // Import the SearchProduct page
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function()? onPersonIconPressed;
@@ -27,7 +28,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           //   color: Colors.white, // Set the color of the image
           // ),
           SizedBox(width: 10), // Added SizedBox for spacing
-
         ],
       ),
       actions: [
@@ -38,23 +38,33 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               MaterialPageRoute(builder: (context) => MycardScreen()),
             );
           },
-          child:
-
-             SizedBox(
-              width: 80, // Set the width of the circular image
-              height: 80, // Set the height of the circular image
-              child: CircleAvatar(
-                radius: 20, // Adjust the radius as per your requirement
-                backgroundImage: NetworkImage(
-                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjdx6kwUFu3LgLTVh0t2t38H4-RjFPOQdPr0JunoiQRQ&s",
-                ),
+          child: SizedBox(
+            width: 80, // Set the width of the circular image
+            height: 80, // Set the height of the circular image
+            child: CircleAvatar(
+              radius: 20, // Adjust the radius as per your requirement
+              backgroundImage: NetworkImage(
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjdx6kwUFu3LgLTVh0t2t38H4-RjFPOQdPr0JunoiQRQ&s",
               ),
             ),
-
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchProduct()),
+            );
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Icon(
+              Icons.search,
+              color: Colors.white,
+            ),
+          ),
         ),
       ],
-
-
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(40),
         child: Material(
@@ -74,7 +84,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
                   ),
                   Expanded(
-                    child: Center( // Wrap TextField with Center widget
+                    child: Center(
+                      // Wrap TextField with Center widget
                       child: TextField(
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
@@ -93,11 +104,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-
-
-
     );
   }
 }
-
-

@@ -30,7 +30,7 @@ class SortingPage extends StatelessWidget {
                     ),
                   ),
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(

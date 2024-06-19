@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Api services/service_api.dart';
 import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_appbar.dart';
 
 class MycardScreen extends StatelessWidget {
   const MycardScreen({Key? key}) : super(key: key);
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +28,28 @@ class MyCart extends StatefulWidget {
 class _MyCartState extends State<MyCart> {
   final APIService _cartService = APIService();
   String selectedText = '';
+  String? userName;
+  String? userEmail;
+  String? customerId ;
+  String? mobileNo;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('name');
+      userEmail = prefs.getString('emailAddress');
+      customerId = prefs.getString('customerId');
+      mobileNo = prefs.getString('mobileNo');
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,12 +123,14 @@ class _MyCartState extends State<MyCart> {
         ],
       ),
       body: FutureBuilder<List<dynamic>>(
-        future: _cartService.fetchData('CUST000394'),
+        future: customerId != null ? _cartService.fetchData(customerId!) : Future.value([]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
-            return Center(child: Text('Error: Failed to load data'));
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+            return Center(child: Text('Your cart is empty.'));
           } else {
             final List<dynamic> data = snapshot.data!;
             return SingleChildScrollView(
@@ -489,7 +517,7 @@ class _MyCartState extends State<MyCart> {
   }
 
   void _deleteItem(String cartListId) {
-    _cartService.removeItemFromCart('CUST000394', cartListId).then((_) {
+    _cartService.removeItemFromCart(customerId!, cartListId).then((_) {
       setState(() {});
     });
   }

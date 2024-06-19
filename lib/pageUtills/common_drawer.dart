@@ -132,6 +132,8 @@ class CommonDrawer extends StatefulWidget {
 class _CommonDrawerState extends State<CommonDrawer> {
   String? userName;
   String? userEmail;
+  String? customerId;
+  String? mobileNo;
 
   @override
   void initState() {
@@ -144,6 +146,8 @@ class _CommonDrawerState extends State<CommonDrawer> {
     setState(() {
       userName = prefs.getString('name');
       userEmail = prefs.getString('emailAddress');
+      customerId = prefs.getString('customerId');
+      mobileNo = prefs.getString('mobileNo');
     });
   }
 

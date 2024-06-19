@@ -26,8 +26,11 @@ class WishlistPage extends StatefulWidget {
 
 class _WishlistPageState extends State<WishlistPage> {
   List<WishList> wishList = [];
-  String customerId = 'ayush@gmail.com'; // Default customerId, can be updated from SharedPreferences
-  String message = ''; // Message to display based on API response
+  String message = '';
+  String? userName;
+  String? userEmail;
+  String? customerId;
+  String? mobileNo;
 
   @override
   void initState() {
@@ -36,10 +39,23 @@ class _WishlistPageState extends State<WishlistPage> {
   }
 
   Future<void> _loadUserData() async {
-    print("Loading user data...");
     final prefs = await SharedPreferences.getInstance();
-    customerId = prefs.getString('CustomerId') ?? 'ayush@gmail.com';
+    setState(() {
+      userName = prefs.getString('name');
+      userEmail = prefs.getString('emailAddress');
+      customerId = prefs.getString('customerId');
+      mobileNo = prefs.getString('mobileNo');
 
+      if (customerId != null) {
+        _loadUserDataApi();
+      } else {
+        message = 'Please login to view your wishlist';
+      }
+    });
+  }
+
+  Future<void> _loadUserDataApi() async {
+    print("Loading user data...");
     try {
       var response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/wishlist'),
@@ -115,6 +131,48 @@ class _WishlistPageState extends State<WishlistPage> {
     } catch (e) {
       print('Error occurred: $e');
       var errorMessage = 'Error occurred while removing item from wishlist. Please check your internet connection.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+      ));
+      // Handle error, e.g., show error message to the user
+    }
+  }
+
+  Future<void> _addToCart(String productId) async {
+    final url = Uri.parse('https://clacostoreapi.onrender.com/addtocart3');
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode({
+          'customerid': customerId,
+          'productid': productId,
+          'quantity': '1',
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        print('Item added to cart. Response: $responseData');
+
+        // Assuming the API returns a message in the response
+        var apiMessage = responseData['message'];
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(apiMessage),
+        ));
+      } else {
+        print('Failed to add item to cart. Status code: ${response.statusCode}');
+        var errorMessage = 'Failed to add item to cart. Status code: ${response.statusCode}';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ));
+        // Handle error, e.g., show error message to the user
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
@@ -241,7 +299,7 @@ class _WishlistPageState extends State<WishlistPage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    '₹${wishListItem.RegularPrice}',
+                    '₹${wishListItem.RegularPrice is double ? wishListItem.RegularPrice.toInt() : wishListItem.RegularPrice}',
                     style: TextStyle(
                       fontSize: 15,
                       color: Colors.black,
@@ -271,7 +329,7 @@ class _WishlistPageState extends State<WishlistPage> {
                   SizedBox(height: 5),
                   TextButton(
                     onPressed: () {
-                      // Add to Cart logic
+                      _addToCart(wishListItem.productId);
                     },
                     child: Text(
                       'Add to Cart',
@@ -289,29 +347,28 @@ class _WishlistPageState extends State<WishlistPage> {
 
   void _showDeleteConfirmationDialog(String productId) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-      return AlertDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
           title: Text('Confirmation'),
-    content: Text('Are you sure you want to remove this item from wishlist?'),
-    actions: <Widget>[
-          TextButton(
-          onPressed: () {
-        Navigator.of(context).pop();
-      },
-          child: Text('Cancel'),
-          ),
-          TextButton(
-          onPressed: () {
-          Navigator.of(context).pop();
-          _removeItemFromWishlist(productId);
-          },
-          child: Text('Yes'),
-          ),
+          content: Text('Are you sure you want to remove this item from wishlist?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _removeItemFromWishlist(productId);
+              },
+              child: Text('Yes'),
+            ),
           ],
-          );
-        },
+        );
+      },
     );
   }
 }
-
