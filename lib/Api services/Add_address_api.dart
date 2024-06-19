@@ -81,3 +81,25 @@ Future<List<ShowAddress>> fetchAddresses() async {
 }
 
 
+
+class ApiService {
+  static const String _baseUrl = 'https://clacostoreapi.onrender.com';
+
+  static Future<Map<String, dynamic>?> fetchAddressData(String customerId) async {
+    final url = '$_baseUrl/defaultaddress';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"CustomerId": customerId}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['data'][0];
+    } else {
+      print('Failed to load address data');
+      return null;
+    }
+  }
+}
+

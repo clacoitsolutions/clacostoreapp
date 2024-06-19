@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../Page/User/create_account.dart';
 import '../Page/login.dart';
+import '../Page/user_signin.dart';
 import 'effects/onboarding_custom_effect.dart';
 
 class SplashScreens extends StatefulWidget {
@@ -186,7 +187,7 @@ class _SplashScreensState extends State<SplashScreens> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage1()), // Navigate to WebViewPage
+                        MaterialPageRoute(builder: (context) => SignInPage()), // Navigate to WebViewPage
                       );
                     },
                     style: ButtonStyle(

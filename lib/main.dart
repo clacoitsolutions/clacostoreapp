@@ -1,5 +1,6 @@
 import 'package:claco_store/pageUtills/splashScreen.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';import 'Page/home/Chekout_page.dart';
+
 import 'Page/home_page.dart';
 import 'Page/order_details.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home:SplashScreen(),// This is your new login page with OTP removed
+      home:Checkout(),// This is your new login page with OTP removed
       routes: {
         '/orderDetails': (context) =>  OrderDetailsScreen(),
         '/home': (context) => const HomeScreen(), // Assuming this is your home page
