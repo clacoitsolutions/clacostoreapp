@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../Api services/Add_address_api.dart';
+import '../../Api services/Checkout_Api.dart';
+import '../../pageUtills/common_appbar.dart';
 import '../addressscreen.dart';
 
 class Checkout extends StatelessWidget {
@@ -11,7 +13,7 @@ class Checkout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Checkout'),
+      appBar: CommonAppBar(title: 'Checkout',),
       body: MyCart(),
     );
   }
@@ -33,17 +35,20 @@ class _MyCartState extends State<MyCart> {
   String _state = '';
   String _city = '';
   List<dynamic> _cartItems = [];
+  double totalSalePrice = 0.0;
+  double totalGSTAmount = 0.0;
 
   @override
   void initState() {
     super.initState();
     _fetchAddressData();
     _fetchCartItems();
+    _fetchTotalAmounts();
   }
 
   Future<void> _fetchAddressData() async {
     // Simulating fetching address data from API
-    final addressData = await ApiService.fetchAddressData("CUST000394");
+    final addressData = await CartApiService.fetchAddressData("CUST000394");
     if (addressData != null) {
       setState(() {
         _name = addressData['Name'];
@@ -58,28 +63,37 @@ class _MyCartState extends State<MyCart> {
 
   Future<void> _fetchCartItems() async {
     try {
-      final response = await http.post(
-        Uri.parse('https://clacostoreapi.onrender.com/addToCart'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'CustomerId': 'CUST000394',
-        }),
-      );
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        setState(() {
-          _cartItems = responseData['data'];
-        });
-      } else {
-        throw Exception('Failed to load cart items');
-      }
+      final cartItems = await CartApiService.fetchCartItems('CUST000394');
+      setState(() {
+        _cartItems = cartItems;
+      });
     } catch (e) {
       print('Error fetching cart items: $e');
       // Handle error
     }
   }
+  Future<void> _fetchTotalAmounts() async {
+    try {
+      final jsonData = await TotalAmountApiService.fetchTotalAmount('CUST000394');
+
+      if (jsonData != null &&
+          jsonData['addresses'] != null &&
+          jsonData['addresses'].isNotEmpty &&
+          jsonData['addresses'][0]['TotalSalePrice'] != null &&
+          jsonData['addresses'][0]['TotalGSTAmount'] != null) {
+        setState(() {
+          totalSalePrice = jsonData['addresses'][0]['TotalSalePrice'];
+          totalGSTAmount = jsonData['addresses'][0]['TotalGSTAmount'];
+        });
+      } else {
+        print('Invalid data format received');
+      }
+    } catch (e) {
+      print('Error fetching total amounts: $e');
+    }
+  }
+
+
 
   void _incrementCounter() {
     setState(() {
@@ -113,9 +127,10 @@ class _MyCartState extends State<MyCart> {
       itemBuilder: (context, index) {
         return Container(
           height: 100,
-          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          margin: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.2),
@@ -235,6 +250,7 @@ class _MyCartState extends State<MyCart> {
       height: 170,
       width: double.infinity,
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -254,7 +270,7 @@ class _MyCartState extends State<MyCart> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Items (${_cartItems.length})', style: TextStyle(color: Colors.grey)),
-                Text('₹1500.0'),
+                Text('...'),
               ],
             ),
           ),
@@ -264,7 +280,7 @@ class _MyCartState extends State<MyCart> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Shipping', style: TextStyle(color: Colors.grey)),
-                Text('₹40.0'),
+                Text('\₹${totalGSTAmount.toStringAsFixed(2)}'),
               ],
             ),
           ),
@@ -273,8 +289,8 @@ class _MyCartState extends State<MyCart> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Import charge', style: TextStyle(color: Colors.grey)),
-                Text('₹40.0'),
+                Text('Dilevery Charge', style: TextStyle(color: Colors.grey)),
+                Text('₹ 0.0'),
               ],
             ),
           ),
@@ -285,7 +301,11 @@ class _MyCartState extends State<MyCart> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Total Price', style: TextStyle(fontWeight: FontWeight.w700)),
-                Text('₹1580.00', style: TextStyle(color: Colors.pink, fontWeight: FontWeight.w500)),
+                Text(
+                 '\₹${totalSalePrice.toStringAsFixed(2)}',
+
+                  style: TextStyle(color: Colors.pink, fontWeight: FontWeight.w500),
+                ),
               ],
             ),
           ),
@@ -296,73 +316,73 @@ class _MyCartState extends State<MyCart> {
 
   Widget _buildPaymentSelection() {
     return Container(
-      height: 85,
-      width: double.infinity,
-      decoration: BoxDecoration(
+        height: 85,
+        width: double.infinity,
+        decoration: BoxDecoration(
         color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
         boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 4,
+        BoxShadow(
+        color: Colors.grey.withOpacity(0.2),
+    spreadRadius: 2,
+    blurRadius: 4,
+    ),
+    ],
+    ),
+    child: Padding(
+    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical:10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _toggleSelection(1);
+                },
+                child: Container(
+                  width: 17,
+                  height: 17,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: _isSelected1 ? Colors.pink : Colors.grey,
+                      width: 2.0,
+                    ),
+                    color: _isSelected1 ? Colors.pink : Colors.transparent,
+                  ),
+                ),
+              ),
+              SizedBox(width: 5),
+              Text('Cash On Delivery'),
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _toggleSelection(2);
+                },
+                child: Container(
+                  width: 17,
+                  height: 17,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: _isSelected2 ? Colors.pink : Colors.grey,
+                      width: 2.0,
+                    ),
+                    color: _isSelected2 ? Colors.pink : Colors.transparent,
+                  ),
+                ),
+              ),
+              SizedBox(width: 5),
+              Text('Other'),
+            ],
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 15),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-        Row(
-        children: [
-        GestureDetector(
-        onTap: () {
-      _toggleSelection(1);
-      },
-        child: Container(
-          width: 17,
-          height: 17,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: _isSelected1 ? Colors.pink : Colors.grey,
-              width: 2.0,
-            ),
-            color: _isSelected1 ? Colors.pink : Colors.transparent,
-          ),
-        ),
-      ),
-      SizedBox(width: 5),
-      Text('Cash On Delivery'),
-      ],
-    ),
-    SizedBox(height: 10),
-    Row(
-    children: [
-    GestureDetector(
-    onTap: () {
-    _toggleSelection(2);
-    },
-    child: Container(
-    width: 17,
-    height: 17,
-    decoration: BoxDecoration(
-    shape: BoxShape.circle,
-
-    border: Border.all(
-    color: _isSelected2 ? Colors.pink : Colors.grey,
-    width: 2.0,
-    ),
-    color: _isSelected2 ? Colors.pink : Colors.transparent,
-    ),
-    ),
-    ),
-    SizedBox(width: 5),
-    Text('Other'),
-    ],
-    ),
-    ],
-    ),
     ),
     );
   }
@@ -389,6 +409,92 @@ class _MyCartState extends State<MyCart> {
     );
   }
 
+  Widget _buildAddressCard() {
+    return Container(
+      padding: EdgeInsets.only(top: 10, left: 15, right: 20, bottom: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 4,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _name,
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle button press
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AddAddressPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: BorderSide(color: Colors.pink, width: 1),
+                        ),
+                      ),
+                      child: Text(
+                        'Change',
+                        style: TextStyle(fontSize: 14, color: Colors.pink),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                _address,
+                style: TextStyle(fontSize: 13, color: Colors.black),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text(
+                '$_pinCode , ',
+                style: TextStyle(fontSize: 13, color: Colors.black),
+              ),
+              SizedBox(width: 3),
+              Text(
+                '$_city ,',
+                style: TextStyle(fontSize: 13, color: Colors.black),
+              ),
+              SizedBox(width: 3),
+              Text(
+                _state,
+                style: TextStyle(fontSize: 13, color: Colors.black),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -402,93 +508,12 @@ class _MyCartState extends State<MyCart> {
               children: [
                 Text(
                   'Shipping address',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18),
                 ),
               ],
             ),
             SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.only(top: 10, left: 15, right: 20, bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 4,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _name,
-                              style: TextStyle(fontSize: 14, color: Colors.black),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Handle button press
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => AddAddressPage()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  side: BorderSide(color: Colors.pink, width: 1),
-                                ),
-                              ),
-                              child: Text(
-                                'Change',
-                                style: TextStyle(fontSize: 14, color: Colors.pink),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        _address,
-                        style: TextStyle(fontSize: 13, color: Colors.black),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        '$_pinCode , ',
-                        style: TextStyle(fontSize: 13, color: Colors.black),
-                      ),
-                      SizedBox(width: 3),
-                      Text(
-                        '$_city ,',
-                        style: TextStyle(fontSize: 13, color: Colors.black),
-                      ),
-                      SizedBox(width: 3),
-                      Text(
-                        _state,
-                        style: TextStyle(fontSize: 13, color: Colors.black),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            _buildAddressCard(),
             SizedBox(height: 8),
             _buildCartItems(),
             SizedBox(height: 8),
@@ -497,7 +522,7 @@ class _MyCartState extends State<MyCart> {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade200, width: 1),
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Stack(
                 children: [
@@ -541,7 +566,7 @@ class _MyCartState extends State<MyCart> {
             ),
             SizedBox(height: 8),
             _buildSummarySection(),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             _buildPaymentSelection(),
             SizedBox(height: 10),
             _buildContinueButton(),
@@ -552,26 +577,6 @@ class _MyCartState extends State<MyCart> {
     );
   }
 }
-
-
-
-class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-
-  const CommonAppBar({Key? key, required this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Text(title),
-    );
-  }
-
-  @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
-}
-
-
 
 void main() {
   runApp(MaterialApp(

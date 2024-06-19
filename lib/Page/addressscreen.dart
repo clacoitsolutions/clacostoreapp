@@ -107,7 +107,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: CommonAppBar(title: 'Address'),
+    appBar: CommonAppBar(title: 'Address',),
       body: Container(
         color: Colors.grey[200],
         child: Center(

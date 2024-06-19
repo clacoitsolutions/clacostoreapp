@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../Api services/service_api.dart';
+import 'home/Chekout_page.dart';
 
 class ProductDetails extends StatefulWidget {
   @override
@@ -422,7 +423,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                       SizedBox(width: 12),
                       ElevatedButton(
                         onPressed: () {
-                          // Handle button tap
+                          addToCart(); // Call your addToCart function here if needed
+                          // Navigate to the checkout page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Checkout()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,

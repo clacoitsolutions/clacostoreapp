@@ -187,7 +187,7 @@ class _SplashScreensState extends State<SplashScreens> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignInPage()), // Navigate to WebViewPage
+                        MaterialPageRoute(builder: (context) => LoginPage1()), // Navigate to WebViewPage
                       );
                     },
                     style: ButtonStyle(
