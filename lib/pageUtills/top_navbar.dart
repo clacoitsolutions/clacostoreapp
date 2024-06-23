@@ -1,5 +1,13 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import '../Page/home/Chekout_page.dart';
+import '../Page/home/Grocery_vegitable_home_page.dart';
+import '../Page/home/grocery_home_page.dart';
+import '../Page/home_page.dart';
 import '../Page/my_cart.dart';
 import '../Page/search_product.dart'; // Import the SearchProduct page
 
@@ -11,66 +19,92 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(80); // Increased the height of the app bar
+  Size get preferredSize => Size.fromHeight(90); // Increased the height of the app bar
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.pink, // Set background color to pink
-      iconTheme: IconThemeData(color: Colors.white), // Set the color of the three-line toggle icon
       elevation: 0, // Removed the elevation to make it flat
-      title: Row(
-        children: [
-          // Image.asset(
-          //   'assets/logo.png', // Replace 'assets/logo.png' with your logo image path
-          //   height: 30, // Set the height of the image
-          //   width: 30, // Set the width of the image
-          //   color: Colors.white, // Set the color of the image
-          // ),
-          SizedBox(width: 10), // Added SizedBox for spacing
-        ],
+      automaticallyImplyLeading: false, //
+      title:Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+      Expanded(
+      child: GestureDetector(
+      onTap: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => HomeScreen()),
+    );
+    },
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.lightBlue,
+          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Text(
+          'Claco',
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
-      actions: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MycardScreen()),
-            );
-          },
-          child: SizedBox(
-            width: 80, // Set the width of the circular image
-            height: 80, // Set the height of the circular image
-            child: CircleAvatar(
-              radius: 20, // Adjust the radius as per your requirement
-              backgroundImage: NetworkImage(
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjdx6kwUFu3LgLTVh0t2t38H4-RjFPOQdPr0JunoiQRQ&s",
-              ),
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchProduct()),
-            );
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ],
-      bottom: PreferredSize(
+    ),
+    ),
+    Expanded(
+    child: GestureDetector(
+    onTap: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => GroceryHome()), // Replace with the correct page
+    );
+    },
+    child: ElevatedButton(
+    onPressed: () {
+    Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => GroceryHome()), // Replace with the correct page
+    );
+    },
+    style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.green,
+    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(10),
+    ),
+    ),
+    child: Text(
+    'Grocery',
+    style: TextStyle(
+    fontSize: 25,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    ),
+    ),
+    ),
+    ),
+    ),
+    ]
+      ),
+
+    bottom: PreferredSize(
         preferredSize: Size.fromHeight(40),
         child: Material(
           color: Colors.black.withOpacity(0.02),
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            margin: EdgeInsets.only(left: 10, right: 10,bottom: 5),
             child: Container(
               height: 40,
               decoration: BoxDecoration(

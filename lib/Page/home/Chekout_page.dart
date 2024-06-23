@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Api services/Add_address_api.dart';
 import '../../Api services/Checkout_Api.dart';
@@ -13,7 +14,9 @@ class Checkout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Checkout',),
+      appBar: CommonAppBar(
+        title: 'Checkout',
+      ),
       body: MyCart(),
     );
   }
@@ -28,6 +31,7 @@ class _MyCartState extends State<MyCart> {
   int _counter = 1;
   bool _isSelected1 = false;
   bool _isSelected2 = false;
+  String _Srno = '';
   String _name = '';
   String _address = '';
   String _pinCode = '';
@@ -37,20 +41,28 @@ class _MyCartState extends State<MyCart> {
   List<dynamic> _cartItems = [];
   double totalSalePrice = 0.0;
   double totalGSTAmount = 0.0;
+  double deliveryCharge = 0.0; // Delivery charge variable
+  String paymentMethod = ''; // Payment method variable
+  String _customerId = ''; // CustomerId as global variable
+  String _addressId = ''; // SrNo (address ID) as global variable
 
   @override
   void initState() {
     super.initState();
-    _fetchAddressData();
-    _fetchCartItems();
-    _fetchTotalAmounts();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    await _fetchAddressData();
+    await _fetchCartItems();
+    await _fetchTotalAmounts();
   }
 
   Future<void> _fetchAddressData() async {
-    // Simulating fetching address data from API
     final addressData = await CartApiService.fetchAddressData("CUST000394");
     if (addressData != null) {
       setState(() {
+        _Srno = addressData['SrNo'];
         _name = addressData['Name'];
         _address = addressData['Address'];
         _pinCode = addressData['PinCode'];
@@ -58,6 +70,15 @@ class _MyCartState extends State<MyCart> {
         _state = addressData['State_name'];
         _city = addressData['CityName'];
       });
+
+      // Store CustomerId and SrNo in SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('CustomerId', 'CUST000394');
+      await prefs.setString('SrNo', addressData['SrNo']);
+
+      // Update global variables
+      _customerId = 'CUST000394';
+      _addressId = addressData['SrNo'];
     }
   }
 
@@ -72,6 +93,7 @@ class _MyCartState extends State<MyCart> {
       // Handle error
     }
   }
+
   Future<void> _fetchTotalAmounts() async {
     try {
       final jsonData = await TotalAmountApiService.fetchTotalAmount('CUST000394');
@@ -84,7 +106,15 @@ class _MyCartState extends State<MyCart> {
         setState(() {
           totalSalePrice = jsonData['addresses'][0]['TotalSalePrice'];
           totalGSTAmount = jsonData['addresses'][0]['TotalGSTAmount'];
+
+          // Add delivery charge if totalSalePrice is less than 100
+          deliveryCharge = totalSalePrice < 100 ? 40.0 : 0.0;
         });
+
+        // Store TotalSalePrice and TotalGSTAmount in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setDouble('TotalSalePrice', totalSalePrice);
+        await prefs.setDouble('TotalGSTAmount', totalGSTAmount);
       } else {
         print('Invalid data format received');
       }
@@ -93,7 +123,82 @@ class _MyCartState extends State<MyCart> {
     }
   }
 
+  void _handlePayment() async {
+    // Ensure customerId and addressId are not null
+    if (_customerId.isEmpty || _addressId.isEmpty) {
+      print('Customer ID or Address ID is empty');
+      return;
+    }
 
+    final grossAmount = totalSalePrice;
+    final netPayable = totalSalePrice + deliveryCharge;
+    final GSTAmount = totalGSTAmount;
+
+    // Debug statements to check the values
+    print('Customer ID: $_customerId');
+    print('Address ID: $_addressId');
+    print('Gross Amount: $grossAmount');
+    print('Net Payable: $netPayable');
+    print('GST Amount: $GSTAmount');
+    print('Payment Method: $paymentMethod');
+
+    // Construct the API request body
+    Map<String, dynamic> requestBody = {
+      "customerid": _customerId,
+      "grossamount": grossAmount,
+      "deliverycharges": deliveryCharge,
+      "iscoupenapplied": true,
+      "coupenamount": null,
+      "discountamount": null,
+      "deliveryaddressid": _addressId,
+      "paymentmode": paymentMethod,
+      "paymentstatus": "Paid",
+      "NetPayable": netPayable,
+      "GSTAmount": GSTAmount
+    };
+
+    // Convert the request body to JSON
+    String jsonBody = json.encode(requestBody);
+
+    // Make API call using http package
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/postOnlineOrder1'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonBody,
+      );
+
+      if (response.statusCode == 200) {
+        // Handle success scenario
+        print('Order placed successfully');
+        // Navigate to success page or show success message
+      } else {
+        // Handle error scenario
+        print('Failed to place order. Status code: ${response.statusCode}');
+        // Show error message to user
+      }
+    } catch (e) {
+      // Handle network or unexpected errors
+      print('Error: $e');
+      // Show error message to user
+    }
+  }
+
+  void _toggleSelection(int boxNumber) {
+    setState(() {
+      if (boxNumber == 1) {
+        _isSelected1 = true;
+        _isSelected2 = false;
+        paymentMethod = 'Cash on Delivery';
+      } else {
+        _isSelected1 = false;
+        _isSelected2 = true;
+        paymentMethod = 'Online Payment';
+      }
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -107,17 +212,7 @@ class _MyCartState extends State<MyCart> {
     });
   }
 
-  void _toggleSelection(int boxNumber) {
-    setState(() {
-      if (boxNumber == 1) {
-        _isSelected1 = true;
-        _isSelected2 = false;
-      } else {
-        _isSelected1 = false;
-        _isSelected2 = true;
-      }
-    });
-  }
+  bool get _isContinueButtonEnabled => _isSelected1 || _isSelected2;
 
   Widget _buildCartItems() {
     return ListView.builder(
@@ -171,7 +266,7 @@ class _MyCartState extends State<MyCart> {
                           color: Colors.black.withOpacity(0.6),
                         ),
                       ),
-                      Spacer(),
+                      SizedBox(height: 25,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -179,7 +274,8 @@ class _MyCartState extends State<MyCart> {
                             '₹ ${_cartItems[index]['OnlinePrice'].toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.pink,
+                              color:
+                              Colors.pink,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -247,7 +343,85 @@ class _MyCartState extends State<MyCart> {
 
   Widget _buildSummarySection() {
     return Container(
-      height: 170,
+        height: 170,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+            SizedBox(height: 12),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Items (${_cartItems.length})', style: TextStyle(color: Colors.grey)),
+              Text('...'),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Shipping', style: TextStyle(color: Colors.grey)),
+              Text('$totalGSTAmount'),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Delivery charge', style: TextStyle(color: Colors.grey)),
+              Text('₹ ${deliveryCharge.toStringAsFixed(2)}'),
+            ],
+          ),
+        ),
+        Divider(thickness: 1, color: Colors.grey.withOpacity(0.5)),
+        Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    Text(                'Total Amount',
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+      Text(
+        '₹ ${(totalSalePrice + deliveryCharge).toStringAsFixed(2)}',
+        style: TextStyle(
+          color: Colors.pink,
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    ],
+    ),
+        ),
+          ],
+        ),
+    );
+  }
+
+  Widget _buildPaymentSelection() {
+    return Container(
+      height: 100,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -263,139 +437,36 @@ class _MyCartState extends State<MyCart> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(height: 12),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Items (${_cartItems.length})', style: TextStyle(color: Colors.grey)),
-                Text('...'),
-              ],
-            ),
+          ListTile(
+            title: Text('Cash on Delivery'),
+            trailing: _isSelected1
+                ? Icon(Icons.check_circle, color: Colors.pink)
+                : Icon(Icons.radio_button_unchecked),
+            onTap: () => _toggleSelection(1),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Shipping', style: TextStyle(color: Colors.grey)),
-                Text('\₹${totalGSTAmount.toStringAsFixed(2)}'),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Dilevery Charge', style: TextStyle(color: Colors.grey)),
-                Text('₹ 0.0'),
-              ],
-            ),
-          ),
-          Divider(color: Colors.grey.shade200),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Total Price', style: TextStyle(fontWeight: FontWeight.w700)),
-                Text(
-                 '\₹${totalSalePrice.toStringAsFixed(2)}',
-
-                  style: TextStyle(color: Colors.pink, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
+          ListTile(
+            title: Text('Other'),
+            trailing: _isSelected2
+                ? Icon(Icons.check_circle, color: Colors.pink)
+                : Icon(Icons.radio_button_unchecked),
+            onTap: () => _toggleSelection(2),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPaymentSelection() {
-    return Container(
-        height: 85,
-        width: double.infinity,
-        decoration: BoxDecoration(
-        color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-        BoxShadow(
-        color: Colors.grey.withOpacity(0.2),
-    spreadRadius: 2,
-    blurRadius: 4,
-    ),
-    ],
-    ),
-    child: Padding(
-    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical:10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _toggleSelection(1);
-                },
-                child: Container(
-                  width: 17,
-                  height: 17,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _isSelected1 ? Colors.pink : Colors.grey,
-                      width: 2.0,
-                    ),
-                    color: _isSelected1 ? Colors.pink : Colors.transparent,
-                  ),
-                ),
-              ),
-              SizedBox(width: 5),
-              Text('Cash On Delivery'),
-            ],
-          ),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _toggleSelection(2);
-                },
-                child: Container(
-                  width: 17,
-                  height: 17,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _isSelected2 ? Colors.pink : Colors.grey,
-                      width: 2.0,
-                    ),
-                    color: _isSelected2 ? Colors.pink : Colors.transparent,
-                  ),
-                ),
-              ),
-              SizedBox(width: 5),
-              Text('Other'),
-            ],
-          ),
-        ],
-      ),
-    ),
-    );
-  }
+
+
+
 
   Widget _buildContinueButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          // Implement logic to handle continue button press
-        },
+        onPressed: _isContinueButtonEnabled ? _handlePayment : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.pink,
+          backgroundColor: _isContinueButtonEnabled ? Colors.pink : Colors.grey,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
@@ -409,9 +480,12 @@ class _MyCartState extends State<MyCart> {
     );
   }
 
+
   Widget _buildAddressCard() {
     return Container(
-      padding: EdgeInsets.only(top: 10, left: 15, right: 20, bottom: 10),
+      height: 130,
+      width: double.infinity,
+      padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
@@ -420,157 +494,118 @@ class _MyCartState extends State<MyCart> {
             color: Colors.grey.withOpacity(0.2),
             spreadRadius: 2,
             blurRadius: 4,
-            offset: Offset(0, 3),
           ),
         ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _name,
-                      style: TextStyle(fontSize: 14, color: Colors.black),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle button press
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AddAddressPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: BorderSide(color: Colors.pink, width: 1),
-                        ),
-                      ),
-                      child: Text(
-                        'Change',
-                        style: TextStyle(fontSize: 14, color: Colors.pink),
-                      ),
-                    ),
-                  ],
+              Text(
+                'Deliver to:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Navigate to address selection screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddAddressPage()),
+                  );
+                },
+                child: Text(
+                  'Change',
+                  style: TextStyle(
+                    color: Colors.pink,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17,
+                  ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                _address,
-                style: TextStyle(fontSize: 13, color: Colors.black),
-              ),
-            ],
+          Text(
+            _name,
+            style: TextStyle(fontSize: 16),
           ),
-          Row(
-            children: [
-              Text(
-                '$_pinCode , ',
-                style: TextStyle(fontSize: 13, color: Colors.black),
-              ),
-              SizedBox(width: 3),
-              Text(
-                '$_city ,',
-                style: TextStyle(fontSize: 13, color: Colors.black),
-              ),
-              SizedBox(width: 3),
-              Text(
-                _state,
-                style: TextStyle(fontSize: 13, color: Colors.black),
-              )
-            ],
+          Text(
+            '$_address, $_city, $_state - $_pinCode',
+            style: TextStyle(fontSize: 15),
+          ),
+          Text(
+            'Phone: $_mobileNo',
+            style: TextStyle(fontSize: 14),
           ),
         ],
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blue.withOpacity(0.08),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
-          children: <Widget>[
-            SizedBox(height: 10),
-            Row(
-              children: [
-                Text(
-                  'Shipping address',
-                  style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
+          children: [
             _buildAddressCard(),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
             _buildCartItems(),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
             Container(
-              height: 48,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade200, width: 1),
-                color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                  ),
+                ],
               ),
-              child: Stack(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Positioned(
-                    top: 0,
-                    left: 15,
-                    right: 60,
-                    bottom: 0,
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter Coupon Code',
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 15,
-                        ),
-                      ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(
+                      'Coupons',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    width: 60,
-                    height: 48,
-                    child: Container(
-                      color: Colors.pink,
-                      child: const Center(
-                        child: Text(
-                          'Apply',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  ListTile(
+                    leading: Icon(Icons.local_offer,color: Colors.pink,),
+                    title: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Enter coupon code',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        // Handle apply coupon button press
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink.withOpacity(0.9) ,
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
                         ),
                       ),
+                      child: Text('Apply',style: TextStyle(color: Colors.white),),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
             _buildSummarySection(),
-            SizedBox(height: 10),
+            SizedBox(height: 16),
             _buildPaymentSelection(),
-            SizedBox(height: 10),
+            SizedBox(height: 16),
             _buildContinueButton(),
-            SizedBox(height: 20),
           ],
         ),
       ),
@@ -578,9 +613,4 @@ class _MyCartState extends State<MyCart> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: Checkout(),
-  ));
-}
 

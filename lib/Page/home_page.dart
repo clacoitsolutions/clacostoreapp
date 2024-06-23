@@ -21,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: HomeAppBar(), // Instantiate CommonAppBar directly
-      drawer: CommonDrawer(), // Using the CommonDrawer
       body: HomeBody(),
       bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );

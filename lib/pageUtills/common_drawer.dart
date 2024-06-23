@@ -1,5 +1,10 @@
+import 'package:claco_store/Page/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Page/my_cart.dart';
+import '../Page/my_order.dart';
+import '../Page/wishlist_page.dart'; // Import SharedPreferences
 
 
 class CommonDrawer extends StatefulWidget {
@@ -60,36 +65,42 @@ class _CommonDrawerState extends State<CommonDrawer> {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              // Navigate to the Home Screen
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/home');
+
+              Navigator.push(
+                  context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
             },
           ),
           ListTile(
-            leading: Icon(Icons.shopping_cart),
+            leading: Icon(Icons.add_shopping_cart),
             title: Text('My Cart'),
             onTap: () {
-              // Navigate to the Cart Screen
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/cart'); // Assuming you have a cart route
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MycardScreen()),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.favorite_border_outlined),
             title: Text('My Wishlist'),
             onTap: () {
-              // Navigate to the Wishlist Screen
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/wishlist'); // Assuming you have a wishlist route
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => WishListScreen()),
+              );
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
+            leading: Icon(Icons.shopping_bag_outlined),
+            title: Text('My Order'),
             onTap: () {
-              // Add functionality for Settings
-              Navigator.pop(context); // Close the drawer
-              // Add your navigation logic here
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyOrderScreen()),
+              );
             },
           ),
           // Logout Option at the Bottom
