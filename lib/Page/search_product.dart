@@ -1,9 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'filter_page.dart';
+import 'package:claco_store/models/Category_filter.dart';
 
 class SearchProduct extends StatefulWidget {
-  const SearchProduct({Key? key}) : super(key: key);
+  List<dynamic> products = [];
+  List<CategoryProduct> categoryProducts = [];
+
+  SearchProduct({Key? key,}) : super(key: key);
 
   @override
   State<SearchProduct> createState() => _SearchProductState();
@@ -12,75 +15,24 @@ class SearchProduct extends StatefulWidget {
 class _SearchProductState extends State<SearchProduct> {
   TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
-  List<dynamic> _searchResults = [];
-
-  Future<void> _searchProducts(String searchText) async {
-    String apiUrl = 'https://clacostoreapi.onrender.com/SearchProduct';
-
-    try {
-      var response = await http.post(
-        Uri.parse(apiUrl),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'SearchText': searchText,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        setState(() {
-          _searchResults = data['data'];
-        });
-      } else {
-        throw Exception('Failed to load data: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('Failed to fetch search results. Please try again later.'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      );
-    }
-  }
+  bool _isAdditionalRowVisible = false;
+  List<CategoryProduct> filteredCategoryProducts = [];
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_onSearchTextChanged);
+    _searchController.addListener(_onSearchChanged);
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchTextChanged() {
-    String searchText = _searchController.text.trim();
-    if (searchText.isNotEmpty) {
-      _searchProducts(searchText);
-      setState(() {
-        _isSearching = true;
-      });
-    } else {
-      setState(() {
-        _isSearching = false;
-        _searchResults.clear(); // Clear search results if search text is empty
-      });
-    }
+  void _onSearchChanged() {
+    setState(() {
+      _isAdditionalRowVisible = _searchController.text.isNotEmpty;
+      _isSearching = _searchController.text.isNotEmpty;
+      filteredCategoryProducts = widget.categoryProducts
+          .where((categoryProduct) =>
+          categoryProduct.productCategory.toLowerCase().contains(_searchController.text.toLowerCase()))
+          .toList();
+    });
   }
 
   @override
@@ -117,14 +69,6 @@ class _SearchProductState extends State<SearchProduct> {
                     hintText: 'Search for products...',
                     border: InputBorder.none,
                   ),
-                  onChanged: (value) {
-                    _onSearchTextChanged();
-                  },
-                  onSubmitted: (value) {
-                    if (value.isNotEmpty) {
-                      _searchProducts(value);
-                    }
-                  },
                 ),
               ),
               IconButton(
@@ -137,130 +81,338 @@ class _SearchProductState extends State<SearchProduct> {
           ),
         ),
       ),
-      body: _isSearching
-          ? _buildSearchResults()
-          : Center(
-        child: Text('Start searching by entering a keyword.'),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Popular Products",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  // Implement short functionality
+                },
+                icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+                label: Text(
+                  "Short",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0), // Adjust right padding as needed
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Filter()),
+                    );
+                  },
+                  icon: Icon(Icons.filter_list, color: Colors.black, size: 14,),
+                  label: Text(
+                    "Filter",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Visibility(
+            visible: _isAdditionalRowVisible,
+            child: _buildAdditionalRow(),
+          ),
+          _isSearching ? _buildSearchResults() : _buildInitialProducts(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdditionalRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: _buildProductCard(
+              name: 'Model Black saari...',
+              imageUrl: 'https://cdn.pixabay.com/photo/2017/06/06/23/57/birds-2378923_640.jpg',
+              price: '₹ 3000',
+              rating: ' 4.8',
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: _buildProductCard(
+              name: 'Model White T-shirt...',
+              imageUrl: 'https://cdn.pixabay.com/photo/2016/11/18/17/42/barbecue-1836053_640.jpg',
+              price: '₹ 500',
+              rating: ' 4.6',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInitialProducts() {
+    return Expanded(
+      child: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 8.0,
+          crossAxisSpacing: 8.0,
+          childAspectRatio: 0.75, // Adjust this ratio as per your needs
+        ),
+        itemCount: widget.products.length,
+        itemBuilder: (context, index) {
+          var product = widget.products[index];
+          return GestureDetector(
+            onTap: () {
+              _navigateToProductDetail(product);
+            },
+            child: _buildProductCard(
+              name: product['ProductName'],
+              imageUrl: product['ProductMainImageUrl'],
+              price: '₹ ${product['SalePrice']}',
+              rating: ' ${product['Rating']}',
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildSearchResults() {
-    return GridView.builder(
-      padding: EdgeInsets.all(8.0), // Adjusted padding around the GridView
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8.0, // Reduced spacing between cards horizontally
-        mainAxisSpacing: 8.0, // Reduced spacing between rows vertically
-        childAspectRatio: 0.7, // Adjusted aspect ratio for better mobile view
+    return Expanded(
+      child: ListView.builder(
+        itemCount: filteredCategoryProducts.length,
+        itemBuilder: (context, index) {
+          var categoryProduct = filteredCategoryProducts[index];
+          return _buildCategoryProductCard(categoryProduct: categoryProduct);
+        },
       ),
-      itemCount: _searchResults.length,
-      itemBuilder: (context, index) {
-        var product = _searchResults[index];
-        String productName = product['ProductName'];
-        if (productName.length > 20) {
-          productName = productName.substring(0, 20) + '...';
-        }
+    );
+  }
 
-        String regularPrice = product['RegularPrice'].toString();
-        String salePrice = product['SalePrice'].toString();
-
-        // Calculate percentage discount
-        double regularPriceValue = double.parse(regularPrice);
-        double salePriceValue = double.parse(salePrice);
-        double discountPercentage = ((regularPriceValue - salePriceValue) / regularPriceValue) * 100;
-
-        // Check if there's a discount to display
-        bool hasDiscount = discountPercentage > 0;
-
-        return Card(
-          elevation: 7,
-
+  Widget _buildCategoryProductCard({required CategoryProduct categoryProduct}) {
+    return GestureDetector(
+      child: Container(
+        height: 180,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Card(
+          elevation: 2,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)),
-                child: Image.network(
-                  product['ProductMainImageUrl'],
-                  width: double.infinity,
-                  height: 100,
-                  fit: BoxFit.cover,
+              Expanded(
+                flex: 3,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                  child: Image.network(
+                    categoryProduct.catImg,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      productName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    categoryProduct.productCategory,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          ' ₹${salePrice}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                        SizedBox(width: 3),
-                        Text(
-                          ' ₹${regularPrice}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4),
-                    if (hasDiscount)
-                      Text(
-                        '${discountPercentage.toStringAsFixed(0)}% off', // Display percentage discount
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                        Icon(Icons.star_half, color: Colors.grey, size: 15),
-                        SizedBox(width: 5),
-                        Text(
-                          product['rating']?.toString() ?? '0', // Product rating with null check
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
                 ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductCard({
+    required String name,
+    required String imageUrl,
+    required String price,
+    required String rating,
+  }) {
+    return Container(
+      height: 100, // Set desired height for the container
+      width: 100, // Set desired width for the container
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 1.0, // Ensure aspect ratio is square
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 2),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    price,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
+                      child: Icon(
+                        Icons.star,
+                        color: Colors.green,
+                        size: 12, // Adjust the size as needed
+                      ),
+                    ),
+                    SizedBox(width: 2),
+                    Text(
+                      rating,
+                      style: TextStyle(
+                        fontSize: 8,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+
+  void _navigateToProductDetail(product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailPage(product: product),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+}
+
+
+class ProductDetailPage extends StatelessWidget {
+  final product;
+
+  ProductDetailPage({Key? key, required this.product}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(product['ProductName']),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.network(
+              product['ProductMainImageUrl'],
+              height: 200,
+              width: 200,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Regular Price: ₹ ${product['RegularPrice']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            Text(
+              'Sale Price: ₹ ${product['SalePrice']}',
+              style: TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CategoryProductDetailsPage extends StatelessWidget {
+  final CategoryProduct categoryProduct;
+
+  CategoryProductDetailsPage({Key? key, required this.categoryProduct}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(categoryProduct.productCategory),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.network(
+              categoryProduct.catImg,
+              height: 200,
+              width: 200,
+              fit: BoxFit.contain,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Number of Products: ${categoryProduct.cnt}', // Display the count of products in this category
+              style: TextStyle(fontSize: 18),
+            ),
+            // Add other details about the category product as needed
+          ],
+        ),
+      ),
     );
   }
 }

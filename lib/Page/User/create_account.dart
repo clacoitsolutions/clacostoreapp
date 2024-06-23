@@ -1,4 +1,3 @@
-// lib/registration_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:claco_store/Api services/service_api.dart';
@@ -36,7 +35,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-
   Future<void> register() async {
     var data = {
       'Name': _nameController.text,
@@ -49,46 +47,39 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     APIService apiService = APIService();
     var responseData = await apiService.register(data);
 
-    // if (responseData['message'] != null && responseData['message'].contains('Successful')) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Assuming responseData contains a successful registration response
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      // Store data in SharedPreferences with the same parameter names
-      prefs.setString('customerId', responseData['data'][0]['customerid']);
-      prefs.setString('name', responseData['data'][0]['name']);
-      prefs.setString('mobileNo', responseData['data'][0]['MobileNumber']);
-      prefs.setString('ReferCode', responseData['data'][0]['CardId']);
-      prefs.setString('emailAddress', _emailController.text);
-      prefs.setString('Password', responseData['data'][0]['Password']);
-
+    // Store data in SharedPreferences with the same parameter names
+    prefs.setString('customerId', responseData['data'][0]['customerid']);
+    prefs.setString('name', responseData['data'][0]['name']);
+    prefs.setString('mobileNo', responseData['data'][0]['MobileNumber']);
+    prefs.setString('ReferCode', responseData['data'][0]['CardId']);
+    prefs.setString('emailAddress', _emailController.text);
+    prefs.setString('Password', responseData['data'][0]['Password']);
 
     // Split and store first name and last name
-   // saveNameToPreferences(responseData['data'][0]['name']);
+    saveNameToPreferences(responseData['data'][0]['name']);
 
-      setState(() {
-        _registrationMessage = responseData['message'] ?? 'Registration Successful!';
-      });
-
-    void saveNameToPreferences(String fullName) async {
-      final prefs = await SharedPreferences.getInstance();
-      List<String> nameParts = fullName.split(' ');
-      String firstName = nameParts.isNotEmpty ? nameParts[0] : '';
-      String lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
-
-      await prefs.setString('firstName', firstName);
-      await prefs.setString('lastName', lastName);
-    }
-
+    setState(() {
+      _registrationMessage = responseData['message'] ?? 'Registration Successful!';
+    });
 
     // Delay the navigation for a second to show the message
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
-    // } else {
-    //   setState(() {
-    //     _registrationMessage = responseData['message'] ?? 'Registration Failed. Please try again.';
-    //   });
-    // }
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
 
     print(responseData);
+  }
+
+  void saveNameToPreferences(String fullName) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> nameParts = fullName.split(' ');
+    String firstName = nameParts.isNotEmpty ? nameParts[0] : '';
+    String lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+    await prefs.setString('firstName', firstName);
+    await prefs.setString('lastName', lastName);
   }
 
   @override

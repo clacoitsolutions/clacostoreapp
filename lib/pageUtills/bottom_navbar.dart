@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-
 import '../Page/home_page.dart';
 import '../Page/my_cart.dart';
 import '../Page/my_profile.dart';
 import '../Page/search_product.dart';
 import '../Page/wishlist_page.dart';
+import 'package:claco_store/models/filter_price.dart';
+import 'package:claco_store/models/Category_filter.dart';
+
 
 class CustomBottomNavigationBar extends StatefulWidget {
   final BuildContext context;
+
 
   const CustomBottomNavigationBar({Key? key, required this.context}) : super(key: key);
 
   @override
   _CustomBottomNavigationBarState createState() => _CustomBottomNavigationBarState();
+
 }
 
 class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
@@ -67,7 +71,8 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
           case 3:
             Navigator.push(
               widget.context,
-              MaterialPageRoute(builder: (context) => SearchProduct()),
+              MaterialPageRoute(builder: (context) => SearchProduct (
+              )),
             );
             break;
           case 4:
@@ -99,3 +104,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
     );
   }
 }
+
+
+

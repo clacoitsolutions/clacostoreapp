@@ -1,91 +1,158 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:flutter/material.dart';
+//
+// final CollectionReference _homeProductSections =
+// FirebaseFirestore.instance.collection('HomeProductSections');
+//
+// class Firebased extends StatefulWidget {
+//   @override
+//   _FirebasedState createState() => _FirebasedState();
+// }
+//
+// class _FirebasedState extends State<Firebased> {
+//   Map<String, dynamic>? userData;
+//   String? userId;
+//
+//   @override
+//   void initState() {
+//     getuserByid();
+//     super.initState();
+//
+//   }
+//
+//   Future<void> getuserByid() async {
+//     final String id = "QpT5aA5TllDsfyncvtnM";
+//     try {
+//       final DocumentSnapshot doc = await _homeProductSections.doc(id).get();
+//       setState(() {
+//         userData = doc.data() as Map<String, dynamic>?;
+//         userId = doc.id;
+//       });
+//       print(doc.data);
+//       print(doc.id);
+//       print(doc.exists);
+//     } catch (e) {
+//       print("Error fetching document: $e");
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text("Home Product Sections"),
+//       ),
+//       body: userData == null
+//           ? Center(child: CircularProgressIndicator())
+//           : Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text('Document ID: $userId'),
+//             Text('Data: $userData'),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class Firebased extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firestore Example',
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final CollectionReference _homeProductSections =
-  FirebaseFirestore.instance.collection('HomeProductSections');
-
-  Future<List<HomeProductSection>> _getHomeProductSections() async {
-    try {
-      QuerySnapshot snapshot = await _homeProductSections.get();
-
-      // Log fetched documents and data
-      print("Number of documents: ${snapshot.docs.length}");
-      for (var doc in snapshot.docs) {
-        print("Document ID: ${doc.id}");
-        print("Data: ${doc.data()}");
-      }
-
-      return snapshot.docs.map<HomeProductSection>((DocumentSnapshot document) {
-        Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-        return HomeProductSection(
-          id: document.id, // Firestore document ID
-          name: data['name'] ?? '', // Name from Firestore
-        );
-      }).toList();
-    } catch (e) {
-      // Handle errors gracefully
-      print("Error fetching data: $e");
-      return []; // Return an empty list in case of error
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home Product Sections"),
-      ),
-      body: FutureBuilder<List<HomeProductSection>>(
-        future: _getHomeProductSections(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          List<HomeProductSection> sections = snapshot.data!;
-
-          return ListView.builder(
-            itemCount: sections.length,
-            itemBuilder: (context, index) {
-              HomeProductSection section = sections[index];
-              return ListTile(
-                title: Text('${section.name} (ID: ${section.id})'),
-              );
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Firebase Connection Test'),
+        ),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () async {
+              // Example of checking Firebase connection by fetching data
+              try {
+                // Replace with your Firebase service usage (e.g., Firestore query)
+                var snapshot = await FirebaseFirestore.instance.collection('test').doc('documentId').get();
+                print('Firebase connection successful!');
+                print('Document data: ${snapshot.data()}');
+              } catch (e) {
+                print('Error connecting to Firebase: $e');
+              }
             },
-          );
-        },
+            child: Text('Check Firebase Connection'),
+          ),
+        ),
       ),
     );
   }
 }
 
-class HomeProductSection {
-  final String id;
-  final String name;
 
-  HomeProductSection({required this.id, required this.name});
 
-// Constructor is no longer needed as we're accessing data directly
-}
+
+//
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:flutter/material.dart';
+//
+// class Firebased extends StatefulWidget {
+//   @override
+//   _FirebasedState createState() => _FirebasedState();
+// }
+//
+// class _FirebasedState extends State<Firebased> {
+//   final CollectionReference _homeProductSections =
+//   FirebaseFirestore.instance.collection('HomeProductSections');
+//
+//   List<Map<String, dynamic>> sections = [];
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _getHomeProductSections();
+//   }
+//
+//   Future<void> _getHomeProductSections() async {
+//     try {
+//       QuerySnapshot querySnapshot = await _homeProductSections.get();
+//       List<Map<String, dynamic>> fetchedSections = [];
+//       querySnapshot.docs.forEach((doc) {
+//         fetchedSections.add({
+//           'id': doc['id'],
+//           'name': doc['name'],
+//         });
+//       });
+//       setState(() {
+//         sections = fetchedSections;
+//       });
+//     } catch (e) {
+//       print("Error fetching data: $e");
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text("Home Product Sections"),
+//       ),
+//       body: sections.isEmpty
+//           ? Center(child: CircularProgressIndicator())
+//           : ListView.builder(
+//         itemCount: sections.length,
+//         itemBuilder: (context, index) {
+//           return ListTile(
+//             title: Text('Name: ${sections[index]['name']}'),
+//             subtitle: Text('ID: ${sections[index]['id']}'),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+//

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'search_product.dart';
+import 'package:claco_store/models/filter_price.dart';
+import 'package:claco_store/models/Category_filter.dart';
 
 class Filter extends StatefulWidget {
   @override
@@ -14,14 +19,14 @@ class _FilterState extends State<Filter> {
   bool? isBoysChecked; // Track the state of Boys checkbox
   bool? isUnisexChecked; // Track the state of Unisex checkbox
   bool? isBabyBoysChecked; // Track the state of Baby Boys checkbox
-  bool? isWomenChecked; // Add this line
-  bool? isKidsChecked; // Add this line
-  bool? isMensChecked; // Add this line
-  bool? isRs399BelowChecked; // Track the state of Rs. 399 and Below checkbox
-  bool? isRs500BelowChecked; // Track the state of Rs. 500 and Below checkbox
-  bool? isRs500To999Checked; // Track the state of Rs. 500 To Rs. 999 checkbox
-  bool? isRs1000To1500Checked; // Track the state of Rs. 1000 To Rs. 1500 checkbox
-  bool? isRs1500To2000Checked; // Track the state of Rs. 1500 To Rs. 2000 checkbox
+  bool? isWomenChecked = false; // Add this line
+  bool? isKidsChecked = false; // Add this line
+  bool? isMensChecked = false; // Add this line
+  bool isRs399BelowChecked = false; // Track the state of Rs. 399 and Below checkbox
+  bool isRs500BelowChecked = false; // Track the state of Rs. 500 and Below checkbox
+  bool isRs500To999Checked = false; // Track the state of Rs. 500 To Rs. 999 checkbox
+  bool isRs1000To1500Checked= false; // Track the state of Rs. 1000 To Rs. 1500 checkbox
+  bool isRs1500To2000Checked= false; // Track the state of Rs. 1500 To Rs. 2000 checkbox
   bool? isBrand1;
   bool? isBrand2;
   bool? isBrand3;
@@ -40,6 +45,80 @@ class _FilterState extends State<Filter> {
   bool ? isBlack;
   bool ? isGrey;
   bool ? isRed;
+
+
+  List<dynamic> products = [];
+  List<CategoryProduct> categoryProducts = []; // List to store fetched category products
+
+
+  Future<List<dynamic>> fetchData(String min, String max) async {
+    final response = await http.post(
+      Uri.parse('https://clacostoreapi.onrender.com/getProductDetailsprice'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'Max': max,
+        'Min': min,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['data'];
+    } else {
+      throw Exception('Failed to load products');
+    }
+  }
+
+
+  Future<void> fetchCategoryData() async {
+    final response = await http.get(
+      Uri.parse('https://clacostoreapi.onrender.com/Bindmdain'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        // Convert the fetched JSON data into CategoryProduct objects
+        categoryProducts = (jsonDecode(response.body)['data'] as List)
+            .map((json) => CategoryProduct.fromJson(json))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load category products');
+    }
+  }
+
+  void applyFilter() async {
+    List<dynamic> filteredProducts = [];
+    if (selectedText == 'Price') {
+      if (isRs399BelowChecked) {
+        filteredProducts = await fetchData('1', '399');
+      } else if (isRs500BelowChecked) {
+        filteredProducts = await fetchData('1', '500');
+      } else if (isRs500To999Checked) {
+        filteredProducts = await fetchData('500', '999');
+      } else if (isRs1000To1500Checked) {
+        filteredProducts = await fetchData('1000', '1500');
+      } else if (isRs1500To2000Checked) {
+        filteredProducts = await fetchData('1500', '2000');
+      } else {
+        filteredProducts = await fetchData('1', '5000'); // Default case if no checkbox is selected
+      }
+    } else if (selectedText == 'Category') {
+      await fetchCategoryData();
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchProduct (
+        )),
+    );//products: filteredProducts,
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +126,8 @@ class _FilterState extends State<Filter> {
     selectedText = 'Gender';
     // Show gender options by default when the page is initialized
     showGenderOptions = true;
+
+    fetchData('5000', '1'); // Initial fetch with default price range
   }
 
   void toggleMaleCheckBox(bool? value) {
@@ -84,6 +165,13 @@ class _FilterState extends State<Filter> {
       isBabyBoysChecked = value; // Update the checkbox state when clicked
     });
   }
+
+  void setFilterText(String text) {
+    setState(() {
+      selectedText = text;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -249,10 +337,10 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs399BelowChecked ?? false,
-                                  onChanged: (value) {
+                                  value: isRs399BelowChecked,
+                                  onChanged: (bool? value) {
                                     setState(() {
-                                      isRs399BelowChecked = value;
+                                      isRs399BelowChecked = value ?? false;
                                     });
                                   },
                                 ),
@@ -266,10 +354,10 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs500BelowChecked ?? false,
-                                  onChanged: (value) {
+                                  value: isRs500BelowChecked ,
+                                  onChanged: (bool? value) {
                                     setState(() {
-                                      isRs500BelowChecked = value;
+                                      isRs500BelowChecked = value ?? false;
                                     });
                                   },
                                 ),
@@ -283,10 +371,10 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs500To999Checked ?? false,
-                                  onChanged: (value) {
+                                  value: isRs500To999Checked ,
+                                  onChanged: (bool? value) {
                                     setState(() {
-                                      isRs500To999Checked = value;
+                                      isRs500To999Checked = value ?? false;
                                     });
                                   },
                                 ),
@@ -300,10 +388,10 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs1000To1500Checked ?? false,
-                                  onChanged: (value) {
+                                  value: isRs1000To1500Checked ,
+                                  onChanged: (bool? value) {
                                     setState(() {
-                                      isRs1000To1500Checked = value;
+                                      isRs1000To1500Checked = value?? false;
                                     });
                                   },
                                 ),
@@ -317,10 +405,10 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs1500To2000Checked ?? false,
-                                  onChanged: (value) {
+                                  value: isRs1500To2000Checked ,
+                                  onChanged: (bool? value) {
                                     setState(() {
-                                      isRs1500To2000Checked = value;
+                                      isRs1500To2000Checked = value ?? false;
                                     });
                                   },
                                 ),
@@ -335,13 +423,14 @@ class _FilterState extends State<Filter> {
                         ),
 
                       // Check if the selected text is "Category" to render the corresponding checkboxes
+                      // Check if the selected text is "Category" to render the corresponding checkboxes
                       if (selectedText == 'Category')
                         Column(
                           children: [
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isWomenChecked ?? false,
+                                  value: isWomenChecked,
                                   onChanged: (value) {
                                     setState(() {
                                       isWomenChecked = value;
@@ -358,7 +447,7 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isKidsChecked ?? false,
+                                  value: isKidsChecked,
                                   onChanged: (value) {
                                     setState(() {
                                       isKidsChecked = value;
@@ -375,7 +464,7 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isMensChecked ?? false,
+                                  value: isMensChecked,
                                   onChanged: (value) {
                                     setState(() {
                                       isMensChecked = value;
@@ -826,11 +915,9 @@ class _FilterState extends State<Filter> {
             ),
             SizedBox(width: 16), // Adjust the width according to your needs
             ElevatedButton(
-              onPressed: () {
-                // Your button action here
-              },
+              onPressed: applyFilter,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.0,vertical: 10), // Adjust the horizontal padding as needed
+                padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10),
                 child: Text(
                   'Apply',
                   style: TextStyle(
@@ -847,8 +934,6 @@ class _FilterState extends State<Filter> {
                 ),
               ),
             ),
-
-
           ],
         ),
       ),
