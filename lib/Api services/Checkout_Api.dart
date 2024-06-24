@@ -92,3 +92,71 @@ class TotalAmountApiService {
     }
   }
 }
+
+
+
+
+
+class OrderApiService {
+  static Future<Map<String, dynamic>> postOnlineOrder(
+      String customerId,
+      double grossAmount,
+      double deliveryCharges,
+      bool isCoupenApplied,
+      String? coupenAmount,
+      String? discountAmount,
+      String deliveryAddressId,
+      String paymentMode,
+      String paymentStatus,
+      double netPayable,
+      double gstAmount,
+      ) async {
+    final String apiUrl = 'https://clacostoreapi.onrender.com/postOnlineOrder1';
+
+    // Construct the API request body
+    Map<String, dynamic> requestBody = {
+      "customerid": customerId,
+      "grossamount": grossAmount,
+      "deliverycharges": deliveryCharges,
+      "iscoupenapplied": isCoupenApplied,
+      "coupenamount": coupenAmount,
+      "discountamount": discountAmount,
+      "deliveryaddressid": deliveryAddressId,
+      "paymentmode": paymentMode,
+      "paymentstatus": paymentStatus,
+      "NetPayable": netPayable,
+      "GSTAmount": gstAmount,
+    };
+
+    // Convert the request body to JSON
+    String jsonBody = json.encode(requestBody);
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonBody,
+      );
+
+      if (response.statusCode == 200) {
+        // Decode the JSON response
+        return json.decode(response.body);
+      } else {
+        // Decode the JSON response to extract the error message
+        return {
+          'status': response.statusCode,
+          'message': json.decode(response.body)['message'] ?? 'Failed to place order',
+        };
+      }
+    } catch (e) {
+      // Handle network or unexpected errors
+      return {
+        'status': 'error',
+        'message': e.toString(),
+      };
+    }
+  }
+}
+

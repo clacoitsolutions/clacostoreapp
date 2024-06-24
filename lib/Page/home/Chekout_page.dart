@@ -7,6 +7,7 @@ import '../../Api services/Add_address_api.dart';
 import '../../Api services/Checkout_Api.dart';
 import '../../pageUtills/common_appbar.dart';
 import '../addressscreen.dart';
+import 'order_sucees_summery.dart';
 
 class Checkout extends StatelessWidget {
   const Checkout({Key? key}) : super(key: key);
@@ -122,7 +123,6 @@ class _MyCartState extends State<MyCart> {
       print('Error fetching total amounts: $e');
     }
   }
-
   void _handlePayment() async {
     // Ensure customerId and addressId are not null
     if (_customerId.isEmpty || _addressId.isEmpty) {
@@ -171,12 +171,31 @@ class _MyCartState extends State<MyCart> {
       );
 
       if (response.statusCode == 200) {
-        // Handle success scenario
-        print('Order placed successfully');
-        // Navigate to success page or show success message
-      } else {
-        // Handle error scenario
-        print('Failed to place order. Status code: ${response.statusCode}');
+        // Decode the JSON response
+        Map<String, dynamic> responseBody = json.decode(response.body);
+
+        // Extract the message from the response
+        String message = responseBody['message'] ?? 'Order placed successfully';
+
+        // Extract order items if needed
+        List<dynamic> orderItems = responseBody['orderItems'] ?? [];
+
+        // Print the message and order items
+        print('Order placed successfully: $message');
+        print('Order Items: $orderItems');
+
+        // Navigate to OrderSummaryScreen and pass order details
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderSummaryScreen(orderDetails: orderItems[0]),
+          ),
+        );
+      }  else {
+        // Decode the JSON response to extract the error message
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        String errorMessage = responseBody['message'] ?? 'Failed to place order';
+        print('Failed to place order. Status code: ${response.statusCode}. Message: $errorMessage');
         // Show error message to user
       }
     } catch (e) {
@@ -185,7 +204,6 @@ class _MyCartState extends State<MyCart> {
       // Show error message to user
     }
   }
-
   void _toggleSelection(int boxNumber) {
     setState(() {
       if (boxNumber == 1) {
@@ -304,7 +322,8 @@ class _MyCartState extends State<MyCart> {
                                   color: Color(0xFFF5F4F4FF),
                                 ),
                                 child: Text(
-                                  '$_counter',
+                                  '${_cartItems[index]['Quantity']}',
+
                                   style: TextStyle(
                                     fontSize: 17,
                                     color: Colors.grey,
@@ -396,7 +415,7 @@ class _MyCartState extends State<MyCart> {
     child: Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-    Text(                'Total Amount',
+    Text(  'Total Amount',
       style: TextStyle(
         color: Colors.black,
         fontSize: 18,

@@ -1,16 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:claco_store/Page/home/grocery_home_page.dart';
+import '../../Api services/Checkout_Api.dart';
 import '../../pageUtills/top_navbar.dart';
+import 'Chekout_page.dart';
 import 'Vegitable_Fruit.dart';
 import 'package:claco_store/pageUtills/common_appbar.dart';
+import 'grocery_home_page.dart';
 
 class GroceryHome extends StatefulWidget {
   @override
   State<GroceryHome> createState() => _GroceryHomeState();
+
+  Future<void> _fetchCartItems() async {
+    try {
+      final cartItems = await CartApiService.fetchCartItems('CUST000394');
+      setState(() {
+        var _cartItems = cartItems;
+      });
+    } catch (e) {
+      print('Error fetching cart items: $e');
+      // Handle error
+    }
+  }
+
+  void setState(Null Function() param0) {}
 }
 
 class _GroceryHomeState extends State<GroceryHome> {
   String selectedButton = 'home'; // Default to 'home'
+  List<dynamic> _cartItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCartItems();
+  }
+
+  Future<void> _fetchCartItems() async {
+    try {
+      final cartItems = await CartApiService.fetchCartItems('CUST000394');
+      setState(() {
+        _cartItems = cartItems;
+      });
+    } catch (e) {
+      print('Error fetching cart items: $e');
+      // Handle error
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +110,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                               selectedButton = 'second';
                             });
                           },
-                          child: Text('Vegitable & Fruit'),
+                          child: Text('Vegetable & Fruit'),
                           style: TextButton.styleFrom(
                             foregroundColor: selectedButton == 'second' ? Colors.pink : Colors.black,
                             textStyle: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
@@ -104,10 +139,11 @@ class _GroceryHomeState extends State<GroceryHome> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
+                      Icon(Icons.shopping_cart, color: Colors.pink),
+                      SizedBox(width: 5),
                       Text(
-                        'item(0)',
-                        style: TextStyle(color: Colors.pink, fontWeight: FontWeight.bold,fontSize: 16),
+                        '${_cartItems.length} items',
+                        style: TextStyle(color: Colors.pink, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),
@@ -123,14 +159,19 @@ class _GroceryHomeState extends State<GroceryHome> {
                   border: Border.all(color: Colors.pink, width: 2),
                 ),
                 child: TextButton(
-                  onPressed: () {},
-                  child: Row(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Checkout()),
+                    );
+                  },
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(width: 10),
                       Text(
                         'Next',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 16),
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),

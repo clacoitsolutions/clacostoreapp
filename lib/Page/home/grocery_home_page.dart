@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:http/http.dart' as http;
 import '../../Api services/Grocery_api.dart';
 import '../product_details.dart';
 
@@ -15,12 +15,24 @@ class GroceryHomePage extends StatefulWidget {
 class _GroceryHomePage extends State<GroceryHomePage> {
   List<dynamic> products = [];
   final ApiService apiService = ApiService();
-  final String customerId = 'ayush@gmail.com'; // Hardcoded Customer ID
+  int _currentIndex = 0;
+  String? customerId;
+  String? srno;
+  String? productId;
+  String? quantity;
 
   @override
   void initState() {
     super.initState();
     fetchProductsGrocery();
+    fetchCustomerId(); // Fetch the customer ID on initialization
+  }
+
+  Future<void> fetchCustomerId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId');
+    });
   }
 
   Future<void> fetchProductsGrocery() async {
@@ -90,6 +102,55 @@ class _GroceryHomePage extends State<GroceryHomePage> {
     return null;
   }
 
+  Future<void> addToCart(String productId, int productCount) async {
+    if (customerId == null || productId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Customer ID or Product ID is missing'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final url = Uri.parse('https://clacostoreapi.onrender.com/addtocart3');
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode({
+          'customerid': customerId,
+          'productid': productId,
+          'quantity': productCount.toString(),
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        print('Item added to cart. Response: $responseData');
+
+        var apiMessage = responseData['message'];
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(apiMessage),
+        ));
+      } else {
+        print('Failed to add item to cart. Status code: ${response.statusCode}');
+        var errorMessage = 'Failed to add item to cart. Status code: ${response.statusCode}';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
+
   Widget buildProductCard(dynamic product) {
     double? regularPrice = parsePrice(product?['RegularPrice']);
     double? onlinePrice = parsePrice(product?['OnlinePrice']);
@@ -100,6 +161,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
     }
 
     bool isFavorited = false;
+    int productCount = 0; // Add a variable to track product count
 
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
@@ -114,7 +176,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
             });
           },
           child: Container(
-            margin: EdgeInsets.all(0),
+            margin: EdgeInsets.only(left: 0,right: 0),
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -138,7 +200,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                       child: Image.network(
                         product['ProductMainImageUrl'] ?? '', // Use product's image URL with null check
                         width: double.infinity,
-                        height: 120,
+                        height: 100,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -178,7 +240,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 2),
                           if (discountPercentage != null && discountPercentage > 0)
                             Text(
                               '${discountPercentage.toStringAsFixed(2)}% off',
@@ -187,7 +249,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                                 color: Colors.green,
                               ),
                             ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 2),
                           Row(
                             children: [
                               Icon(Icons.star, color: Colors.yellow, size: 15),
@@ -207,6 +269,72 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                           ),
                         ],
                       ),
+                    ),
+                    // Add a row with increment and decrement buttons and the cart icon
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 25,
+                              width: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.pink, // Pink background color
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.remove, color: Colors.white, size: 12),
+                                onPressed: () {
+                                  setState(() {
+                                    if (productCount > 0) productCount--;
+                                    // Update the productId and quantity
+                                    productId = product['ProductCode']?.toString();
+                                    quantity = productCount.toString();
+                                  });
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 8, right: 8),
+                              child: Text(
+                                productCount.toString(),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 25,
+                              width: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.pink, // Pink background color
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.add, color: Colors.white, size: 12),
+                                onPressed: () {
+                                  setState(() {
+                                    productCount++;
+                                    // Update the productId and quantity
+                                    productId = product['ProductCode']?.toString();
+                                    quantity = productCount.toString();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.shopping_cart),
+                          onPressed: () {
+                            // Handle add to cart functionality here
+                            if (productId != null && productCount > 0) {
+                              addToCart(productId!, productCount);
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

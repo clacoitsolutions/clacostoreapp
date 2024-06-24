@@ -15,6 +15,7 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   String? srno;
   String? productId;
+  String? quantity;
   int _currentIndex = 0;
   String? customerId;
   List<String> _images = [];
@@ -38,6 +39,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     setState(() {
       srno = prefs.getString('SrNo');
       productId = prefs.getString('ProductCode');
+      quantity = prefs.getString('quantity');
+
     });
 
     if (srno != null && productId != null) {
@@ -97,7 +100,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         body: jsonEncode({
           'customerid': customerId,
           'productid': productId,
-          'quantity': '1',
+          'quantity': quantity,
         }),
         headers: {'Content-Type': 'application/json'},
       );
