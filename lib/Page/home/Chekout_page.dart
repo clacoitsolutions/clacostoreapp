@@ -83,6 +83,8 @@ class _MyCartState extends State<MyCart> {
     }
   }
 
+
+
   Future<void> _fetchCartItems() async {
     try {
       final cartItems = await CartApiService.fetchCartItems('CUST000394');
@@ -204,6 +206,45 @@ class _MyCartState extends State<MyCart> {
       // Show error message to user
     }
   }
+
+
+
+  Future<void> _updateCartSize(String customerId, String productId, int quantity) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/updatecartsize1'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          "customerid": customerId,
+          "productid": productId,
+          "quantity": quantity.toString(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Cart size updated successfully');
+        // Update the local cart items with the new quantity
+        setState(() {
+          final index = _cartItems.indexWhere((item) => item['ProductID'] == productId);
+          if (index != -1) {
+            _cartItems[index]['Quantity'] = quantity;
+          }
+        });
+      } else {
+        print('Failed to update cart size. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating cart size: $e');
+    }
+  }
+
+
+
+
+
+
   void _toggleSelection(int boxNumber) {
     setState(() {
       if (boxNumber == 1) {
@@ -218,17 +259,22 @@ class _MyCartState extends State<MyCart> {
     });
   }
 
-  void _incrementCounter() {
+  void _incrementCounter(String productId, int currentQuantity) {
     setState(() {
-      _counter++;
+      int newQuantity = currentQuantity + 1;
+      _updateCartSize(_customerId, productId, newQuantity);
     });
   }
 
-  void _decrementCounter() {
+  void _decrementCounter(String productId, int currentQuantity) {
     setState(() {
-      if (_counter > 1) _counter--;
+      if (currentQuantity > 1) {
+        int newQuantity = currentQuantity - 1;
+        _updateCartSize(_customerId, productId, newQuantity);
+      }
     });
   }
+
 
   bool get _isContinueButtonEnabled => _isSelected1 || _isSelected2;
 
@@ -238,6 +284,9 @@ class _MyCartState extends State<MyCart> {
       physics: NeverScrollableScrollPhysics(),
       itemCount: _cartItems.length,
       itemBuilder: (context, index) {
+        final productId = _cartItems[index]['ProductID'];
+        final currentQuantity = _cartItems[index]['Quantity'];
+
         return Container(
           height: 100,
           margin: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
@@ -292,15 +341,14 @@ class _MyCartState extends State<MyCart> {
                             '₹ ${_cartItems[index]['OnlinePrice'].toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 14,
-                              color:
-                              Colors.pink,
+                              color: Colors.pink,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Row(
                             children: [
                               IconButton(
-                                onPressed: _decrementCounter,
+                                onPressed: () => _decrementCounter(productId, currentQuantity),
                                 padding: EdgeInsets.all(0),
                                 constraints: BoxConstraints(),
                                 splashRadius: 20,
@@ -322,16 +370,15 @@ class _MyCartState extends State<MyCart> {
                                   color: Color(0xFFF5F4F4FF),
                                 ),
                                 child: Text(
-                                  '${_cartItems[index]['Quantity']}',
-
-                                  style: TextStyle(
+                                  currentQuantity.toString(),
+                                  style: const TextStyle(
                                     fontSize: 17,
                                     color: Colors.grey,
                                   ),
                                 ),
                               ),
                               IconButton(
-                                onPressed: _incrementCounter,
+                                onPressed: () => _incrementCounter(productId, currentQuantity),
                                 padding: EdgeInsets.all(0),
                                 constraints: BoxConstraints(),
                                 splashRadius: 20,
@@ -359,6 +406,7 @@ class _MyCartState extends State<MyCart> {
       },
     );
   }
+
 
   Widget _buildSummarySection() {
     return Container(

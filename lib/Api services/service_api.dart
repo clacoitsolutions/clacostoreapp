@@ -143,6 +143,37 @@ class APIService {
       throw Exception('Failed to load data');
     }
   }
+  //add quantity
+  Future<void> updateCartItem(String customerId, String productId, int quantity) async {
+    final url = 'https://clacostoreapi.onrender.com/updatecartsize1';
+    final body = {
+      "customerid": customerId,
+      "productid": productId,
+      "quantity": quantity.toString(),
+    };
+
+    try {
+      final response = await http.post(Uri.parse(url), body: body);
+
+      if (response.statusCode == 200) {
+        // Successful update
+        print('Item updated successfully');
+      } else {
+        // Handle other status codes
+        print('Failed to update item: ${response.statusCode}');
+        throw Exception('Failed to update item');
+      }
+    } catch (e) {
+      // Handle network or server errors
+      print('Exception during update: $e');
+      throw Exception('Failed to update item: $e');
+    }
+  }
+
+
+
+
+
 
   // add to cart remove product
   Future<void> removeItemFromCart(String customerId, String cartListId) async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../Api services/Checkout_Api.dart';
 import '../../pageUtills/top_navbar.dart';
+import '../my_cart.dart';
 import 'Chekout_page.dart';
 import 'Vegitable_Fruit.dart';
 import 'package:claco_store/pageUtills/common_appbar.dart';
@@ -135,7 +136,12 @@ class _GroceryHomeState extends State<GroceryHome> {
               child: Container(
                 margin: EdgeInsets.only(right: 10),
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MycardScreen()),
+                    );
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

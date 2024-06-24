@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'Page/demo.dart';
 import 'Page/home/Chekout_page.dart';
 
+import 'Page/home/Grocery_vegitable_home_page.dart';
 import 'Page/home_page.dart';
 import 'Page/order_details.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home: HomeScreen(),
+      home:  GroceryHome(),
       routes: {
         '/orderDetails': (context) => OrderDetailsScreen(),
         '/home': (context) =>
