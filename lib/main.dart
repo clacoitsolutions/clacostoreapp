@@ -4,6 +4,9 @@ import 'package:claco_store/Page/my_profile.dart';
 import 'package:claco_store/pageUtills/add_address_form.dart';
 import 'package:claco_store/pageUtills/splashScreen.dart';
 import 'package:flutter/material.dart';
+import 'Page/demo.dart';
+import 'Page/home/Chekout_page.dart';
+
 import 'Page/home_page.dart';
 import 'Page/order_details.dart';
 import 'package:firebase_core/firebase_core.dart';

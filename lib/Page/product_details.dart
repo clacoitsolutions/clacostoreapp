@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../Api services/service_api.dart';
+import 'home/Chekout_page.dart';
 
 class ProductDetails extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   String? srno;
   String? productId;
+  String? quantity;
   int _currentIndex = 0;
   String? customerId;
   List<String> _images = [];
@@ -37,6 +39,8 @@ class _ProductDetailsState extends State<ProductDetails> {
     setState(() {
       srno = prefs.getString('SrNo');
       productId = prefs.getString('ProductCode');
+      quantity = prefs.getString('quantity');
+
     });
 
     if (srno != null && productId != null) {
@@ -96,7 +100,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         body: jsonEncode({
           'customerid': customerId,
           'productid': productId,
-          'quantity': '1',
+          'quantity': quantity,
         }),
         headers: {'Content-Type': 'application/json'},
       );
@@ -422,7 +426,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                       SizedBox(width: 12),
                       ElevatedButton(
                         onPressed: () {
-                          // Handle button tap
+                          addToCart(); // Call your addToCart function here if needed
+                          // Navigate to the checkout page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Checkout()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,

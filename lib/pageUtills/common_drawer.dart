@@ -1,126 +1,11 @@
-// import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
-//
-//
-// class CommonDrawer extends StatefulWidget {
-//   const CommonDrawer({Key? key}) : super(key: key);
-//
-//   @override
-//   State<CommonDrawer> createState() => _CommonDrawerState();
-// }
-//
-// class _CommonDrawerState extends State<CommonDrawer> {
-//   String? userName;
-//   String? userEmail;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadUserData();
-//   }
-//
-//   Future<void> _loadUserData() async {
-//     final prefs = await SharedPreferences.getInstance();
-//     setState(() {
-//       userName = prefs.getString('name');
-//       userEmail = prefs.getString('emailAddress');
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       child: ListView(
-//         padding: EdgeInsets.zero,
-//         children: [
-//           // User Account Header
-//           UserAccountsDrawerHeader(
-//             accountName:
-//             Text(userName ?? 'XYZ', style: TextStyle(color: Colors.white)),
-//             accountEmail: Text(
-//                 userEmail ?? 'abcd@example.com', style: TextStyle(color: Colors.white)),
-//             currentAccountPicture: CircleAvatar(
-//               backgroundColor: Colors.white,
-//               child: Text(
-//                 userName != null ? userName![0] : 'T',
-//                 style: TextStyle(fontSize: 40.0, color: Colors.purple),
-//               ),
-//             ),
-//             decoration: BoxDecoration(
-//               color: Colors.pink,
-//             ),
-//           ),
-//
-//           // Other Drawer Items
-//           ListTile(
-//             leading: Icon(Icons.home),
-//             title: Text('Home'),
-//             onTap: () {
-//               // Navigate to the Home Screen
-//               Navigator.pop(context);
-//               Navigator.pushReplacementNamed(context, '/home');
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.shopping_cart),
-//             title: Text('My Cart'),
-//             onTap: () {
-//               // Navigate to the Cart Screen
-//               Navigator.pop(context);
-//               Navigator.pushNamed(context, '/cart'); // Assuming you have a cart route
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.favorite_border_outlined),
-//             title: Text('My Wishlist'),
-//             onTap: () {
-//               // Navigate to the Wishlist Screen
-//               Navigator.pop(context);
-//               Navigator.pushNamed(context, '/wishlist'); // Assuming you have a wishlist route
-//             },
-//           ),
-//           ListTile(
-//             leading: Icon(Icons.settings),
-//             title: Text('Settings'),
-//             onTap: () {
-//               // Add functionality for Settings
-//               Navigator.pop(context); // Close the drawer
-//               // Add your navigation logic here
-//             },
-//           ),
-//          // Logout Option at the Bottom
-//           ListTile(
-//             leading: Icon(Icons.logout),
-//             title: Text('Logout'),
-//             onTap: () async {
-//               // Add functionality for Logout
-//               Navigator.pop(context); // Close the drawer
-//
-//               final prefs = await SharedPreferences.getInstance();
-//               prefs.clear(); // Clear all data from Shared Preferences
-//
-//               // Navigate to the login page after logout
-//               Navigator.pushReplacementNamed(context, '/');
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
+import 'package:claco_store/Page/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Page/my_cart.dart';
+import '../Page/my_order.dart';
+import '../Page/wishlist_page.dart'; // Import SharedPreferences
+
 
 class CommonDrawer extends StatefulWidget {
   const CommonDrawer({Key? key}) : super(key: key);
@@ -151,58 +36,6 @@ class _CommonDrawerState extends State<CommonDrawer> {
     });
   }
 
-  void _logoutConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          title: Text('Logout'),
-          content: Text('Are you sure you want to logout?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
-                final prefs = await SharedPreferences.getInstance();
-                prefs.clear(); // Clear all data from Shared Preferences
-
-                // Navigate to the login page after logout
-                Navigator.pushReplacementNamed(context, '/');
-              },
-              child: Text(
-                'Yes',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              style: ButtonStyle(
-                backgroundColor:
-                MaterialStateProperty.all<Color>(Color(0xFFe83e8c)), // Set button background color to pink
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text(
-                'No',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              style: ButtonStyle(
-                backgroundColor:
-                MaterialStateProperty.all<Color>(Color(0xFFe83e8c)), // Set button background color to pink
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -211,14 +44,10 @@ class _CommonDrawerState extends State<CommonDrawer> {
         children: [
           // User Account Header
           UserAccountsDrawerHeader(
-            accountName: Text(
-              userName ?? 'XYZ',
-              style: TextStyle(color: Colors.white),
-            ),
+            accountName:
+            Text(userName ?? 'XYZ', style: TextStyle(color: Colors.white)),
             accountEmail: Text(
-              userEmail ?? 'abcd@example.com',
-              style: TextStyle(color: Colors.white),
-            ),
+                userEmail ?? 'abcd@example.com', style: TextStyle(color: Colors.white)),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
               child: Text(
@@ -236,45 +65,57 @@ class _CommonDrawerState extends State<CommonDrawer> {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              // Navigate to the Home Screen
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/home');
+
+              Navigator.push(
+                  context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
             },
           ),
           ListTile(
-            leading: Icon(Icons.shopping_cart),
+            leading: Icon(Icons.add_shopping_cart),
             title: Text('My Cart'),
             onTap: () {
-              // Navigate to the Cart Screen
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/cart'); // Assuming you have a cart route
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MycardScreen()),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.favorite_border_outlined),
             title: Text('My Wishlist'),
             onTap: () {
-              // Navigate to the Wishlist Screen
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/wishlist'); // Assuming you have a wishlist route
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => WishListScreen()),
+              );
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
+            leading: Icon(Icons.shopping_bag_outlined),
+            title: Text('My Order'),
             onTap: () {
-              // Add functionality for Settings
-              Navigator.pop(context); // Close the drawer
-              // Add your navigation logic here
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyOrderScreen()),
+              );
             },
           ),
           // Logout Option at the Bottom
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Logout'),
-            onTap: () {
-              // Show confirmation dialog before logout
-              _logoutConfirmationDialog(context);
+            onTap: () async {
+              // Add functionality for Logout
+              Navigator.pop(context); // Close the drawer
+
+              final prefs = await SharedPreferences.getInstance();
+              prefs.clear(); // Clear all data from Shared Preferences
+
+              // Navigate to the login page after logout
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
         ],
@@ -282,4 +123,3 @@ class _CommonDrawerState extends State<CommonDrawer> {
     );
   }
 }
-

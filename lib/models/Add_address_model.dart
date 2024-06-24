@@ -1,4 +1,5 @@
 class Address {
+
   final String customerCode;
   final String name;
   final String mobileNo;
@@ -15,6 +16,7 @@ class Address {
   final String address2;
 
   Address({
+
     required this.customerCode,
     required this.name,
     required this.mobileNo,
@@ -33,6 +35,7 @@ class Address {
 
   Map<String, dynamic> toJson() {
     return {
+
       'CustomerCode': customerCode,
       'Name': name,
       'MobileNo': mobileNo,
@@ -54,6 +57,8 @@ class Address {
 
 // address_model.dart
 class ShowAddress {
+  final String srNo;
+  final String customerCode;
   final String name;
   final String mobileNo;
   final String pinCode;
@@ -64,6 +69,8 @@ class ShowAddress {
   final bool isDefaultAccount;
 
   ShowAddress({
+    required this.srNo,
+    required this.customerCode,
     required this.name,
     required this.mobileNo,
     required this.pinCode,
@@ -76,14 +83,17 @@ class ShowAddress {
 
   factory ShowAddress.fromJson(Map<String, dynamic> json) {
     return ShowAddress(
-      name: json['Name'],
-      mobileNo: json['MobileNo'],
-      pinCode: json['PinCode'],
-      address: json['Address'],
-      cityName: json['CityName'],
-      stateId: json['StateId'],
-      landMark: json['LandMark'],
-      isDefaultAccount: json['IsDefaultAccount'],
+      srNo: json['SrNo'] ?? '',
+      customerCode: json['CustomerCode'] ?? '',
+      name: json['Name'] ?? '',
+      mobileNo: json['MobileNo'] ?? '',
+      pinCode: json['PinCode'] ?? '',
+      address: json['Address'] ?? '',
+      cityName: json['CityName'] ?? '',
+      stateId: json['StateId'] ?? '',
+      landMark: json['LandMark'] ?? '',
+      isDefaultAccount: json['IsDefaultAccount'] ?? false,
     );
   }
 }
+

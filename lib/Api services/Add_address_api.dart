@@ -81,3 +81,10 @@ Future<List<ShowAddress>> fetchAddresses() async {
 }
 
 
+
+class ApiService {
+  static const String _baseUrl = 'https://clacostoreapi.onrender.com';
+
+
+}
+
