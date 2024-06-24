@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'search_product.dart';
 import 'package:claco_store/models/filter_price.dart';
 import 'package:claco_store/models/Category_filter.dart';
+import 'package:claco_store/models/sizemodel.dart';
 
 class Filter extends StatefulWidget {
   @override
@@ -11,7 +12,8 @@ class Filter extends StatefulWidget {
 }
 
 class _FilterState extends State<Filter> {
-  String selectedText = 'Gender'; // Track the selected text and set "Gender" as default
+  String selectedText =
+      'Gender'; // Track the selected text and set "Gender" as default
   bool showGenderOptions = false; // Track whether to show gender options or not
   bool? isMaleChecked; // Track the state of Male checkbox
   bool? isFemaleChecked; // Track the state of Female checkbox
@@ -22,34 +24,44 @@ class _FilterState extends State<Filter> {
   bool? isWomenChecked = false; // Add this line
   bool? isKidsChecked = false; // Add this line
   bool? isMensChecked = false; // Add this line
-  bool isRs399BelowChecked = false; // Track the state of Rs. 399 and Below checkbox
-  bool isRs500BelowChecked = false; // Track the state of Rs. 500 and Below checkbox
-  bool isRs500To999Checked = false; // Track the state of Rs. 500 To Rs. 999 checkbox
-  bool isRs1000To1500Checked= false; // Track the state of Rs. 1000 To Rs. 1500 checkbox
-  bool isRs1500To2000Checked= false; // Track the state of Rs. 1500 To Rs. 2000 checkbox
+  bool isRs399BelowChecked =
+      false; // Track the state of Rs. 399 and Below checkbox
+  bool isRs500BelowChecked =
+      false; // Track the state of Rs. 500 and Below checkbox
+  bool isRs500To999Checked =
+      false; // Track the state of Rs. 500 To Rs. 999 checkbox
+  bool isRs1000To1500Checked =
+      false; // Track the state of Rs. 1000 To Rs. 1500 checkbox
+  bool isRs1500To2000Checked =
+      false; // Track the state of Rs. 1500 To Rs. 2000 checkbox
   bool? isBrand1;
   bool? isBrand2;
   bool? isBrand3;
   bool? isSize1;
   bool? isSize2;
   bool? isSize3;
-  bool ? is4Star;
-  bool ? is3Star;
-  bool ? is30Discount;
-  bool ? is40Discount;
-  bool ? is50Discount;
-  bool ? isSpecialPrice;
-  bool ? isBySave;
-  bool ? isWhite;
-  bool ? isBlue;
-  bool ? isBlack;
-  bool ? isGrey;
-  bool ? isRed;
-
+  bool? is4Star;
+  bool? is3Star;
+  bool? is30Discount;
+  bool? is40Discount;
+  bool? is50Discount;
+  bool? isSpecialPrice;
+  bool? isBySave;
+  bool? isWhite;
+  bool? isBlue;
+  bool? isBlack;
+  bool? isGrey;
+  bool? isRed;
 
   List<dynamic> products = [];
-  List<CategoryProduct> categoryProducts = []; // List to store fetched category products
+  List<CategoryProduct> categoryProducts = [];
+  List<RatingModel> ratingProducts = [];
+  List<DiscountModel> discountproducts = [];
+  List<SizeModel> sizeProducts = [];
 
+  /// API Start //////////////////////////////////////////////////////////////
+
+  ///  Price Filter APi ////
 
   Future<List<dynamic>> fetchData(String min, String max) async {
     final response = await http.post(
@@ -70,16 +82,43 @@ class _FilterState extends State<Filter> {
     }
   }
 
+  ///  Ratings Filter APi ////
+
+  Future<void> fetchRatingData(String rating) async {
+    final response = await http.post(
+      Uri.parse('https://clacostoreapi.onrender.com/getrating'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'rating': rating,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        // Convert the fetched JSON data into CategoryProduct objects
+        ratingProducts = (jsonDecode(response.body)['data'] as List)
+            .map((json) => RatingModel.fromJson(json))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load rating products');
+    }
+  }
+
+  ///  Category Filter APi ////
 
   Future<void> fetchCategoryData() async {
     final response = await http.get(
-      Uri.parse('https://clacostoreapi.onrender.com/Bindmdain'),
+      Uri.parse('https://clacostoreapi.onrender.com/Bindmain'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
     if (response.statusCode == 200) {
+      // Convert the fetched JSON data into CategoryProduct objects
       setState(() {
         // Convert the fetched JSON data into CategoryProduct objects
         categoryProducts = (jsonDecode(response.body)['data'] as List)
@@ -91,8 +130,63 @@ class _FilterState extends State<Filter> {
     }
   }
 
+  ///  Discount Filter APi ////
+
+  Future<void> fetchDiscount(String discountPercentage) async {
+    final response = await http.post(
+      Uri.parse('https://clacostoreapi.onrender.com/offermaster'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'DiscountPercentage': discountPercentage,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        discountproducts = (jsonDecode(response.body)['data'] as List)
+            .map((json) => DiscountModel.fromJson(json))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load offer products');
+    }
+  }
+
+  ///  Size API
+
+  Future<void> fetchSize(String sizeCode) async {
+    final response = await http.post(
+      Uri.parse('https://clacostoreapi.onrender.com/getSize'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'sizecode': sizeCode,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        sizeProducts = (jsonDecode(response.body)['data'] as List)
+            .map((json) => SizeModel.fromJson(json))
+            .toList();
+      });
+    } else {
+      throw Exception('Failed to load size products');
+    }
+  }
+
+  ////////////////// API End ///////////////////
+
   void applyFilter() async {
     List<dynamic> filteredProducts = [];
+    List<DiscountModel> discountmodel = [];
+    List<SizeModel> sizemodel = [];
+    List<RatingModel> ratemodel = [];
+    List<CategoryProduct> categorymodel = [];
+
     if (selectedText == 'Price') {
       if (isRs399BelowChecked) {
         filteredProducts = await fetchData('1', '399');
@@ -105,19 +199,59 @@ class _FilterState extends State<Filter> {
       } else if (isRs1500To2000Checked) {
         filteredProducts = await fetchData('1500', '2000');
       } else {
-        filteredProducts = await fetchData('1', '5000'); // Default case if no checkbox is selected
+        filteredProducts = await fetchData(
+            '1', '5000'); // Default case if no checkbox is selected
       }
     } else if (selectedText == 'Category') {
       await fetchCategoryData();
+      categorymodel = categoryProducts;
+    } else if (selectedText == 'Customer Rating') {
+      if (is4Star == true) {
+        await fetchRatingData('4');
+        ratemodel = ratingProducts;
+      } else if (is3Star == true) {
+        await fetchRatingData(
+            '3'); // Assuming API accepts "3" for 3 stars and above
+        ratemodel = ratingProducts;
+      }
+    } else if (selectedText == 'Discount') {
+      if (is30Discount == true) {
+        await fetchDiscount('30'); // Fetch products with 30% or more discount
+        discountmodel = discountproducts;
+      } else if (is40Discount == true) {
+        await fetchDiscount('40');
+        discountmodel = discountproducts;
+      } else if (is50Discount == true) {
+        await fetchDiscount('50');
+        discountmodel = discountproducts;
+      }
+    } else if (selectedText == 'Size-UK/India') {
+      if (isSize1 == true) {
+        await fetchSize('1');
+        sizemodel = sizeProducts;
+      } else if (isSize2 == true) {
+        await fetchSize('2');
+        sizemodel = sizeProducts;
+      } else if (isSize3 == true) {
+        await fetchSize('3');
+        sizemodel = sizeProducts;
+      }
+      // ... add logic for other sizes if needed ...
     }
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SearchProduct (
-        )),
-    );//products: filteredProducts,
+      MaterialPageRoute(
+        builder: (context) => SearchProduct(
+          products: filteredProducts,
+          ratingProducts: ratemodel,
+          categoryProducts: categorymodel,
+          discountproducts: discountmodel,
+          sizeProducts: sizemodel,
+        ),
+      ),
+    );
   }
-
 
   @override
   void initState() {
@@ -172,7 +306,6 @@ class _FilterState extends State<Filter> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,7 +314,6 @@ class _FilterState extends State<Filter> {
         backgroundColor: Colors.white,
         title: const Row(
           children: <Widget>[
-
             Text(
               'Filters',
               style: TextStyle(
@@ -192,7 +324,6 @@ class _FilterState extends State<Filter> {
           ],
         ),
       ),
-
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
         child: Row(
@@ -202,7 +333,6 @@ class _FilterState extends State<Filter> {
               child: SingleChildScrollView(
                 child: Container(
                   height: 700,
-
                   child: Padding(
                     padding: const EdgeInsets.only(top: 20.0, left: 0.0),
                     child: Column(
@@ -240,14 +370,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isMaleChecked ?? false, // Use null-aware operator to provide a default value
+                                  value: isMaleChecked ??
+                                      false, // Use null-aware operator to provide a default value
                                   onChanged: (value) {
-                                    toggleMaleCheckBox(value); // Toggle the checkbox state
+                                    toggleMaleCheckBox(
+                                        value); // Toggle the checkbox state
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
                                   child: Text('Men'),
                                 ),
                               ],
@@ -255,14 +388,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isFemaleChecked ?? false, // Use null-aware operator to provide a default value
+                                  value: isFemaleChecked ??
+                                      false, // Use null-aware operator to provide a default value
                                   onChanged: (value) {
-                                    toggleFemaleCheckBox(value); // Toggle the checkbox state
+                                    toggleFemaleCheckBox(
+                                        value); // Toggle the checkbox state
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text('Women'),
                                 ),
                               ],
@@ -270,14 +406,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isGirlsChecked ?? false, // Use null-aware operator to provide a default value
+                                  value: isGirlsChecked ??
+                                      false, // Use null-aware operator to provide a default value
                                   onChanged: (value) {
-                                    toggleGirlsCheckBox(value); // Toggle the checkbox state
+                                    toggleGirlsCheckBox(
+                                        value); // Toggle the checkbox state
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text('Girls'),
                                 ),
                               ],
@@ -285,14 +424,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isBoysChecked ?? false, // Use null-aware operator to provide a default value
+                                  value: isBoysChecked ??
+                                      false, // Use null-aware operator to provide a default value
                                   onChanged: (value) {
-                                    toggleBoysCheckBox(value); // Toggle the checkbox state
+                                    toggleBoysCheckBox(
+                                        value); // Toggle the checkbox state
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text('Boys'),
                                 ),
                               ],
@@ -300,14 +442,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isUnisexChecked ?? false, // Use null-aware operator to provide a default value
+                                  value: isUnisexChecked ??
+                                      false, // Use null-aware operator to provide a default value
                                   onChanged: (value) {
-                                    toggleUnisexCheckBox(value); // Toggle the checkbox state
+                                    toggleUnisexCheckBox(
+                                        value); // Toggle the checkbox state
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text('Unisex'),
                                 ),
                               ],
@@ -315,14 +460,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isBabyBoysChecked ?? false, // Use null-aware operator to provide a default value
+                                  value: isBabyBoysChecked ??
+                                      false, // Use null-aware operator to provide a default value
                                   onChanged: (value) {
-                                    toggleBabyBoysCheckBox(value); // Toggle the checkbox state
+                                    toggleBabyBoysCheckBox(
+                                        value); // Toggle the checkbox state
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text('Baby Boys'),
                                 ),
                               ],
@@ -346,7 +494,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Rs. 399 and Below"),
                                 ),
                               ],
@@ -354,7 +503,7 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs500BelowChecked ,
+                                  value: isRs500BelowChecked,
                                   onChanged: (bool? value) {
                                     setState(() {
                                       isRs500BelowChecked = value ?? false;
@@ -363,7 +512,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Rs. 500 and Below"),
                                 ),
                               ],
@@ -371,7 +521,7 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs500To999Checked ,
+                                  value: isRs500To999Checked,
                                   onChanged: (bool? value) {
                                     setState(() {
                                       isRs500To999Checked = value ?? false;
@@ -380,7 +530,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Rs. 500 To Rs. 999"),
                                 ),
                               ],
@@ -388,16 +539,17 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs1000To1500Checked ,
+                                  value: isRs1000To1500Checked,
                                   onChanged: (bool? value) {
                                     setState(() {
-                                      isRs1000To1500Checked = value?? false;
+                                      isRs1000To1500Checked = value ?? false;
                                     });
                                   },
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Rs. 1000 To Rs. 1500"),
                                 ),
                               ],
@@ -405,7 +557,7 @@ class _FilterState extends State<Filter> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: isRs1500To2000Checked ,
+                                  value: isRs1500To2000Checked,
                                   onChanged: (bool? value) {
                                     setState(() {
                                       isRs1500To2000Checked = value ?? false;
@@ -414,7 +566,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Rs. 1500 To Rs. 2000"),
                                 ),
                               ],
@@ -439,7 +592,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Women's"),
                                 ),
                               ],
@@ -456,7 +610,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Kid's"),
                                 ),
                               ],
@@ -473,7 +628,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Men's"),
                                 ),
                               ],
@@ -496,7 +652,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Brand 1"),
                                 ),
                               ],
@@ -513,7 +670,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Brand 2"),
                                 ),
                               ],
@@ -530,7 +688,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Brand 3"),
                                 ),
                               ],
@@ -553,7 +712,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Size 1"),
                                 ),
                               ],
@@ -570,7 +730,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Size 2"),
                                 ),
                               ],
@@ -587,7 +748,8 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Text("Size 3"),
                                 ),
                               ],
@@ -610,18 +772,21 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
                                       Text("4 "),
-                                      Icon(Icons.star_outline, size: 18), // Outline star icon with size 20
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      Icon(Icons.star_outline,
+                                          size:
+                                              18), // Outline star icon with size 20
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("& above"), // Additional text
                                     ],
                                   ),
                                 ),
-
-
                               ],
                             ),
                             Row(
@@ -636,12 +801,17 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
                                       Text("3 "),
-                                      Icon(Icons.star_outline, size: 18), // Outline star icon with size 20
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      Icon(Icons.star_outline,
+                                          size:
+                                              18), // Outline star icon with size 20
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("& above"), // Additional text
                                     ],
                                   ),
@@ -667,16 +837,17 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("30% or more"), // Additional text
                                     ],
                                   ),
                                 ),
-
-
                               ],
                             ),
                             Row(
@@ -691,15 +862,19 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("40% or more"), // Additional text
                                     ],
                                   ),
                                 ),
-                              ],           ),
+                              ],
+                            ),
                             Row(
                               children: [
                                 Checkbox(
@@ -712,10 +887,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("50% or more"), // Additional text
                                     ],
                                   ),
@@ -739,11 +917,15 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
-                                      Text("Buy More, Save More"), // Additional text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
+                                      Text(
+                                          "Buy More, Save More"), // Additional text
                                     ],
                                   ),
                                 ),
@@ -761,10 +943,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("Special Price"), // Additional text
                                     ],
                                   ),
@@ -788,10 +973,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("Red"), // Additional text
                                     ],
                                   ),
@@ -810,10 +998,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("White"), // Additional text
                                     ],
                                   ),
@@ -832,10 +1023,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("Black"), // Additional text
                                     ],
                                   ),
@@ -854,10 +1048,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("Blue"), // Additional text
                                     ],
                                   ),
@@ -876,10 +1073,13 @@ class _FilterState extends State<Filter> {
                                 ),
                                 SizedBox(height: 14),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 5), // Adjust the spacing between the icon and the text
+                                      SizedBox(
+                                          width:
+                                              5), // Adjust the spacing between the icon and the text
                                       Text("Grey"), // Additional text
                                     ],
                                   ),
@@ -888,17 +1088,14 @@ class _FilterState extends State<Filter> {
                             ),
                           ],
                         ),
-
                     ],
                   ),
                 ),
               ),
             ),
-
           ],
         ),
       ),
-
       bottomNavigationBar: Container(
         color: Colors.white,
         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
@@ -926,7 +1123,8 @@ class _FilterState extends State<Filter> {
                 ),
               ),
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.pink), // Change the color according to your needs
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Colors.pink), // Change the color according to your needs
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero, // Set border radius to 0.0
@@ -937,7 +1135,6 @@ class _FilterState extends State<Filter> {
           ],
         ),
       ),
-
     );
   }
 
@@ -968,4 +1165,3 @@ class _FilterState extends State<Filter> {
     );
   }
 }
-

@@ -1,3 +1,7 @@
+import 'package:claco_store/Page/Category_Page.dart';
+import 'package:claco_store/Page/login.dart';
+import 'package:claco_store/Page/my_profile.dart';
+import 'package:claco_store/pageUtills/add_address_form.dart';
 import 'package:claco_store/pageUtills/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'Page/home_page.dart';
@@ -12,9 +16,7 @@ import 'pageUtills/update_user_profile.dart';
 import 'Page/onboarding_page.dart';
 import 'pageUtills/onboardingScreen.dart';
 import 'pageUtills/refer_earn.dart';
-
-
-
+import 'Page/coin_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,12 +37,12 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home:SplashScreen(),// This is your new login page with OTP removed
+      home: HomeScreen(),
       routes: {
-        '/orderDetails': (context) =>  OrderDetailsScreen(),
-        '/home': (context) => const HomeScreen(), // Assuming this is your home page
+        '/orderDetails': (context) => OrderDetailsScreen(),
+        '/home': (context) =>
+            const HomeScreen(), // Assuming this is your home page
       },
     );
   }
 }
-

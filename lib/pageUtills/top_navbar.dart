@@ -11,13 +11,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(80); // Increased the height of the app bar
+  Size get preferredSize =>
+      Size.fromHeight(80); // Increased the height of the app bar
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.pink, // Set background color to pink
-      iconTheme: IconThemeData(color: Colors.white), // Set the color of the three-line toggle icon
+      iconTheme: IconThemeData(
+          color: Colors.white), // Set the color of the three-line toggle icon
       elevation: 0, // Removed the elevation to make it flat
       title: Row(
         children: [
@@ -53,7 +55,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchProduct()),
+              MaterialPageRoute(
+                  builder: (context) => SearchProduct(
+                        products: [],
+                        ratingProducts: [],
+                        discountproducts: [],
+                        categoryProducts: [],
+                        sizeProducts: [],
+                      )),
             );
           },
           child: Padding(
@@ -80,8 +89,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(8.0), // Increased padding for the search icon
-                    child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
+                    padding: EdgeInsets.all(
+                        8.0), // Increased padding for the search icon
+                    child:
+                        Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
                   ),
                   Expanded(
                     child: Center(
@@ -90,9 +101,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                           hintText: 'Search any products..',
-                          hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                          hintStyle:
+                              TextStyle(color: Colors.grey.withOpacity(0.5)),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.only(bottom: 8.0), // Adding padding to the bottom of the text
+                          contentPadding: EdgeInsets.only(
+                              bottom:
+                                  8.0), // Adding padding to the bottom of the text
                         ),
                       ),
                     ),

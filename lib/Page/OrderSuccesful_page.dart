@@ -1,117 +1,3 @@
-// import 'package:flutter/material.dart';
-//
-// class OrderSuccessful extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(
-//           'Order Placed',
-//           style: TextStyle(color: Colors.white), // Set the AppBar title color to white
-//         ),
-//         backgroundColor: Color(0xFFe83e8c), // Set the AppBar color to the specific pink color
-//       ),
-//       body: Center(
-//         child: Card(
-//           margin: EdgeInsets.all(16.0),
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(10.0),
-//           ),
-//           elevation: 5,
-//           child: Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 CircleAvatar(
-//                   radius: 40,
-//                   backgroundColor: Color(0xFFe83e8c),
-//                   child: Icon(
-//                     Icons.check,
-//                     size: 40,
-//                     color: Colors.white,
-//                   ),
-//                 ),
-//                 SizedBox(height: 16),
-//                 Text(
-//                   'Hey Tushar',
-//                   style: TextStyle(
-//                     fontSize: 20,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//                 SizedBox(height: 8),
-//                 Text(
-//                   'Order Successfully Placed',
-//                   style: TextStyle(
-//                     fontSize: 18,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//                 SizedBox(height: 8),
-//                 Text(
-//                   "We'll send you a shipping confirmation email\nas soon as your order ships.",
-//                   textAlign: TextAlign.center,
-//                 ),
-//                 SizedBox(height: 8),
-//                 Text(
-//                   'Your order will be sent to this address:',
-//                   style: TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//                 SizedBox(height: 8),
-//                 Text('123, ABC Street, XYZ City'),
-//                 Text('Phone No: +91-66572324826'),
-//                 SizedBox(height: 8),
-//                 Text('89.25 rupees only'),
-//                 SizedBox(height: 8),
-//                 Text('COD'),
-//                 SizedBox(height: 16), // Add some space before the buttons
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         // Handle check status action
-//                       },
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: Color(0xFFe83e8c), // Background color
-//                       ),
-//                       child: Text(
-//                         'Check Status',
-//                         style: TextStyle(color: Colors.white), // Text color
-//                       ),
-//                     ),
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         // Handle continue action
-//                       },
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: Color(0xFFe83e8c), // Background color
-//                       ),
-//                       child: Text(
-//                         'Continue',
-//                         style: TextStyle(color: Colors.white), // Text color
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-// void main() {
-//   runApp(MaterialApp(
-//     home: OrderSuccessful(),
-//   ));
-// }
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -148,7 +34,8 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
       if (response.statusCode == 200) {
         // Parse JSON response
         final jsonData = jsonDecode(response.body);
-        final data = jsonData['data'][0]; // Assuming there's only one order in the list
+        final data =
+            jsonData['data'][0]; // Assuming there's only one order in the list
 
         setState(() {
           orderId = data['OrderId'];
@@ -239,7 +126,8 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                 Text(address), // Display fetched address
                 Text('Phone No: $mobileNo'), // Display fetched mobile number
                 SizedBox(height: 8),
-                Text('$netPayable rupees only'), // Display fetched net payable amount
+                Text(
+                    '$netPayable rupees only'), // Display fetched net payable amount
                 SizedBox(height: 8),
                 Text(paymentMode), // Display fetched payment mode
                 SizedBox(height: 16),
@@ -279,23 +167,28 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                     children: [
                       TextSpan(
                         text: "The payment of ",
-                        style: TextStyle(color: Colors.black), // Default color for other text
+                        style: TextStyle(
+                            color:
+                                Colors.black), // Default color for other text
                       ),
                       TextSpan(
                         text: "₹$netPayable",
-                        style: TextStyle(color: Colors.pink,
+                        style: TextStyle(
+                          color: Colors.pink,
                           fontWeight: FontWeight.bold,
                         ), // Pink color for ₹$netPayable
                       ),
                       TextSpan(
-                        text: " you'll make when the delivery arrives with your order.",
-                        style: TextStyle(color: Colors.black), // Default color for other text
+                        text:
+                            " you'll make when the delivery arrives with your order.",
+                        style: TextStyle(
+                            color:
+                                Colors.black), // Default color for other text
                       ),
                     ],
                   ),
                   textAlign: TextAlign.center,
                 )
-
               ],
             ),
           ),
@@ -304,7 +197,6 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
     );
   }
 }
-
 
 ///// with Props /////////////////
 
@@ -502,4 +394,3 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
 //   }
 // }
 //
-
