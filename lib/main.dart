@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home:  GroceryHome(),
+      home:  SplashScreen(),
       routes: {
         '/orderDetails': (context) => OrderDetailsScreen(),
         '/home': (context) =>
