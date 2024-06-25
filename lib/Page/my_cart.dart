@@ -225,7 +225,7 @@ class _MyCartState extends State<MyCart> {
                                                   }
                                                 },
                                                 items: List.generate(
-                                                  10,
+                                                  15,
                                                       (index) => DropdownMenuItem<int>(
                                                     value: index + 1,
                                                     child: Text('Qty: ${index + 1}'),
