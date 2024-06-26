@@ -200,7 +200,7 @@ class _GroceryHomePage extends State<Vegitable> {
                       child: Image.network(
                         product['ProductMainImageUrl'] ?? '', // Use product's image URL with null check
                         width: double.infinity,
-                        height: 100,
+                        height: 105,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -284,7 +284,7 @@ class _GroceryHomePage extends State<Vegitable> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.remove, color: Colors.white, size: 12),
+                                icon: const Icon(Icons.remove, color: Colors.white, size: 10),
                                 onPressed: () {
                                   setState(() {
                                     if (productCount > 0) productCount--;
@@ -312,7 +312,7 @@ class _GroceryHomePage extends State<Vegitable> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.add, color: Colors.white, size: 12),
+                                icon: const Icon(Icons.add, color: Colors.white, size: 10),
                                 onPressed: () {
                                   setState(() {
                                     productCount++;
