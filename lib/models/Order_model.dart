@@ -54,7 +54,7 @@ class OrderItem {
       itemCode: json['ItemCode'] ?? '',
       quantity: json['Quantity'] ?? '',
       totalAmount: double.tryParse(json['TotalAmount']?.toString() ?? '0.0'), // Handle null and parse to double
-      productMainImageUrl: json['ProductMainImageUrl'] ?? '',
+      productMainImageUrl: json['MainImage'] ?? '',
       productName: json['ProductName'] ?? '',
       customerName: json['CustomerName'] ?? '',
       customerMobile: json['CustomerMobile'] ?? '',

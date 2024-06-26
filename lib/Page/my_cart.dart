@@ -321,7 +321,7 @@ class _MyCartState extends State<MyCart> {
                                                 ],
                                               ),
                                               SizedBox(height: 12),
-                                              Row(
+                                              const Row(
                                                 children: [
                                                   Text(
                                                     'Applied',

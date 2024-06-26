@@ -15,7 +15,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   bool isCancelled = false;
   double rating = 0;
   List<Map<String, dynamic>> orderItems = [];
-  String? deliveryStatus; // Define delivery status variable
+  String? deliveryStatus;
 
   @override
   void initState() {
@@ -30,12 +30,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     });
     if (orderId != null) {
       await _fetchOrderDetails(orderId!);
-      // Example of setting deliveryStatus based on conditions (adjust as per your logic)
       setState(() {
-        if (orderItems.isNotEmpty) {
-          if (orderItems[0]['DeliveryStatus'] != null) {
-            deliveryStatus = orderItems[0]['DeliveryStatus'];
-          }
+        if (orderItems.isNotEmpty && orderItems[0]['DeliveryStatus'] != null) {
+          deliveryStatus = orderItems[0]['DeliveryStatus'];
         }
       });
     }
@@ -60,7 +57,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       }
     } catch (e) {
       print('Error fetching order details: $e');
-      // Handle error as needed, e.g., show a snackbar or retry option
     }
   }
 
@@ -78,7 +74,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 12),
-            // Display order items fetched from API
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -86,10 +81,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               itemBuilder: (context, index) {
                 var item = orderItems[index];
                 return Container(
-                  margin: EdgeInsets.symmetric(vertical: 8),
-                  padding: EdgeInsets.all(8),
+                  margin: EdgeInsets.symmetric(vertical: 5),
+                  padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 1),
+                    border: Border.all(color: Colors.pink, width: 1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -101,7 +96,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           padding: EdgeInsets.all(8),
                           child: Image.network(
                             item['ProductMainImageUrl'],
-                            height: 120,
+                            height: 80,
+                            width: double.infinity,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -124,20 +120,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ),
                               SizedBox(height: 5),
                               Text(
-                                'Seller: ${item['Seller'] ?? 'NA'}',
+                                ' ₹${item['TotalAmount'] ?? 'NA'}',
                                 style: TextStyle(fontSize: 16),
                               ),
                               SizedBox(height: 5),
                               Text(
                                 'Quantity: ${item['Quantity']}',
                                 style: TextStyle(fontSize: 15),
-                              ),
-                              Text(
-                                '₹ ${item['TotalAmount']}',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w500,
-                                ),
                               ),
                             ],
                           ),
@@ -163,30 +152,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildTrackingItem('Placed', deliveryStatus == 'cancelled' || deliveryStatus == null),
-                  _buildVerticalLine(deliveryStatus != 'Delivered'),
-                  _buildTrackingItem('On the Way', deliveryStatus == 'cancelled' || deliveryStatus == null),
-                  _buildVerticalLine(deliveryStatus != 'Cancelled'),
-                  if (deliveryStatus == 'cancelled') ...[
-                    _buildTrackingItem('cancelled', true),
-                    SizedBox(height: 20),
+                  _buildTrackingItem('Placed', deliveryStatus != null, false),
+                  _buildVerticalLine(deliveryStatus != 'Delivered' && deliveryStatus != 'Cancelled'),
+                  _buildTrackingItem('On the Way', deliveryStatus == 'On the Way' || deliveryStatus == 'Delivered', deliveryStatus == 'Cancelled'),
+                  _buildVerticalLine(deliveryStatus == 'On the Way'),
+                  if (deliveryStatus == 'Cancelled') ...[
+                    _buildTrackingItem('Cancelled', true, true),
                   ] else ...[
-                    _buildTrackingItem('Delivered', deliveryStatus == 'Delivered'),
-                    _buildVerticalLine(false),
-                  ],
-                  if (isCancelled || deliveryStatus == 'Cancelled') ...[
-                    _buildTrackingItem('Cancel', deliveryStatus == 'Cancelled'),
-                    _buildVerticalLine(false, deliveryStatus == 'Cancelled'),
-                    _buildTrackingItem('Return', deliveryStatus == 'Cancelled'),
-                    _buildVerticalLine(false, deliveryStatus == 'Cancelled'),
-                    _buildTrackingItem('Refund', deliveryStatus == 'Cancelled'),
-                    _buildVerticalLine(false, deliveryStatus == 'Cancelled'),
+                    _buildTrackingItem('Delivered', deliveryStatus == 'Delivered', false),
                   ],
                 ],
               ),
             ),
-
-
             SizedBox(height: 10),
             InkWell(
               onTap: () {
@@ -215,14 +192,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   top: BorderSide(width: 1.0, color: Colors.grey),
                   bottom: BorderSide(width: 1.0, color: Colors.grey),
                 ),
-                color: Color(0xFFF5F5F5), // Background color
+                color: Color(0xFFF5F5F5),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 2, horizontal: 10),
+                    padding: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
                     child: Text(
                       'Shipping details',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
@@ -239,14 +215,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildShippingDetail(
-                      'Customer Name:', orderItems.isNotEmpty ? orderItems[0]['CustomerName'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail(
-                      'Customer Mobile:', orderItems.isNotEmpty ? orderItems[0]['CustomerMobile'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail(
-                      'Customer Address:', orderItems.isNotEmpty ? orderItems[0]['CustomerAddress'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Name:', orderItems.isNotEmpty ? orderItems[0]['CustomerName'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Mobile No:', orderItems.isNotEmpty ? orderItems[0]['CustomerMobile'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Address:', orderItems.isNotEmpty ? orderItems[0]['CustomerAddress']?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Pincode:', orderItems.isNotEmpty ? orderItems[0]['CustomerPinCode']?? 'Loading...' : 'Loading...'),
                 ],
               ),
             ),
@@ -258,14 +232,13 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   top: BorderSide(width: 1.0, color: Colors.grey),
                   bottom: BorderSide(width: 1.0, color: Colors.grey),
                 ),
-                color: Color(0xFFF5F5F5), // Background color
+                color: Color(0xFFF5F5F5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 2, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
                     child: Text(
                       'Payment details',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
@@ -282,28 +255,23 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildShippingDetail('Payment Mode:',
-                      orderItems.isNotEmpty ? orderItems[0]['PaymentMode'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail('Delivery Time:',
-                      orderItems.isNotEmpty ? orderItems[0]['DeliveryTime'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail('Delivery Charges:',
-                      orderItems.isNotEmpty ? orderItems[0]['DeliveryCharges'].toString() ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Payment Method:', orderItems.isNotEmpty ? orderItems[0]['PaymentMode'] ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail('Delivery', orderItems.isNotEmpty ? orderItems[0]['DeliveryTime'] ?? 'Fast' : 'Fast'),
+                  _buildShippingDetail('Delivery Charges:', orderItems.isNotEmpty ? orderItems[0]['DeliveryCharges'].toString() ?? 'Loading...' : 'Loading...'),
                   _buildDivider(),
-                  _buildShippingDetailprice('Gross Amount:',
-                      orderItems.isNotEmpty ? orderItems[0]['GrossAmount'].toString() ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetailprice('Gross Amount:', orderItems.isNotEmpty ? orderItems[0]['TotalAmount'].toString() ?? 'Loading...' : 'Loading...'),
                 ],
               ),
             ),
-            SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTrackingItem(String title, bool isActive) {
+  Widget _buildTrackingItem(String title, bool isActive, bool isCancelled) {
     return Row(
       children: [
         Container(
@@ -311,23 +279,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           height: 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isActive ? Colors.red : Colors.grey,
+            color: isCancelled
+                ? Colors.red
+                : (isActive ? Colors.green : Colors.grey),
           ),
         ),
         SizedBox(width: 10),
         Text(
           title,
-          style: TextStyle(fontSize: 16, color: isActive ? Colors.black : Colors.grey),
+          style: TextStyle(
+            fontSize: 16,
+            color: isCancelled ? Colors.red : (isActive ? Colors.black : Colors.grey),
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildVerticalLine(bool isActive, [bool isCancelled = false]) {
+  Widget _buildVerticalLine(bool isActive) {
     return Container(
       width: 2,
       height: 20,
-      color: isActive ? Colors.red : (isCancelled ? Colors.grey : Colors.transparent),
+      color: isActive ? Colors.green : Colors.grey,
     );
   }
 
@@ -342,7 +316,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500,color: Colors.black54),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black54),
               ),
               SizedBox(width: 10),
               Expanded(
@@ -384,26 +358,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  Widget _buildPaymentDetail(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 5),
-          Text(
-            value,
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -431,7 +385,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             TextButton(
               child: Text("CONFIRM"),
               onPressed: () {
-                // Implement cancel order logic here
                 setState(() {
                   isCancelled = true;
                 });
@@ -444,4 +397,3 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 }
-
