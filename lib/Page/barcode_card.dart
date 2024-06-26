@@ -1,191 +1,6 @@
-// import 'package:flutter/material.dart';
-// import 'package:qr_code_scanner/qr_code_scanner.dart';
-// import 'dart:io';
-// import 'dart:convert'; // Import dart:convert
-//
-// // ... [Your CoinPage code remains the same] ...
-//
-// class BarCodecard extends StatefulWidget {
-//   final String name;
-//   final String mobile;
-//   final String customerId;
-//
-//   BarCodecard({
-//     required this.name,
-//     required this.mobile,
-//     required this.customerId,
-//   });
-//
-//   @override
-//   _CustomerCardState createState() => _CustomerCardState();
-// }
-//
-// class _CustomerCardState extends State<BarCodecard> {
-//   final _formKey = GlobalKey<FormState>();
-//   final _nameController = TextEditingController();
-//   final _mobileController = TextEditingController();
-//   final _customerIdController = TextEditingController();
-//   String? _selectedNumber; // To store the selected dropdown value
-//
-//   List<String> _dropdownItems = ['1', '2', '3', '4', '5'];
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Set initial values from the constructor
-//     _nameController.text = widget.name;
-//     _mobileController.text = widget.mobile;
-//     _customerIdController.text = widget.customerId;
-//   }
-//
-//   @override
-//   void dispose() {
-//     _nameController.dispose();
-//     _mobileController.dispose();
-//     _customerIdController.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Customer Details'),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Card(
-//           elevation: 4.0,
-//           child: Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: <Widget>[
-//                   Text(
-//                     'Customer Details',
-//                     style: TextStyle(
-//                       fontSize: 18.0,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   SizedBox(height: 16.0),
-//                   TextFormField(
-//                     controller: _nameController,
-//                     decoration: InputDecoration(
-//                       labelText: 'Name',
-//                       border: OutlineInputBorder(),
-//                     ),
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter a name';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 16.0),
-//                   TextFormField(
-//                     controller: _mobileController,
-//                     keyboardType: TextInputType.phone,
-//                     decoration: InputDecoration(
-//                       labelText: 'Mobile No.',
-//                       border: OutlineInputBorder(),
-//                     ),
-//                     validator: (value) {
-//                       if (value == null || value.isEmpty) {
-//                         return 'Please enter a mobile number';
-//                       }
-//                       return null;
-//                     },
-//                   ),
-//                   SizedBox(height: 16.0),
-//                   TextFormField(
-//                     controller: _customerIdController,
-//                     decoration: InputDecoration(
-//                       labelText: 'Customer ID',
-//                       border: OutlineInputBorder(),
-//                     ),
-//                   ),
-//                   SizedBox(height: 24.0),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       // Dropdown for numbers
-//                       Container(
-//                         padding: EdgeInsets.symmetric(horizontal: 10.0),
-//                         decoration: BoxDecoration(
-//                           color: Colors.pinkAccent, // Set hot pink background
-//                           borderRadius: BorderRadius.circular(
-//                               5.0), // Optional rounded corners
-//                         ),
-//                         child: DropdownButtonHideUnderline(
-//                           // Hide default underline
-//                           child: DropdownButton<String>(
-//                             value: _selectedNumber,
-//                             hint: Text(
-//                               'Shared Coin',
-//                               style: TextStyle(
-//                                   color: Colors.white), // White hint text
-//                             ),
-//                             dropdownColor: Colors
-//                                 .pinkAccent, // Background color of dropdown list
-//                             style: TextStyle(
-//                                 color: Colors.white), // White text for items
-//                             items: _dropdownItems.map((String item) {
-//                               return DropdownMenuItem<String>(
-//                                 value: item,
-//                                 child: Text(item),
-//                               );
-//                             }).toList(),
-//                             onChanged: (String? newValue) {
-//                               setState(() {
-//                                 _selectedNumber = newValue!;
-//                               });
-//                             },
-//                           ),
-//                         ),
-//                       ),
-//                       Spacer(), // To push the Share button to the right
-//                       // Share button
-//                       ElevatedButton(
-//                         onPressed: () {
-//                           if (_formKey.currentState!.validate()) {
-//                             // Process and share the data
-//                             String dataToShare =
-//                                 'Name: ${_nameController.text}\n'
-//                                 'Mobile: ${_mobileController.text}\n'
-//                                 'Customer ID: ${_customerIdController.text}\n'
-//                                 'Selected Number: $_selectedNumber';
-//
-//                             // Use a share plugin or custom logic to share 'dataToShare'
-//                             // For example, using the 'share_plus' package:
-//                             // Share.share(dataToShare);
-//                             print(dataToShare);
-//                           }
-//                         },
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor:
-//                               Colors.pinkAccent, // Set hot pink background
-//                           foregroundColor: Colors.white, // Set white text color
-//                         ),
-//                         child: Text('Share'),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class BarCodecard extends StatefulWidget {
@@ -200,24 +15,35 @@ class BarCodecard extends StatefulWidget {
   });
 
   @override
-  _CustomerCardState createState() => _CustomerCardState();
+  _BarcodeCardState createState() => _BarcodeCardState();
 }
 
-class _CustomerCardState extends State<BarCodecard> {
+class _BarcodeCardState extends State<BarCodecard> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _mobileController = TextEditingController();
   final _customerIdController = TextEditingController();
-  String? _selectedNumber;
+  String _totalCoins = '';
+  String? _selectedCoin; // Dropdown selection
+  bool _isCoinAvailable = true; // Flag for coin availability
 
-  List<String> _dropdownItems = ['1', '2', '3', '4', '5'];
+  final List<String> _coinOptions = [
+    '5',
+    '10',
+    '30',
+    '50',
+    '100',
+    '500',
+  ];
 
   @override
   void initState() {
     super.initState();
+    // Initialize controllers with received data
     _nameController.text = widget.name;
     _mobileController.text = widget.mobile;
     _customerIdController.text = widget.customerId;
+    _fetchTotalCoins();
   }
 
   @override
@@ -254,20 +80,17 @@ class _CustomerCardState extends State<BarCodecard> {
                     ),
                   ),
                   SizedBox(height: 16.0),
+                  // Name field - make it read-only
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: 'Name',
                       border: OutlineInputBorder(),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a name';
-                      }
-                      return null;
-                    },
+                    enabled: false, // Make it read-only
                   ),
                   SizedBox(height: 16.0),
+                  // Mobile No. field - make it read-only
                   TextFormField(
                     controller: _mobileController,
                     keyboardType: TextInputType.phone,
@@ -275,69 +98,89 @@ class _CustomerCardState extends State<BarCodecard> {
                       labelText: 'Mobile No.',
                       border: OutlineInputBorder(),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a mobile number';
-                      }
-                      return null;
-                    },
+                    enabled: false, // Make it read-only
                   ),
                   SizedBox(height: 16.0),
+                  // Customer ID field - make it read-only
                   TextFormField(
                     controller: _customerIdController,
                     decoration: InputDecoration(
                       labelText: 'Customer ID',
                       border: OutlineInputBorder(),
                     ),
+                    enabled: false, // Make it read-only
                   ),
                   SizedBox(height: 24.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 5.0),
                         decoration: BoxDecoration(
-                          color: Colors.pinkAccent,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(5.0),
+                          border:
+                              Border.all(color: Colors.pinkAccent, width: 2.0),
                         ),
-                        child: DropdownButtonHideUnderline(
+                        child: SizedBox(
+                          height: 40,
+                          width: 60,
                           child: DropdownButton<String>(
-                            value: _selectedNumber,
-                            hint: Text(
-                              'Shared Coin',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            dropdownColor: Colors.pinkAccent,
-                            style: TextStyle(color: Colors.white),
-                            items: _dropdownItems.map((String item) {
+                            value: _selectedCoin,
+                            hint: Text('Select Coin'),
+                            items: _coinOptions.map((coin) {
                               return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(item),
+                                value: coin,
+                                child: Text(coin),
                               );
                             }).toList(),
-                            onChanged: (String? newValue) {
+                            onChanged: (value) {
                               setState(() {
-                                _selectedNumber = newValue!;
+                                _selectedCoin = value!;
+                                _isCoinAvailable = int.parse(_totalCoins) >=
+                                    int.parse(_selectedCoin!);
                               });
                             },
+                            isExpanded: true,
                           ),
                         ),
                       ),
                       Spacer(),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _shareCoin();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.pinkAccent,
-                          foregroundColor: Colors.white,
+                      SizedBox(
+                        height: 50,
+                        width: 150,
+                        child: ElevatedButton(
+                          onPressed: _isCoinAvailable
+                              ? () {
+                                  if (_formKey.currentState!.validate() &&
+                                      _selectedCoin != null) {
+                                    _shareCoin();
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _isCoinAvailable
+                                ? Colors.pinkAccent
+                                : Colors.grey,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(
+                            _isCoinAvailable ? 'Share' : 'Not Available',
+                            style: TextStyle(fontSize: 19),
+                          ),
                         ),
-                        child: Text('Share'),
                       ),
                     ],
                   ),
+                  if (!_isCoinAvailable)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        'Insufficient coins!',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -345,6 +188,31 @@ class _CustomerCardState extends State<BarCodecard> {
         ),
       ),
     );
+  }
+
+  Future<void> _fetchTotalCoins() async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/getSenderCoin'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "CustomerID": "CUST000388", // Replace with sender's ID
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _totalCoins = data['data'][0]['TotalCoin'];
+        });
+      } else {
+        throw Exception('Failed to fetch total coins');
+      }
+    } catch (e) {
+      print('Error fetching coins: $e');
+    }
   }
 
   Future<void> _shareCoin() async {
@@ -355,23 +223,28 @@ class _CustomerCardState extends State<BarCodecard> {
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          "CustomerID": widget.customerId,
-          "ReciverCustomerId": "CUST000473", // Replace with actual recipient ID
-          "SelectedValue":
-              _selectedNumber ?? '10', // Default to '1' if not selected
+          "CustomerID": widget.customerId, // Receiver's ID
+          "ReciverCustomerId": "CUST000473", // Replace with actual sender ID
+          "SelectedValue": _selectedCoin, // Use the selected value
         }),
       );
 
       if (response.statusCode == 200) {
         print('Coin shared successfully');
         print(response.body);
-        // Handle success scenario as needed
+        // Optionally show a success message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Coins shared successfully!')),
+        );
       } else {
         throw Exception('Failed to share coin');
       }
     } catch (e) {
       print('Error sharing coin: $e');
-      // Handle error scenario as needed
+      // Optionally show an error message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to share coins.')),
+      );
     }
   }
 }

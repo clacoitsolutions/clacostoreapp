@@ -1,126 +1,136 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class CustomerQRCode extends StatefulWidget {
+class QRCodeGeneratorWidget extends StatefulWidget {
   @override
-  _CustomerQRCodeState createState() => _CustomerQRCodeState();
+  _QRCodeGeneratorWidgetState createState() => _QRCodeGeneratorWidgetState();
 }
 
-class _CustomerQRCodeState extends State<CustomerQRCode> {
-  String _qrCodeData = 'Name: Tushar Sonker\n'
-      'Mobile No.: 6453478383\n'
-      'Customer ID: CUST5654';
+class _QRCodeGeneratorWidgetState extends State<QRCodeGeneratorWidget> {
+  String customerId = "CUST000388";
+  Future<Customer?>? _customerDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _customerDataFuture = _fetchCustomerData(customerId);
+  }
+
+  Future<Customer?> _fetchCustomerData(String customerId) async {
+    final apiUrl =
+        'https://clacostoreapi.onrender.com/getReciverCustomerDetails';
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"CustomerID": customerId}),
+      );
+
+      print("API Response: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        if (responseData['data'] != null && responseData['data'].isNotEmpty) {
+          final customerJson = responseData['data'][0];
+          print("Decoded Data: $customerJson");
+          return Customer.fromJson(customerJson);
+        } else {
+          throw Exception('No customer data found');
+        }
+      } else {
+        throw Exception('Failed to load customer data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
+
+  void _refreshData(String newCustomerId) {
+    setState(() {
+      customerId = newCustomerId;
+      _customerDataFuture = _fetchCustomerData(newCustomerId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(' Coin QR Code '),
+      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            QrImageView(
-              data: _qrCodeData,
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
-            SizedBox(height: 20.0),
-            Text(
-              'Scan this QR Code',
-              style: TextStyle(fontSize: 18.0),
-            ),
-          ],
+        child: FutureBuilder<Customer?>(
+          future: _customerDataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.hasData && snapshot.data != null) {
+              final customerData = snapshot.data!;
+              final qrData = jsonEncode({
+                'CustomerId': customerData.customerId,
+                'Name': customerData.name,
+                'MobileNo': customerData.mobileNo,
+              });
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  QrImageView(
+                    data: qrData,
+                    version: QrVersions.auto,
+                    size: 200.0,
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Customer ID: ${customerData.customerId}',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                  Text(
+                    'Name: ${customerData.name}',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                  Text(
+                    'Mobile No: ${customerData.mobileNo}',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                ],
+              );
+            } else {
+              return Text('No data available');
+            }
+          },
         ),
       ),
     );
   }
 }
 
-/// Through API QR Generator /////////////////////////////
+class Customer {
+  final String customerId;
+  final String name;
+  final String mobileNo;
 
-//
-//
-//
-//
-//
-// import 'package:flutter/material.dart';
-// import 'package:qr_flutter/qr_flutter.dart';
-// import 'package:http/http.dart' as http; // For making API requests
-// import 'dart:convert'; // For handling JSON data
-//
-// class CustomerQRCode extends StatefulWidget {
-//   @override
-//   _CustomerQRCodeState createState() => _CustomerQRCodeState();
-// }
-//
-// class _CustomerQRCodeState extends State<CustomerQRCode> {
-//   String? _customerId;
-//   String? _qrCodeData;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchCustomerId(); // Fetch initial customer ID when the widget is created
-//   }
-//
-//   // Function to fetch customer ID from your API
-//   Future<void> _fetchCustomerId() async {
-//     try {
-//       // Replace with your actual API endpoint and headers
-//       final response = await http.get(Uri.parse('https://your-api-endpoint.com/customer_id'),
-//           headers: {'Authorization': 'Bearer your_api_token'});
-//
-//       if (response.statusCode == 200) {
-//         final data = json.decode(response.body);
-//         setState(() {
-//           _customerId = data['customerId']; // Assuming your API returns "customerId"
-//           _qrCodeData = _customerId; // Update QR code data
-//         });
-//       } else {
-//         print('Error fetching customer ID: ${response.statusCode}');
-//         // Handle errors appropriately (e.g., display an error message)
-//       }
-//     } catch (error) {
-//       print('Error fetching customer ID: $error');
-//       // Handle errors appropriately (e.g., display an error message)
-//     }
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Customer QR Code'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             // Display customer ID
-//             Text(
-//               'Customer ID: ${_customerId ?? "Loading..."}',
-//               style: TextStyle(fontSize: 18.0),
-//             ),
-//             SizedBox(height: 20.0),
-//             // Display QR code
-//             _qrCodeData != null
-//                 ? QrImage(
-//               data: _qrCodeData!,
-//               version: QrVersions.auto,
-//               size: 200.0,
-//             )
-//                 : CircularProgressIndicator(), // Show a loading indicator while fetching data
-//             SizedBox(height: 20.0),
-//             // Button to simulate changing customer ID (replace with your actual logic)
-//             ElevatedButton(
-//               onPressed: () {
-//                 // Replace with your logic to fetch a new customer ID (e.g., from user input, database, etc.)
-//                 _fetchCustomerId(); // Update QR code after fetching
-//               },
-//               child: Text('Change Customer ID'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  Customer({
+    required this.customerId,
+    required this.name,
+    required this.mobileNo,
+  });
+
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    return Customer(
+      customerId: json['CustomerId'] ?? '',
+      name: json['Name'] ?? '',
+      mobileNo: json['MobileNo'] ?? '',
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: QRCodeGeneratorWidget(),
+  ));
+}

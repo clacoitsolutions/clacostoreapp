@@ -1,4 +1,6 @@
 import 'package:claco_store/Page/Category_Page.dart';
+import 'package:claco_store/Page/barcode_card.dart';
+import 'package:claco_store/Page/generateQR.dart';
 import 'package:claco_store/Page/login.dart';
 import 'package:claco_store/Page/my_profile.dart';
 import 'package:claco_store/pageUtills/add_address_form.dart';
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
-      home: HomeScreen(),
+      home: CoinPage(),
       routes: {
         '/orderDetails': (context) => OrderDetailsScreen(),
         '/home': (context) =>

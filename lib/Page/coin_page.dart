@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:io';
 import 'barcode_card.dart';
-import 'package:image_picker/image_picker.dart';
+import 'generateQR.dart';
 
 class CoinPage extends StatefulWidget {
   const CoinPage({Key? key}) : super(key: key);
@@ -40,7 +40,7 @@ class _CoinPageState extends State<CoinPage> {
       final response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/getTotalCoin'),
         body: json.encode({
-          "CustomerID": "CUST000383",
+          "CustomerID": "CUST000388", // Replace with the actual customer ID
         }),
         headers: {
           "Content-Type": "application/json",
@@ -52,15 +52,16 @@ class _CoinPageState extends State<CoinPage> {
         final List<dynamic> data = jsonResponse['data'];
         if (data.isNotEmpty) {
           setState(() {
-            totalCoins = data[0]['TotalCoin'] ?? '';
+            totalCoins = data[0]['TotalCoin']?.toString() ?? '';
           });
         }
       } else {
-        throw Exception('Failed to fetch total coins');
+        // Handle error, e.g., show a message to the user
+        print('Failed to fetch total coins: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching total coins: $e');
-      // Handle error as needed
+      // Handle error, e.g., show a message to the user
     }
   }
 
@@ -95,7 +96,8 @@ class _CoinPageState extends State<CoinPage> {
                             Padding(
                               padding: const EdgeInsets.only(right: 70.0),
                               child: Image.asset(
-                                '/images/coinlogo.png', // Replace with your actual image path
+                                '/images/coinlogo.png',
+                                // Replace with your actual image path
                                 height: 70,
                                 width: 300,
                               ),
@@ -211,7 +213,12 @@ class _CoinPageState extends State<CoinPage> {
                               horizontal: 30, vertical: 15),
                         ),
                         onPressed: () {
-                          print('Receive coins');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QRCodeGeneratorWidget(),
+                            ),
+                          );
                         },
                         child: Text('Receive coins'),
                       ),
@@ -252,7 +259,7 @@ class _CoinPageState extends State<CoinPage> {
                   ),
                   SizedBox(height: 4),
                   Padding(
-                    padding: const EdgeInsets.only(right: 180.0),
+                    padding: const EdgeInsets.only(right: 190.0),
                     child: Text(
                       'Expire Coins',
                       style: TextStyle(
@@ -327,6 +334,14 @@ class _CoinPageState extends State<CoinPage> {
                       ],
                     ),
                   ),
+                  SizedBox(height: 4),
+                  Divider(
+                    color: Colors.grey,
+                    thickness: 0.2,
+                    indent: 10,
+                    endIndent: 10,
+                  ),
+                  SizedBox(height: 4),
                 ],
               ),
             ),
@@ -336,68 +351,48 @@ class _CoinPageState extends State<CoinPage> {
     );
   }
 
-  void _scanQRCode() async {
-    final scannedData = await Navigator.of(context).push(MaterialPageRoute(
-      builder: (BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text('Scan QR Code', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.pink,
-        ),
-        body: QRView(
-          key: qrKey,
-          onQRViewCreated: _onQRViewCreated,
-          overlay: QrScannerOverlayShape(
-            borderColor: Colors.pink,
-            borderRadius: 10,
-            borderLength: 30,
-            borderWidth: 10,
-            cutOutSize: 300,
+  void _scanQRCode() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: QRView(
+            key: qrKey,
+            onQRViewCreated: _onQRViewCreated,
           ),
-        ),
-      ),
-    ));
-
-    // Check if scannedData is not null and is a Map
-    if (scannedData != null && scannedData is Map<String, dynamic>) {
-      // Now you can access the data from the QR code
-      String name = scannedData['Name'] ?? '';
-      String mobile = scannedData['Mobile No.'] ?? '';
-      String customerId = scannedData['Customer ID'] ?? '';
-
-      // Pass data to BarCodecard
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BarCodecard(
-            name: name,
-            mobile: mobile,
-            customerId: customerId,
-          ),
-        ),
-      );
-    }
+        );
+      },
+    );
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    setState(() {
-      this.controller = controller;
-    });
+    this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
-      });
-      if (result != null) {
-        try {
-          // Attempt to decode the QR code data as JSON
-          final Map<String, dynamic> jsonData = json.decode(result!.code!);
-          // Pass the jsonData to the previous screen
-          Navigator.pop(context, jsonData);
-        } catch (e) {
-          print('Invalid QR code format: $e');
-          // Handle the case where the QR code is not in the expected format
-          // You might want to show an error message to the user
+        if (result != null &&
+            result!.code != null &&
+            result!.code!.isNotEmpty) {
+          // Close the QR scanner after successful scan
+          Navigator.pop(context);
+
+          // Decode the QR data (assuming it's JSON)
+          Map<String, dynamic> qrData = jsonDecode(result!.code!);
+
+          // Navigate to Barcodecard page with autofilled values
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BarCodecard(
+                name: qrData['Name'], // Extract data from JSON
+                mobile: qrData['MobileNo'],
+                customerId: qrData['CustomerId'],
+              ),
+            ),
+          );
         }
-      }
+      });
     });
   }
 
