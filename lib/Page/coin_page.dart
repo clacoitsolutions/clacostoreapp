@@ -360,6 +360,13 @@ class _CoinPageState extends State<CoinPage> {
           child: QRView(
             key: qrKey,
             onQRViewCreated: _onQRViewCreated,
+            overlay: QrScannerOverlayShape(
+              borderColor: Colors.pinkAccent,
+              borderRadius: 10,
+              borderLength: 30,
+              borderWidth: 10,
+              cutOutSize: 300,
+            ),
           ),
         );
       },
