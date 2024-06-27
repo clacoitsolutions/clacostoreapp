@@ -164,7 +164,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                                   Icon(Icons.star_half, color: Colors.grey, size: 15),
                                   SizedBox(width: 5),
                                   Text(
-                                    product['rating']?.toString() ?? '0', // Product rating with null check
+                                    product['Avg']?.toString() ?? '', // Product rating with null check
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.grey,

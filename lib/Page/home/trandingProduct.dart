@@ -14,7 +14,7 @@ class TrendingProduct extends StatefulWidget {
 class _TrendingProductState extends State<TrendingProduct> {
   List<dynamic> products = [];
   final APIService apiService = APIService();
-  final String customerId = 'ayush@gmail.com'; // Hardcoded Customer ID
+  final String customerId = ''; // Hardcoded Customer ID
 
   @override
   void initState() {
@@ -24,7 +24,7 @@ class _TrendingProductState extends State<TrendingProduct> {
 
   Future<void> fetchProducts() async {
     try {
-      final fetchedProducts = await apiService.fetchProducts('13');
+      final fetchedProducts = await apiService.fetchProducts('10');
       setState(() {
         products = fetchedProducts;
       });
