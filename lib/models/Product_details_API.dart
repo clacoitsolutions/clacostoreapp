@@ -23,7 +23,7 @@ class APIServices {
     final url = Uri.parse('$baseUrl/getProductDetailSize');
     final response = await http.post(
       url,
-      body: jsonEncode({'productId': productId}),
+      body: jsonEncode({'productId':productId}),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -38,18 +38,18 @@ class APIServices {
     final url = Uri.parse('$baseUrl/getProductDetailColor');
     final response = await http.post(
       url,
-      body: jsonEncode({'productId': productId}),
+      body: jsonEncode({'productId':productId}),
       headers: {'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to fetch product sizes');
+      throw Exception('Failed to fetch product color');
     }
   }
 
-  Future<Map<String, dynamic>> addToCart(String customerId, String productId, String quantity) async {
+  Future<Map<String, dynamic>> addToCart(String customerId, String productId, String quantity,String sizename,String colorname ) async {
     final url = Uri.parse('$baseUrl/addtocart3');
     final response = await http.post(
       url,
@@ -57,6 +57,9 @@ class APIServices {
         'customerid': customerId,
         'productid': productId,
         'quantity': quantity,
+        'sizename':sizename,
+        'colorname':colorname,
+
       }),
       headers: {'Content-Type': 'application/json'},
     );

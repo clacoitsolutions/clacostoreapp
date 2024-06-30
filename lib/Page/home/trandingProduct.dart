@@ -24,7 +24,7 @@ class _TrendingProductState extends State<TrendingProduct> {
 
   Future<void> fetchProducts() async {
     try {
-      final fetchedProducts = await apiService.fetchProducts('10');
+      final fetchedProducts = await apiService.fetchProducts('13');
       setState(() {
         products = fetchedProducts;
       });

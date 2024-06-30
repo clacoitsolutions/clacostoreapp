@@ -35,34 +35,35 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                    MaterialPageRoute(builder: (context) => HomeScreen()), // Replace with the correct page
                   );
                 },
-                child: ElevatedButton(
+                child: OutlinedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                      MaterialPageRoute(builder: (context) => HomeScreen()), // Replace with the correct page
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightBlue,
-                    padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white, width: 2),
+                    backgroundColor: Colors.transparent,
+                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text(
-                    'Claco',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  child: Image.asset(
+
+                    'assets/images/Clacologo.png', // Replace with your image path
+                    width: 50, // Adjust the width according to your needs
+                    height: 50, // Adjust the height according to your needs
                   ),
                 ),
               ),
             ),
+
+            SizedBox(width: 10,),
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -71,16 +72,17 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     MaterialPageRoute(builder: (context) => GroceryHome()), // Replace with the correct page
                   );
                 },
-                child: ElevatedButton(
+                child: OutlinedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => GroceryHome()), // Replace with the correct page
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Colors.white, width: 2),
+                    backgroundColor: Colors.transparent,
+                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -96,6 +98,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
+
           ]
       ),
 
