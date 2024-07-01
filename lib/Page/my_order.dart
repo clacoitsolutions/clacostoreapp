@@ -126,8 +126,6 @@ class _FlippableCardState extends State<FlippableCard> {
   }
 
   Widget _buildOrderItemFront(String orderId, List<OrderItem> items) {
-    bool isCancelled = items.any((item) => item.deliveryStatus == 'cancelled');
-
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
@@ -146,19 +144,21 @@ class _FlippableCardState extends State<FlippableCard> {
               Row(
                 children: [
                   Container(
-                    width: 10,
-                    height: 10,
+                    width: 20,
+                    height: 20,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isCancelled ? Colors.red : Colors.green,
+                      color: _getDeliveryStatusColor(items),
                     ),
-                  ),
-                  SizedBox(width: 1),
-                  Text(
-                    isCancelled ? 'Cancelled' : 'Completed',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                    child: Center(
+                      child: Text(
+                        _getDeliveryStatusText(items),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -191,13 +191,14 @@ class _FlippableCardState extends State<FlippableCard> {
                         children: [
                           SizedBox(height: 8),
                           Text(
-                            item.productName.length > 20 ? '${  item.productName.substring(0, 20)}...':item.productName,
+                            item.productName.length > 20
+                                ? '${item.productName.substring(0, 20)}...'
+                                : item.productName,
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
                                 fontWeight: FontWeight.w400),
                           ),
-
                           SizedBox(height: 8),
                           Text(
                             '₹${item.totalAmount}',
@@ -227,6 +228,34 @@ class _FlippableCardState extends State<FlippableCard> {
       ),
     );
   }
+
+  Color _getDeliveryStatusColor(List<OrderItem> items) {
+    // Check delivery status and return color accordingly
+    if (items.any((item) => item.deliveryStatus.toLowerCase() == 'cancelled')) {
+      return Colors.red;
+    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'on the way')) {
+      return Colors.yellow;
+    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'delivered')) {
+      return Colors.green;
+    } else {
+      return Colors.green; // Default color if status is not recognized
+    }
+  }
+  String _getDeliveryStatusText(List<OrderItem> items) {
+    // Check delivery status and return text accordingly
+    if (items.any((item) => item.deliveryStatus.toLowerCase() == 'cancelled')) {
+      return 'Cancelled';
+    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'on the way')) {
+      return 'On the Way';
+    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'Delivered ')) {
+      return 'Delivered  ';
+    } else {
+      return ''; // Default text if status is not recognized
+    }
+  }
+
+
+
 
   Widget _buildOrderItemBack() {
     return Container(
