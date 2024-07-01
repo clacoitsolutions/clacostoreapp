@@ -168,23 +168,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     // Default quantity to '1' if not set
     quantity ??= '1';
 
-    // Check if either selectedSize or selectedColor is null
-    if (selectedSize == '' || selectedColor == '') {
-      // Inform the user to select size and color
-
-    }
-    else
-      {
-        // Inform the user to select size and color
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please select Size and Color'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
     // Check if the product is in stock
     if (productDetails?['StockStatus'] == null ||
         (int.tryParse(productDetails!['StockStatus'].toString()) ?? 0) <= 0) {
@@ -202,8 +185,8 @@ class _ProductDetailsState extends State<ProductDetails> {
         customerId!,
         productId!,
         quantity!,
-        selectedSize! ?? '',
-        selectedColor! ?? '',
+        selectedSize ?? '', // Default to empty string if selectedSize is null
+        selectedColor ?? '', // Default to empty string if selectedColor is null
       );
 
       if (response.containsKey('message')) {
@@ -449,7 +432,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        SizedBox(height: 8),
+        SizedBox(height: 1),
     Stack(
     children: [
     CarouselSlider(
@@ -635,20 +618,21 @@ class _ProductDetailsState extends State<ProductDetails> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 5),
                 if (showSizes) // Only show sizes when fetched successfully
                   buildSizeChips(),
-                SizedBox(height: 8),
+                SizedBox(height: 5),
                 if (showColors) buildColorChips(),
                 SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star, color: Colors.yellow, size: 15),
-                    Icon(Icons.star_half, color: Colors.grey, size: 15),
+                    Icon(Icons.star, color: Colors.green, size: 15),
+                    Icon(Icons.star, color: Colors.green, size: 15),
+                    Icon(Icons.star, color: Colors.green, size: 15),
+                    Icon(Icons.star, color: Colors.green, size: 15),
+                    Icon(Icons.star, color: Colors.green, size: 15),
+
+
                     SizedBox(width: 5),
                     Text(
                       "${productDetails?['rating'] ?? ''}",

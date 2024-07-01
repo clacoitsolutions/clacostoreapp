@@ -188,22 +188,16 @@ class _TrendingProductState extends State<TrendingProduct> {
                             ),
                           SizedBox(height: 4),
                           Row(
-                            children: [
-                              Icon(Icons.star, color: Colors.yellow, size: 15),
-                              Icon(Icons.star, color: Colors.yellow, size: 15),
-                              Icon(Icons.star, color: Colors.yellow, size: 15),
-                              Icon(Icons.star, color: Colors.yellow, size: 15),
-                              Icon(Icons.star_half, color: Colors.grey, size: 15),
-                              SizedBox(width: 5),
-                              Text(
-                                product['rating']?.toString() ?? '0', // Product rating with null check
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
+                            children: List.generate(5, (index) {
+                              if (product['Avg'] != null && product['Avg'] >= index + 1) {
+                                return Icon(Icons.star, color: Colors.green, size: 15);
+                              } else {
+                                return Icon(Icons.star, color: Colors.green, size: 15);
+                              }
+                            }),
                           ),
+
+
                         ],
                       ),
                     ),
