@@ -22,16 +22,17 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
+      height: 60,
       color: Colors.pink,
       elevation: 6,
       shape: const CircularNotchedRectangle(),
-      notchMargin: 8,
+      notchMargin: 0,
       child: Container(
-        height: 50,
+
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.pink,
+              color: Colors.transparent,
               blurRadius: 10,
               offset: const Offset(0, -1),
             ),
@@ -109,7 +110,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       icon: Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: _selectedIndex == index ? Colors.white : Colors.transparent,

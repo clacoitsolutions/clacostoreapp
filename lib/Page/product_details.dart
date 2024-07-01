@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
@@ -34,10 +38,12 @@ class _ProductDetailsState extends State<ProductDetails> {
   int productCount = 1; // Initial product count
   String? selectedSize;
   String? selectedColor;
+  String _responseMessage = "";
+  Color _messageColor = Colors.green; // Default to green
 
   final APIService _productService = APIService();
   final APIServices _productServices = APIServices();
-
+  final TextEditingController _pincodeController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -218,6 +224,57 @@ class _ProductDetailsState extends State<ProductDetails> {
         backgroundColor: Colors.red,
       ));
     }
+  }
+
+//CHECK PINCODE
+
+  Future<void> _checkPincode() async {
+    final String baseUrl = "https://clacostoreapi.onrender.com/Pincode";
+    final String pincode = _pincodeController.text.trim();
+
+    if (pincode.isEmpty) {
+      setState(() {
+        _responseMessage = "Please enter a PinCode.";
+        _messageColor = Colors.red;
+      });
+      _hideMessageAfterDelay();
+      return;
+    }
+
+    final String apiUrl = "$baseUrl?PinCode=$pincode";
+
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      setState(() {
+        _responseMessage = responseData['message']; // Assuming the API returns a 'message' field
+        _messageColor = Colors.green;
+      });
+    } else {
+      setState(() {
+        _responseMessage = "Invalid Pincode.";
+        _messageColor = Colors.red;
+      });
+    }
+
+    _hideMessageAfterDelay();
+  }
+
+  void _hideMessageAfterDelay() {
+    Timer(Duration(seconds: 5), () {
+      setState(() {
+        _responseMessage = '';
+      });
+    });
   }
 
 
@@ -618,7 +675,62 @@ class _ProductDetailsState extends State<ProductDetails> {
                         : Colors.red,
                   ),
                 ),
-                SizedBox(height: 12),
+
+
+                Container(
+                  decoration: BoxDecoration(
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0), // Adjust padding as needed
+                        title: Container(
+                          decoration: BoxDecoration(
+                            border: Border(bottom: BorderSide(color: Colors.grey)), // Bottom border for TextField
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on_outlined, color: Colors.pink, size: 24), // Location icon
+                              SizedBox(width: 7), // Adjust spacing between icon and TextField
+                              Expanded(
+                                child: TextField(
+                                  controller: _pincodeController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter PinCode',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0), // Adjust padding inside the TextField
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        trailing: ElevatedButton(
+                          onPressed: _checkPincode,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.pink.withOpacity(0.9),
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Adjust button padding
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          child: Text('Check', style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+
+                      if (_responseMessage.isNotEmpty)
+                        Text(
+                          _responseMessage,
+                          style: TextStyle(fontSize: 16, color: _messageColor),
+                        ),
+                    ],
+                  ),
+                ),
+
+
+                SizedBox(height: 8,),
                 Text(
                   'Product Details :',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

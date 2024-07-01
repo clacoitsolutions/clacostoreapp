@@ -1,6 +1,6 @@
 class WishList {
-  int amount;
-  int RegularPrice;
+  String amount; // should be String type
+  num RegularPrice;
   String productId;
   String ProductMainImageUrl;
   String ProductName;
@@ -21,14 +21,14 @@ class WishList {
 
   factory WishList.fromJson(Map<String, dynamic> json) {
     return WishList(
-      amount: json['amount'] ?? 0,
+      amount: json['amount'].toString(), // Convert to String
       RegularPrice: json['RegularPrice'] ?? 0,
-      productId: json['productId'] ?? '',
+      productId: json['ProductId'] ?? '',
       ProductMainImageUrl: json['ProductMainImageUrl'] ?? '',
       ProductName: json['ProductName'] ?? '',
-      productType: json['productType'] ?? '',
-      mainCategoryCode: json['mainCategoryCode'] ?? '',
-      productCategory: json['productCategory'] ?? '',
+      productType: json['ProductType'] ?? '',
+      mainCategoryCode: json['MainCategoryCode'] ?? '',
+      productCategory: json['ProductCategory'] ?? '',
     );
   }
 }

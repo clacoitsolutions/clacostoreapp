@@ -16,7 +16,6 @@ class MycardScreen extends StatelessWidget {
     return Scaffold(
       appBar: CommonAppBar(title: ' My Cart '),
       body: MyCart(),
-      bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 }
@@ -537,6 +536,7 @@ class _MyCartState extends State<MyCart> {
                     ),
                   ),
                 ),
+                SizedBox(height: 10,),
               ],
             );
           }

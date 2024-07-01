@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Add http package
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Order_model.dart';
 import '../pageUtills/common_appbar.dart';
@@ -12,7 +12,7 @@ class MyOrderScreen extends StatefulWidget {
 }
 
 class _MyOrderScreenState extends State<MyOrderScreen> {
-  Future<Map<String, List<OrderItem>>>? _futureOrderItems; // Change to Map
+  Future<Map<String, List<OrderItem>>>? _futureOrderItems;
   String? userName;
   String? userEmail;
   String? customerId;
@@ -45,7 +45,7 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
     return Scaffold(
       appBar: const CommonAppBar(title: 'My Orders'),
       body: FutureBuilder<Map<String, List<OrderItem>>>(
-        future: _futureOrderItems ?? Future.value({}), // Provide a default Future if _futureOrderItems is null
+        future: _futureOrderItems ?? Future.value({}),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -61,7 +61,6 @@ class _MyOrderScreenState extends State<MyOrderScreen> {
               ),
             );
           } else {
-            // Handle the case where no data is available
             return Center(child: Text('No orders found.'));
           }
         },
@@ -115,17 +114,14 @@ class _FlippableCardState extends State<FlippableCard> {
           ],
           color: Colors.white,
         ),
-        child: AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
-          child: _isFrontVisible
-              ? _buildOrderItemFront(widget.orderId, widget.items)
-              : _buildOrderItemBack(),
-        ),
+        child: _isFrontVisible
+            ? _buildOrderItemFront(widget.orderId, widget.items.first.deliveryStatus, widget.items)
+            : _buildOrderItemBack(),
       ),
     );
   }
 
-  Widget _buildOrderItemFront(String orderId, List<OrderItem> items) {
+  Widget _buildOrderItemFront(String orderId, String deliveryStatus, List<OrderItem> items) {
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
@@ -137,35 +133,34 @@ class _FlippableCardState extends State<FlippableCard> {
               Text(
                 'Order ID: $orderId',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               Row(
                 children: [
                   Container(
-                    width: 20,
-                    height: 20,
+                    width: 13,
+                    height: 13,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _getDeliveryStatusColor(items),
+                      color: _getDeliveryStatusColor(deliveryStatus),
                     ),
-                    child: Center(
-                      child: Text(
-                        _getDeliveryStatusText(items),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
+                  ),
+                  SizedBox(width: 8), // Add spacing between the circle and the text
+                  Text(
+                    deliveryStatus,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          SizedBox(height: 18), // Adjust spacing as needed
+          SizedBox(height: 18),
           Column(
             children: items.map((item) {
               return Padding(
@@ -174,7 +169,7 @@ class _FlippableCardState extends State<FlippableCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Container(
-                      height: 120,
+                      height: 100,
                       width: 120,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
@@ -216,6 +211,7 @@ class _FlippableCardState extends State<FlippableCard> {
                               color: Colors.grey[600],
                             ),
                           ),
+
                         ],
                       ),
                     ),
@@ -228,36 +224,26 @@ class _FlippableCardState extends State<FlippableCard> {
       ),
     );
   }
+  Color _getDeliveryStatusColor(String deliveryStatus) {
+    // Normalize deliveryStatus to lower case for consistent comparison
+    String status = deliveryStatus;
 
-  Color _getDeliveryStatusColor(List<OrderItem> items) {
-    // Check delivery status and return color accordingly
-    if (items.any((item) => item.deliveryStatus.toLowerCase() == 'cancelled')) {
-      return Colors.red;
-    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'on the way')) {
-      return Colors.yellow;
-    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'delivered')) {
-      return Colors.green;
-    } else {
-      return Colors.green; // Default color if status is not recognized
-    }
-  }
-  String _getDeliveryStatusText(List<OrderItem> items) {
-    // Check delivery status and return text accordingly
-    if (items.any((item) => item.deliveryStatus.toLowerCase() == 'cancelled')) {
-      return 'Cancelled';
-    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'on the way')) {
-      return 'On the Way';
-    } else if (items.any((item) => item.deliveryStatus.toLowerCase() == 'Delivered ')) {
-      return 'Delivered  ';
-    } else {
-      return ''; // Default text if status is not recognized
+    switch (status) {
+      case 'cancelled':
+        return Colors.red;
+      case 'Placed':
+        return Colors.yellow;
+      case 'delivered':
+        return Colors.green;
+      default:
+        return Colors.green; // Default color if status is not recognized
     }
   }
 
 
 
 
-  Widget _buildOrderItemBack() {
+        Widget _buildOrderItemBack() {
     return Container(
       padding: EdgeInsets.all(16),
       child: Center(

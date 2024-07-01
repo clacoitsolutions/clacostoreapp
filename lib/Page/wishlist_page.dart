@@ -299,12 +299,13 @@ class _WishlistPageState extends State<WishlistPage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    '₹${wishListItem.RegularPrice is double ? wishListItem.RegularPrice.toInt() : wishListItem.RegularPrice}',
-                    style: TextStyle(
+                    '₹${wishListItem.RegularPrice.toString()}',
+                    style: const TextStyle(
                       fontSize: 15,
                       color: Colors.black,
                     ),
                   ),
+
                   SizedBox(height: 5),
                   Row(
                     children: [
