@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:claco_store/Page/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -255,6 +256,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               child: OutlinedButton.icon(
                                 onPressed: () {
                                   // Add your onPressed logic here
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => WishListScreen()),
+                                  );
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(color: Colors.grey), // Set grey border
