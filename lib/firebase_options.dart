@@ -8,12 +8,12 @@ import 'package:flutter/foundation.dart'
 ///
 /// Example:
 /// ```dart
-/// import 'firebase_options.dart';
+import 'firebase_options.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
-/// ```
+
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'clacostore-7303d.appspot.com',
     measurementId: 'G-GX62291S1H',
   );
+
 }

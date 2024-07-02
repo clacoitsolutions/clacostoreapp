@@ -138,6 +138,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               },
             ),
             SizedBox(height: 20),
+
+
+
+
             Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -164,6 +168,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ],
               ),
             ),
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
             SizedBox(height: 10),
             InkWell(
               onTap: () {
