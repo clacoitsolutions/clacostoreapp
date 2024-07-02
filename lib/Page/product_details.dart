@@ -50,6 +50,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     loadProductDetails();
   }
 
+
   Future<void> loadProductDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {

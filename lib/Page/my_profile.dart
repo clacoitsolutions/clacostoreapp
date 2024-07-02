@@ -11,7 +11,7 @@ import '../pageUtills/coupons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../pageUtills/help_center.dart';
-import '../pageUtills/recent_view_product.dart';
+import '../pageUtills/recent_product_view.dart';
 import '../pageUtills/top_navbar.dart';
 import '../pageUtills/update_user_profile.dart';
 import '../pageUtills/user_profile_review.dart';
@@ -427,49 +427,12 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
 
                   // Recently viewed images
-                  Container(
-                    height: 120.0,
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    color: Colors.white70,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          // Display images dynamically from imageList
-                          for (var imageInfo in imageList)
-                            SizedBox(
-                              width: 100.0,
-                              child: Card(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0), // Add border radius
-                                  side: BorderSide(
-                                    color: Colors.grey.withOpacity(0.5), // Set border color and opacity
-                                    width: 1.0, // Set border width
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      imageInfo.imagePath,
-                                      height: 60.0,
-                                    ),
-                                    SizedBox(height: 8.0),
-                                    Text(
-                                      imageInfo.imageName,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+
+
+                  Expanded(
+                    child: RecentProductsScreen(), // Ensure RecentProductsScreen is correctly imported and defined
+                  ),// Display RecentProductsScreen here
+
 
 
                   // Additional widgets...

@@ -46,21 +46,20 @@ class _MyCartState extends State<MyCart> {
   String paymentMethod = ''; // Payment method variable
   String _customerId = ''; // CustomerId as global variable
   String _addressId = ''; // SrNo (address ID) as global variable
-
+  String customerId ='CUST000394';
   @override
   void initState() {
     super.initState();
-    _fetchData();
+    _fetchAddressData();
+    _fetchCartItems();
+    _fetchTotalAmounts();
   }
 
-  Future<void> _fetchData() async {
-    await _fetchAddressData();
-    await _fetchCartItems();
-    await _fetchTotalAmounts();
-  }
+
+
 
   Future<void> _fetchAddressData() async {
-    final addressData = await CartApiService.fetchAddressData("CUST000394");
+    final addressData = await CartApiService.fetchAddressData(customerId!);
     if (addressData != null) {
       setState(() {
         _Srno = addressData['SrNo'];
@@ -74,11 +73,11 @@ class _MyCartState extends State<MyCart> {
 
       // Store CustomerId and SrNo in SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('CustomerId', 'CUST000394');
+      await prefs.setString('CustomerId',customerId!);
       await prefs.setString('SrNo', addressData['SrNo']);
 
       // Update global variables
-      _customerId = 'CUST000394';
+      _customerId = customerId!;
       _addressId = addressData['SrNo'];
     }
   }
@@ -87,7 +86,7 @@ class _MyCartState extends State<MyCart> {
 
   Future<void> _fetchCartItems() async {
     try {
-      final cartItems = await CartApiService.fetchCartItems('CUST000394');
+      final cartItems = await CartApiService.fetchCartItems(customerId!);
       setState(() {
         _cartItems = cartItems;
       });
@@ -99,7 +98,7 @@ class _MyCartState extends State<MyCart> {
 
   Future<void> _fetchTotalAmounts() async {
     try {
-      final jsonData = await TotalAmountApiService.fetchTotalAmount('CUST000394');
+      final jsonData = await TotalAmountApiService.fetchTotalAmount(customerId!);
 
       if (jsonData != null &&
           jsonData['addresses'] != null &&

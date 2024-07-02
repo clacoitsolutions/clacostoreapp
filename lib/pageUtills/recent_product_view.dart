@@ -1,83 +1,140 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RecentView extends StatelessWidget {
+class RecentProductsScreen extends StatefulWidget {
+  @override
+  _RecentProductsScreenState createState() => _RecentProductsScreenState();
+}
+
+class _RecentProductsScreenState extends State<RecentProductsScreen> {
+  late Future<List<dynamic>> futureProducts;
+
+  @override
+  void initState() {
+    super.initState();
+    futureProducts = getRecentProducts();
+  }
+
+  Future<List<dynamic>> getRecentProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> recentProducts = prefs.getStringList('recentProducts') ?? [];
+
+    // Reverse the list so that most recent products come first
+    recentProducts = recentProducts.reversed.toList();
+
+    return recentProducts.map((productJson) => jsonDecode(productJson)).toList();
+  }
+
+  double calculateDiscountPercentage(double regularPrice, double salePrice) {
+    return ((regularPrice - salePrice) / regularPrice) * 100;
+  }
+
+  double? parsePrice(dynamic price) {
+    if (price is String) {
+      return double.tryParse(price);
+    } else if (price is int) {
+      return price.toDouble();
+    } else if (price is double) {
+      return price;
+    }
+    return null;
+  }
+
+  Widget buildProductCard(dynamic product) {
+    double? regularPrice = parsePrice(product['RegularPrice']);
+    double? salePrice = parsePrice(product['SalePrice']);
+    double? discountPercentage;
+
+    if (regularPrice != null && salePrice != null) {
+      discountPercentage = calculateDiscountPercentage(regularPrice, salePrice);
+    }
+
+    return GestureDetector(
+      onTap: () {
+        // Navigate to product details page or handle tap event
+      },
+
+      child:Container(
+        height: 120.0,
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        color: Colors.white70,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              // Display images dynamically from imageList
+                SizedBox(
+                  width: 100.0,
+                  child: Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0), // Add border radius
+                      side: BorderSide(
+                        color: Colors.grey.withOpacity(0.5), // Set border color and opacity
+                        width: 1.0, // Set border width
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.network(
+                          product['ProductMainImageUrl'] ?? '',
+                          height: 60.0,
+                        ),
+                        SizedBox(height: 8.0),
+                     Padding(
+                       padding: EdgeInsets.symmetric(horizontal: 4,),
+                       child:Text(
+                         product['ProductName'] ?? '',
+                         maxLines: 1,
+                         style: TextStyle(
+                           fontWeight: FontWeight.w500,
+                         ),
+                       ),
+                     )
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+
+
+
+
+
+
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Recently Viewed'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: EdgeInsets.all(16.0),
-              color: Colors.pink,
-              child: Text(
-                'Recently Viewed',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(height: 10.0),
-            Container(
-              height: 120.0,
-              child: ListView(
+      body: FutureBuilder<List<dynamic>>(
+        future: futureProducts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('कोई हाल ही में देखा गया उत्पाद नहीं मिला'));
+          } else {
+            return Container(
+              height: 180.0, // Height of the horizontal list view
+              child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                children: [
-                  ImageCard(imagePath: 'assets/image1.png', imageName: 'Image 1'),
-                  ImageCard(imagePath: 'assets/image2.png', imageName: 'Image 2'),
-                  ImageCard(imagePath: 'assets/image3.png', imageName: 'Image 3'),
-                  // Add more ImageCard widgets as needed
-                ],
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return buildProductCard(snapshot.data![index]);
+                },
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ImageCard extends StatelessWidget {
-  final String imagePath;
-  final String imageName;
-
-  const ImageCard({required this.imagePath, required this.imageName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 100.0,
-      margin: EdgeInsets.symmetric(horizontal: 8.0),
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          side: BorderSide(
-            color: Colors.grey.withOpacity(0.5),
-            width: 1.0,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              imagePath,
-              height: 60.0,
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              imageName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+            );
+          }
+        },
       ),
     );
   }
