@@ -316,6 +316,7 @@ class _GroceryHomeState extends State<GroceryHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(

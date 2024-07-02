@@ -36,8 +36,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Home Page',
       theme: ThemeData(
-        primarySwatch: Colors.pink,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        primarySwatch: Colors.yellow,
       ),
       debugShowCheckedModeBanner: false,
       // Initially, use your new LoginPage
