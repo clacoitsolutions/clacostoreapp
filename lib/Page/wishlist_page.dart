@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import '../Api services/Wishlist_API.dart';
 import '../models/wishlist_model.dart'; // Adjust path as per your project structure
 import '../pageUtills/bottom_navbar.dart'; // Adjust path as per your project structure
 import '../pageUtills/common_appbar.dart'; // Adjust path as per your project structure
@@ -57,77 +56,33 @@ class _WishlistPageState extends State<WishlistPage> {
   Future<void> _loadUserDataApi() async {
     print("Loading user data...");
     try {
-      var response = await http.post(
-        Uri.parse('https://clacostoreapi.onrender.com/wishlist'),
-        body: jsonEncode({'CustomerId': customerId}),
-        headers: {'Content-Type': 'application/json'},
-      );
+      List<WishList> data = await WishlistService.loadWishlistData('ayush@gmail.com');
+      setState(() {
+        wishList = data;
+        if (wishList.isEmpty) {
+          message = 'No items found in your wishlist.';
+        } else {
+          message = '';
+        }
+      });
 
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        print("Response data: $responseData");
-
-        setState(() {
-          wishList = List<WishList>.from(
-            responseData['data'].map((item) => WishList.fromJson(item)),
-          );
-          if (wishList.isEmpty) {
-            message = 'No items found in your wishlist.';
-          } else {
-            message = '';
-          }
-        });
-
-        print("Data loaded successfully");
-        print("Number of items: ${wishList.length}");
-      } else {
-        print('Request failed with status: ${response.statusCode}');
-        setState(() {
-          message = 'Failed to load wishlist. Please try again later.';
-        });
-        // Handle error, e.g., show error message to the user
-      }
+      print("Data loaded successfully");
+      print("Number of items: ${wishList.length}");
     } catch (e) {
       print('Error occurred: $e');
       setState(() {
         message = 'Error occurred while loading wishlist. Please check your internet connection.';
       });
-      // Handle error, e.g., show error message to the user
     }
   }
 
   Future<void> _removeItemFromWishlist(String productId) async {
-    final url = Uri.parse('https://clacostoreapi.onrender.com/DeleteWishlist');
     try {
-      final response = await http.delete(
-        url,
-        body: jsonEncode({
-          'EntryBy': customerId,
-          'ProductId': productId,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        print('Item removed from wishlist. Response: $responseData');
-
-        // Assuming the API returns a message in the response
-        var apiMessage = responseData['message'];
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(apiMessage),
-        ));
-
-        _loadUserData(); // Reload wishlist after deletion
-      } else {
-        print('Failed to remove item from wishlist. Status code: ${response.statusCode}');
-        var errorMessage = 'Failed to remove item from wishlist. Status code: ${response.statusCode}';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-        ));
-        // Handle error, e.g., show error message to the user
-      }
+      String apiMessage = await WishlistService.removeItemFromWishlist(customerId!, productId);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(apiMessage),
+      ));
+      _loadUserData(); // Reload wishlist after deletion
     } catch (e) {
       print('Error occurred: $e');
       var errorMessage = 'Error occurred while removing item from wishlist. Please check your internet connection.';
@@ -135,41 +90,15 @@ class _WishlistPageState extends State<WishlistPage> {
         content: Text(errorMessage),
         backgroundColor: Colors.red,
       ));
-      // Handle error, e.g., show error message to the user
     }
   }
 
   Future<void> _addToCart(String productId) async {
-    final url = Uri.parse('https://clacostoreapi.onrender.com/addtocart3');
     try {
-      final response = await http.post(
-        url,
-        body: jsonEncode({
-          'customerid': customerId,
-          'productid': productId,
-          'quantity': '1',
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        print('Item added to cart. Response: $responseData');
-
-        // Assuming the API returns a message in the response
-        var apiMessage = responseData['message'];
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(apiMessage),
-        ));
-      } else {
-        print('Failed to add item to cart. Status code: ${response.statusCode}');
-        var errorMessage = 'Failed to add item to cart. Status code: ${response.statusCode}';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-        ));
-        // Handle error, e.g., show error message to the user
-      }
+      String apiMessage = await WishlistService.addToCart(customerId!, productId);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(apiMessage),
+      ));
     } catch (e) {
       print('Error occurred: $e');
       var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
@@ -177,7 +106,6 @@ class _WishlistPageState extends State<WishlistPage> {
         content: Text(errorMessage),
         backgroundColor: Colors.red,
       ));
-      // Handle error, e.g., show error message to the user
     }
   }
 
@@ -191,7 +119,6 @@ class _WishlistPageState extends State<WishlistPage> {
 
   Widget _buildWishlist() {
     if (wishList.isEmpty && message.isNotEmpty) {
-      // Display message if wishlist is empty or there was an error
       return Center(
         child: Text(
           message,
@@ -200,10 +127,9 @@ class _WishlistPageState extends State<WishlistPage> {
       );
     } else {
       return ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 1),
-        itemCount: (wishList.length / 2).ceil(), // Calculate number of rows needed
+        padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+        itemCount: (wishList.length / 2).ceil(),
         itemBuilder: (context, index) {
-          // Calculate indices for the current row
           final int startIndex = index * 2;
           final int endIndex = startIndex + 1;
 
@@ -214,7 +140,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     ? wishlistitem(wishList[startIndex])
                     : SizedBox.shrink(),
               ),
-              SizedBox(width: 10), // Adjust spacing between items as needed
+              SizedBox(width: 0),
               Expanded(
                 child: endIndex < wishList.length
                     ? wishlistitem(wishList[endIndex])
@@ -239,7 +165,7 @@ class _WishlistPageState extends State<WishlistPage> {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 1,
               blurRadius: 3,
-              offset: Offset(0, 2), // changes position of shadow
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -252,11 +178,11 @@ class _WishlistPageState extends State<WishlistPage> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                   child: Container(
                     width: double.infinity,
-                    height: MediaQuery.of(context).size.width * 0.5,
+                    height: MediaQuery.of(context).size.width * 0.4,
                     child: Image.network(
                       wishListItem.ProductMainImageUrl ?? '',
                       height: 100,
-                      fit: BoxFit.cover,
+                      width: double.infinity,
                     ),
                   ),
                 ),
@@ -305,36 +231,23 @@ class _WishlistPageState extends State<WishlistPage> {
                       color: Colors.black,
                     ),
                   ),
-
-                  SizedBox(height: 5),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.yellow, size: 15),
-                      Icon(Icons.star, color: Colors.yellow, size: 15),
-                      Icon(Icons.star, color: Colors.yellow, size: 15),
-                      Icon(Icons.star, color: Colors.yellow, size: 15),
-                      Icon(
-                        Icons.star_half,
-                        color: Colors.grey,
-                        size: 15,
-                      ),
-                      Text(
-                        "2,55,999",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
                   SizedBox(height: 5),
                   TextButton(
                     onPressed: () {
                       _addToCart(wishListItem.productId);
                     },
-                    child: Text(
-                      'Add to Cart',
-                      style: TextStyle(color: Colors.blue),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.pink),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                      child: const Center(
+                        child: Text(
+                          'Add to Cart',
+                          style: TextStyle(color: Colors.pink),
+                        ),
+                      ),
                     ),
                   ),
                 ],

@@ -9,7 +9,7 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Sign In',
+          'Login',
           style: TextStyle( color: Colors.white),
         ),
         backgroundColor: Colors.pink, // Set background color to pink
@@ -83,7 +83,7 @@ class _SignInFormState extends State<SignInForm> {
             TextFormField(
               controller: emailController,
               decoration: InputDecoration(
-                labelText: 'Email',
+                labelText: 'Mobile No.',
                 prefixIcon: Icon(Icons.person),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 border: OutlineInputBorder(
