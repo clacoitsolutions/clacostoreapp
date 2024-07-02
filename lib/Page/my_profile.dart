@@ -287,7 +287,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               width: 150, // Set a fixed width for the button
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                             Navigator.push(context, MaterialPageRoute(builder: (context)=>coupons()));
+                             Navigator.push(context, MaterialPageRoute(builder: (context)=>Coupons()));
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(color: Colors.grey), // Set grey border

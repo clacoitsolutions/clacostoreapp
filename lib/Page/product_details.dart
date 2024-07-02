@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -153,7 +154,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     return null;
   }
 
-  Future<void> addToCart() async {
+  Future<bool> addToCart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     customerId = prefs.getString('customerId');
     if (customerId == null || productId == null) {
@@ -163,7 +164,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           backgroundColor: Colors.red,
         ),
       );
-      return;
+      return false; // Indicate failure
     }
 
     // Default quantity to '1' if not set
@@ -178,7 +179,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           backgroundColor: Colors.red,
         ),
       );
-      return;
+      return false; // Indicate failure
     }
 
     try {
@@ -195,11 +196,13 @@ class _ProductDetailsState extends State<ProductDetails> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(apiMessage),
         ));
+        return true; // Indicate success
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Failed to add item to cart'),
           backgroundColor: Colors.red,
         ));
+        return false; // Indicate failure
       }
     } catch (e) {
       print('Error occurred: $e');
@@ -207,8 +210,10 @@ class _ProductDetailsState extends State<ProductDetails> {
         content: Text('Error occurred while adding item to cart. Please check your internet connection.'),
         backgroundColor: Colors.red,
       ));
+      return false; // Indicate failure
     }
   }
+
 
 //CHECK PINCODE
 
@@ -746,65 +751,82 @@ class _ProductDetailsState extends State<ProductDetails> {
                     ),
                   ),
                 SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ElevatedButton(
-                      onPressed: addToCart,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.shopping_cart, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'Add to Cart',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    ElevatedButton(
-                      onPressed: () {
-                        addToCart(); // Call your addToCart function here if needed
-                        // Navigate to the checkout page
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Checkout()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.touch_app, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'Buy Now',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+
               ],
             ),
           ),
         ],
         ),
         ),
+      bottomNavigationBar: Row(
+        children: [
+          Expanded(
+
+            child: ElevatedButton(
+              onPressed: addToCart,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+              ),
+        child:const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.shopping_cart, color: Colors.pink),
+                  SizedBox(width: 8),
+                  Text(
+                    'Add to Cart',
+                    style: TextStyle(color: Colors.pink),
+                  ),
+                ],
+              ),
+        ),
+            ),
+          ),
+
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () async {
+                bool success = await addToCart(); // Call your addToCart function here
+                if (success) {
+                  // Navigate to the checkout page if addToCart is successful
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Checkout()),
+                  );
+                } else {
+                  // Optionally handle failure case here
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pink,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+              ),
+              child:const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.touch_app, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Buy Now',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              )
+            ),
+          ),
+        ],
+      ),
+
     );
   }
 }
