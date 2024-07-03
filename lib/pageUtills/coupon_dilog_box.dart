@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class CouponDialog {
-  static void show(BuildContext context) {
+  static void show(BuildContext context, Map<String, dynamic> coupon) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -16,42 +18,45 @@ class CouponDialog {
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+                  children: const [
                     Icon(Icons.close),
                     SizedBox(width: 8),
                   ],
                 ),
               ),
               Image.network(
-                'https://cdn-icons-png.freepik.com/512/579/579378.png',
+                '${coupon['Image']}',
                 width: 100,
                 height: 100,
+                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                  return const Icon(Icons.error);
+                },
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Congratulations!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4),
-              Text(
+              const SizedBox(height: 4),
+              const Text(
                 'You\'ve just earned a surprise',
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                '50% off',
-                style: TextStyle(
+                '${coupon['Discount']}% off',
+                style: const TextStyle(
                   color: Colors.blue,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                'Coupon Code: XYZ123',
+                'Coupon Code: ${coupon['CoupanCode']}',
                 textAlign: TextAlign.center,
               ),
             ],
@@ -59,13 +64,13 @@ class CouponDialog {
           actions: <Widget>[
             ElevatedButton(
               onPressed: () {
-                // Add logic for redeeming coupon
+                redeemCoupon(context, coupon['CoupanCode']);
               },
               child: Container(
-                width: double.infinity, // Set width to fill the available space
-                child: Text(
+                width: double.infinity,
+                child: const Text(
                   'Redeem Coupon',
-                  textAlign: TextAlign.center, // Center the text within the button
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                   ),
@@ -75,7 +80,7 @@ class CouponDialog {
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.pink),
                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0.0), // Set border radius to 0
+                    borderRadius: BorderRadius.circular(0.0),
                   ),
                 ),
               ),
@@ -84,5 +89,36 @@ class CouponDialog {
         );
       },
     );
+  }
+
+  static Future<void> redeemCoupon(BuildContext context, String coupanCode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/redeem-coupon'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'CoupanCode': coupanCode,
+        }),
+      );
+
+      final responseBody = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(responseBody['message'])),
+        );
+      } else {
+        throw Exception('Failed to redeem coupon: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error redeeming coupon: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error redeeming coupon: $e')),
+      );
+    } finally {
+      Navigator.of(context).pop();
+    }
   }
 }

@@ -1,8 +1,8 @@
-import 'package:claco_store/pageUtills/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'common_appbar.dart';
 import 'coupon_dilog_box.dart';
 
 class Coupons extends StatefulWidget {
@@ -91,7 +91,7 @@ class _CouponsPageState extends State<Coupons> {
                             padding: EdgeInsets.all(10.0),
                             child: Center(
                               child: Image.network(
-                                'https://example.com/path/to/images/${coupon['Image']}', // Update the path accordingly
+                                '${coupon['Image']}', // Update the path accordingly
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -138,8 +138,8 @@ class _CouponsPageState extends State<Coupons> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              // When the text is tapped, show the modal
-                              CouponDialog.show(context);
+                              // When the text is tapped, show the modal with coupon data
+                              CouponDialog.show(context, coupon);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),

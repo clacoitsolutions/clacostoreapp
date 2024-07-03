@@ -196,12 +196,12 @@ class APIService {
 
 
 // ProductDetails api
-  Future<Map<String, dynamic>?> fetchProductDetails(String srno, String productId) async {
+  Future<Map<String, dynamic>?> fetchProductDetails( String productId) async {
     final url = '$apiUrl/getProductDetails';
     final response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({'CatId': srno, 'productId': productId}),
+      body: json.encode({ 'productId': productId}),
     );
 
     if (response.statusCode == 200) {

@@ -60,7 +60,7 @@ class _GroceryHomePage extends State<Vegitable> {
       print('Product details saved: SrNo = $srno, ProductCode = $productId');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ProductDetails()),
+        MaterialPageRoute(builder: (context) => ProductDetails(productId: null,)),
       );
     } catch (e) {
       print('Error saving product details: $e');
