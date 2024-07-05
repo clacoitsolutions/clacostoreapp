@@ -46,16 +46,29 @@ class _MyCartState extends State<MyCart> {
   String paymentMethod = ''; // Payment method variable
   String _customerId = ''; // CustomerId as global variable
   String _addressId = ''; // SrNo (address ID) as global variable
-  String customerId ='CUST000394';
+  String? userName;
+  String? userEmail;
+  String? customerId;
+  String? mobileNo;
+
   @override
   void initState() {
     super.initState();
-    _fetchAddressData();
-    _fetchCartItems();
-    _fetchTotalAmounts();
+    _loadUserData();
   }
 
-
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('name');
+      userEmail = prefs.getString('emailAddress');
+      customerId = prefs.getString('customerId');
+      mobileNo = prefs.getString('mobileNo');
+      _fetchAddressData();
+      _fetchCartItems();
+      _fetchTotalAmounts();
+    });
+  }
 
 
   Future<void> _fetchAddressData() async {

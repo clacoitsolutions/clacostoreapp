@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import '../Api services/service_api.dart';
 import '../models/product_details_api.dart';
 import '../pageUtills/Similar_Product.dart';
@@ -63,6 +62,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       srno = prefs.getString('SrNo');
+
       productId = prefs.getString('ProductCode');
     });
 

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Api services/service_api.dart';
 import '../Page/product_details.dart'; // Adjust import as per your project structure
 
 class ProductGrid extends StatefulWidget {
   final String categoryId;
-  String customerId ='';
+  String customerId = '';
   ProductGrid({required this.categoryId});
 
   @override
@@ -110,7 +111,8 @@ class _ProductCardState extends State<ProductCard> {
   bool isFavorited = false; // Track favorite status
   final APIService apiService = APIService();
 
-  String customerId ='';
+  String customerId = '';
+
   double calculateDiscountPercentage(double regularPrice, double salePrice) {
     return ((regularPrice - salePrice) / regularPrice) * 100;
   }
@@ -125,6 +127,19 @@ class _ProductCardState extends State<ProductCard> {
     }
     return null;
   }
+
+  Future<void> _navigateToProductDetails(String productId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('ProductCode', productId);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetails(productId: productId),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double? regularPrice = parsePrice(widget.productData?['RegularPrice']);
@@ -136,14 +151,7 @@ class _ProductCardState extends State<ProductCard> {
     }
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetails(productId: widget.productId),
-          ),
-        );
-      },
+      onTap: () => _navigateToProductDetails(widget.productId),
       child: Container(
         margin: EdgeInsets.all(5),
         padding: EdgeInsets.all(8),
@@ -209,7 +217,6 @@ class _ProductCardState extends State<ProductCard> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
                       SizedBox(height: 4),
                       if (discountPercentage != null && discountPercentage > 0)
                         Text(
