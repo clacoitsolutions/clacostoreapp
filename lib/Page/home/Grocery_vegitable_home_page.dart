@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Api services/Grocery_api.dart';
 import '../home_page.dart';
@@ -28,6 +29,11 @@ class _GroceryHomeState extends State<GroceryHome> {
     setState(() {}); // This empty setState will trigger a rebuild of the modal
   }
 
+  Future<String> _loadFullLocationName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('fullLocationName') ?? '';
+  }
+
   Future<void> _fetchCartItems() async {
     try {
       final cartItems = await CartApiService.fetchCartItems('CUST000394');
@@ -40,7 +46,8 @@ class _GroceryHomeState extends State<GroceryHome> {
     }
   }
 
-  Future<void> _updateCartSize(String customerId, String productId, int quantity) async {
+  Future<void> _updateCartSize(
+      String customerId, String productId, int quantity) async {
     try {
       final response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/updatecartsize1'),
@@ -59,7 +66,8 @@ class _GroceryHomeState extends State<GroceryHome> {
         // Fetch the cart items again to reflect the updated quantity
         await _fetchCartItems();
       } else {
-        print('Failed to update cart size. Status code: ${response.statusCode}');
+        print(
+            'Failed to update cart size. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error updating cart size: $e');
@@ -122,7 +130,8 @@ class _GroceryHomeState extends State<GroceryHome> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.shopping_cart, color: Colors.pink),
+                                    Icon(Icons.shopping_cart,
+                                        color: Colors.pink),
                                     SizedBox(width: 5),
                                     Text(
                                       '${_cartItems.length} items',
@@ -143,13 +152,15 @@ class _GroceryHomeState extends State<GroceryHome> {
                               decoration: BoxDecoration(
                                 color: Colors.pink,
                                 borderRadius: BorderRadius.circular(0),
-                                border: Border.all(color: Colors.pink, width: 2),
+                                border:
+                                    Border.all(color: Colors.pink, width: 2),
                               ),
                               child: TextButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => Checkout()),
+                                    MaterialPageRoute(
+                                        builder: (context) => Checkout()),
                                   );
                                 },
                                 child: const Row(
@@ -253,24 +264,29 @@ class _GroceryHomeState extends State<GroceryHome> {
                             Row(
                               children: [
                                 IconButton(
-                                  onPressed: () => _decrementCounter(productId, currentQuantity),
+                                  onPressed: () => _decrementCounter(
+                                      productId, currentQuantity),
                                   padding: EdgeInsets.all(0),
                                   constraints: BoxConstraints(),
                                   splashRadius: 20,
                                   iconSize: 18,
                                   icon: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 5),
                                     decoration: BoxDecoration(
-                                      color: Colors.pink, // Pink background color
+                                      color:
+                                          Colors.pink, // Pink background color
                                       borderRadius: BorderRadius.circular(4),
                                     ),
-                                    child: Icon(Icons.remove, color: Colors.white),
+                                    child:
+                                        Icon(Icons.remove, color: Colors.white),
                                   ),
                                 ),
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white, width: 0.2),
+                                    border: Border.all(
+                                        color: Colors.white, width: 0.2),
                                     borderRadius: BorderRadius.circular(0),
                                     color: Colors.white,
                                   ),
@@ -283,15 +299,18 @@ class _GroceryHomeState extends State<GroceryHome> {
                                   ),
                                 ),
                                 IconButton(
-                                  onPressed: () => _incrementCounter(productId, currentQuantity),
+                                  onPressed: () => _incrementCounter(
+                                      productId, currentQuantity),
                                   padding: EdgeInsets.all(0),
                                   constraints: BoxConstraints(),
                                   splashRadius: 20,
                                   iconSize: 18,
                                   icon: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.pink, // Pink background color
+                                      color:
+                                          Colors.pink, // Pink background color
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Icon(Icons.add, color: Colors.white),
@@ -320,7 +339,6 @@ class _GroceryHomeState extends State<GroceryHome> {
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
-
             child: Container(
               color: Colors.pink, // Set the background color to pink
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -331,9 +349,29 @@ class _GroceryHomeState extends State<GroceryHome> {
                     children: [
                       Icon(Icons.location_on, color: Colors.white),
                       SizedBox(width: 5),
-                      Text(
-                        '123 Main St, City',
-                        style: TextStyle(color: Colors.white,fontSize: 18),
+                      FutureBuilder<String>(
+                        future: _loadFullLocationName(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text(
+                              snapshot.data!,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            );
+                          } else if (snapshot.hasError) {
+                            return Text(
+                              'Error: ${snapshot.error}',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            );
+                          } else {
+                            return CircularProgressIndicator(
+                              color: Colors.white,
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
@@ -348,7 +386,6 @@ class _GroceryHomeState extends State<GroceryHome> {
               ),
             ),
           ),
-
           SliverAppBar(
             backgroundColor: Colors.pink,
             elevation: 0,
@@ -367,20 +404,23 @@ class _GroceryHomeState extends State<GroceryHome> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => HomeScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => HomeScreen()),
                             );
                           },
                           child: OutlinedButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => HomeScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) => HomeScreen()),
                               );
                             },
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -402,20 +442,23 @@ class _GroceryHomeState extends State<GroceryHome> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => GroceryHome()),
+                              MaterialPageRoute(
+                                  builder: (context) => GroceryHome()),
                             );
                           },
                           child: OutlinedButton(
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => GroceryHome()),
+                                MaterialPageRoute(
+                                    builder: (context) => GroceryHome()),
                               );
                             },
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 12, horizontal: 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -455,7 +498,8 @@ class _GroceryHomeState extends State<GroceryHome> {
                           children: [
                             Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
+                              child: Icon(Icons.search,
+                                  color: Colors.grey.withOpacity(0.5)),
                             ),
                             Expanded(
                               child: Center(
@@ -463,14 +507,17 @@ class _GroceryHomeState extends State<GroceryHome> {
                                   style: TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     hintText: 'Search any products..',
-                                    hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                                    hintStyle: TextStyle(
+                                        color: Colors.grey.withOpacity(0.5)),
                                     border: InputBorder.none,
-                                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                                    contentPadding:
+                                        EdgeInsets.only(bottom: 8.0),
                                   ),
                                 ),
                               ),
                             ),
-                            Icon(Icons.mic, color: Colors.grey.withOpacity(0.7)),
+                            Icon(Icons.mic,
+                                color: Colors.grey.withOpacity(0.7)),
                           ],
                         ),
                       ),
@@ -487,7 +534,6 @@ class _GroceryHomeState extends State<GroceryHome> {
                 child: Column(
                   children: <Widget>[
                     Container(
-
                       decoration: BoxDecoration(
                         color: Colors.white,
                         boxShadow: [
@@ -499,7 +545,8 @@ class _GroceryHomeState extends State<GroceryHome> {
                         ],
                       ),
                       child: Padding(
-                        padding: EdgeInsets.only(right: 20, left: 20, top: 20, bottom: 0),
+                        padding: EdgeInsets.only(
+                            right: 20, left: 20, top: 20, bottom: 0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -507,7 +554,9 @@ class _GroceryHomeState extends State<GroceryHome> {
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: selectedButton == 'home' ? Colors.pink : Colors.transparent,
+                                    color: selectedButton == 'home'
+                                        ? Colors.pink
+                                        : Colors.transparent,
                                     width: 2,
                                   ),
                                 ),
@@ -520,8 +569,12 @@ class _GroceryHomeState extends State<GroceryHome> {
                                 },
                                 child: Text('Grocery'),
                                 style: TextButton.styleFrom(
-                                  foregroundColor: selectedButton == 'home' ? Colors.pink : Colors.black,
-                                  textStyle: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                  foregroundColor: selectedButton == 'home'
+                                      ? Colors.pink
+                                      : Colors.black,
+                                  textStyle: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -530,7 +583,9 @@ class _GroceryHomeState extends State<GroceryHome> {
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                    color: selectedButton == 'second' ? Colors.pink : Colors.transparent,
+                                    color: selectedButton == 'second'
+                                        ? Colors.pink
+                                        : Colors.transparent,
                                     width: 2,
                                   ),
                                 ),
@@ -543,8 +598,12 @@ class _GroceryHomeState extends State<GroceryHome> {
                                 },
                                 child: Text('Vegetable & Fruit'),
                                 style: TextButton.styleFrom(
-                                  foregroundColor: selectedButton == 'second' ? Colors.pink : Colors.black,
-                                  textStyle: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                                  foregroundColor: selectedButton == 'second'
+                                      ? Colors.pink
+                                      : Colors.black,
+                                  textStyle: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -579,7 +638,10 @@ class _GroceryHomeState extends State<GroceryHome> {
                       SizedBox(width: 5),
                       Text(
                         '${_cartItems.length} items',
-                        style: TextStyle(color: Colors.pink, fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.pink,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ],
                   ),
@@ -607,7 +669,10 @@ class _GroceryHomeState extends State<GroceryHome> {
                       SizedBox(width: 10),
                       Text(
                         'Next',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ],
                   ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:claco_store/Page/coin_page.dart';
 import 'package:claco_store/Page/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,21 +24,21 @@ import 'package:claco_store/pageUtills/coupons.dart';
 import 'order_details.dart';
 import 'order_summary_page.dart';
 
-
 class MyProfileScreen extends StatelessWidget {
   const MyProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: ' Claco '), // Instantiate CommonAppBar directly
-      body: MyProfilePage(title: 'Claco',),
+      appBar:
+          CommonAppBar(title: ' Claco '), // Instantiate CommonAppBar directly
+      body: MyProfilePage(
+        title: 'Claco',
+      ),
       bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 }
-
-
 
 class MyProfilePage extends StatefulWidget {
   const MyProfilePage({Key? key, required this.title}) : super(key: key);
@@ -51,7 +52,9 @@ class MyProfilePage extends StatefulWidget {
     // Reverse the list so that most recent products come first
     recentProducts = recentProducts.reversed.toList();
 
-    return recentProducts.map((productJson) => jsonDecode(productJson)).toList();
+    return recentProducts
+        .map((productJson) => jsonDecode(productJson))
+        .toList();
   }
 
   @override
@@ -68,8 +71,6 @@ class ImageInfo {
 class _MyProfilePageState extends State<MyProfilePage> {
   String? _mobileNo;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -79,7 +80,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   Future<void> _loadMobileNo() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _mobileNo = prefs.getString('mobileNo') ?? '+91 2034567890'; // Fallback number
+      _mobileNo =
+          prefs.getString('mobileNo') ?? '+91 2034567890'; // Fallback number
     });
   }
 
@@ -97,7 +99,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -108,7 +109,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0), // Add margin from left and right
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 10.0), // Add margin from left and right
                     child: Container(
                       height: 60.0,
                       width: double.infinity,
@@ -128,10 +130,17 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  // Add your button onPressed logic here
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            CoinPage()), // Replace 'CoinPage' with the actual name of your Coin Page widget
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  side: BorderSide(color: Colors.black, width: 1.0), // Add border
+                                  side: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Add border
                                 ),
                                 child: const Row(
                                   children: [
@@ -140,12 +149,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                       color: Colors.yellow,
                                       size: 20, // Adjust the size of the icon
                                     ),
-                                    SizedBox(width: 4), // Add some space between the icon and the text
+                                    SizedBox(
+                                        width:
+                                            4), // Add some space between the icon and the text
                                     Text(
                                       '0',
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 20.0, // Adjust the font size of the text
+                                        fontSize:
+                                            20.0, // Adjust the font size of the text
                                       ),
                                     ),
                                   ],
@@ -157,11 +169,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                     ),
                   ),
-
                   Container(
                     height: 40.0,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0), // Add margin horizontally
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.0), // Add margin horizontally
                       child: Row(
                         children: [
                           const Text(
@@ -171,7 +183,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               fontSize: 18.0,
                             ),
                           ),
-                          SizedBox(width: 4.0), // Add space between "Explore" and "Plus"
+                          SizedBox(
+                              width:
+                                  4.0), // Add space between "Explore" and "Plus"
                           const Text(
                             'Plus',
                             style: TextStyle(
@@ -180,7 +194,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: 10.0), // Add space between "Explore Plus" text and additional text
+                          SizedBox(
+                              width:
+                                  10.0), // Add space between "Explore Plus" text and additional text
                           GestureDetector(
                             onTap: () {
                               // Add your onTap functionality here
@@ -191,7 +207,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                                color: Colors.grey.withOpacity(
+                                    0.3), // Adjust the color and opacity as needed
                               ),
                               child: RichText(
                                 text: const TextSpan(
@@ -207,7 +224,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                     ),
                                   ],
                                   style: TextStyle(
-                                    fontWeight: FontWeight.w800, // Apply bold style to the icon
+                                    fontWeight: FontWeight
+                                        .w800, // Apply bold style to the icon
                                   ),
                                 ),
                               ),
@@ -217,11 +235,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                     ),
                   ),
-
-
                   Container(
                     height: 120.0,
-
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -232,17 +247,28 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               width: 150, // Set a fixed width for the button
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MyOrderScreen()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              MyOrderScreen()));
                                   // Add your onPressed logic here
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey), // Set grey border
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Adjust button padding
+                                  side: BorderSide(
+                                      color: Colors.grey), // Set grey border
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                      horizontal:
+                                          24.0), // Adjust button padding
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero, // Remove border radius
+                                    borderRadius: BorderRadius
+                                        .zero, // Remove border radius
                                   ),
                                 ),
-                                icon: Icon(Icons.shopping_bag, color: Colors.pink), // Add icon for 'Order' button
+                                icon: Icon(Icons.shopping_bag,
+                                    color: Colors
+                                        .pink), // Add icon for 'Order' button
                                 label: const Text(
                                   'Order',
                                   style: TextStyle(
@@ -258,17 +284,25 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                   // Add your onPressed logic here
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => WishListScreen()),
+                                    MaterialPageRoute(
+                                        builder: (context) => WishListScreen()),
                                   );
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey), // Set grey border
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Adjust button padding
+                                  side: BorderSide(
+                                      color: Colors.grey), // Set grey border
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                      horizontal:
+                                          24.0), // Adjust button padding
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero, // Remove border radius
+                                    borderRadius: BorderRadius
+                                        .zero, // Remove border radius
                                   ),
                                 ),
-                                icon: Icon(Icons.favorite_border, color: Colors.pink), // Add icon for 'Wishlist' button
+                                icon: Icon(Icons.favorite_border,
+                                    color: Colors
+                                        .pink), // Add icon for 'Wishlist' button
                                 label: const Text(
                                   'Wishlist',
                                   style: TextStyle(
@@ -287,16 +321,26 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               width: 150, // Set a fixed width for the button
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                             Navigator.push(context, MaterialPageRoute(builder: (context)=>Coupons()));
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Coupons()));
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey), // Set grey border
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Adjust button padding
+                                  side: BorderSide(
+                                      color: Colors.grey), // Set grey border
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                      horizontal:
+                                          24.0), // Adjust button padding
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero, // Remove border radius
+                                    borderRadius: BorderRadius
+                                        .zero, // Remove border radius
                                   ),
                                 ),
-                                icon: Icon(Icons.card_giftcard, color: Colors.pink), // Add icon for 'Coupons' button
+                                icon: Icon(Icons.card_giftcard,
+                                    color: Colors
+                                        .pink), // Add icon for 'Coupons' button
                                 label: const Text(
                                   'Coupons',
                                   style: TextStyle(
@@ -311,17 +355,25 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => HelpCenter()),
+                                    MaterialPageRoute(
+                                        builder: (context) => HelpCenter()),
                                   );
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  side: BorderSide(color: Colors.grey), // Set grey border
-                                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Adjust button padding
+                                  side: BorderSide(
+                                      color: Colors.grey), // Set grey border
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12.0,
+                                      horizontal:
+                                          24.0), // Adjust button padding
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.zero, // Remove border radius
+                                    borderRadius: BorderRadius
+                                        .zero, // Remove border radius
                                   ),
                                 ),
-                                icon: Icon(Icons.help, color: Colors.pink), // Add icon for 'Help Center' button
+                                icon: Icon(Icons.help,
+                                    color: Colors
+                                        .pink), // Add icon for 'Help Center' button
                                 label: const Text(
                                   'Help',
                                   style: TextStyle(
@@ -343,7 +395,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
               color: Colors.white,
               margin: EdgeInsets.only(bottom: 10.0),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0), // Add margin horizontally
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 10.0), // Add margin horizontally
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -354,10 +408,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
                           width: 50.0, // Set the width for the image
                           child: Image.asset(
                             'assets/images/sliderimg1.jpg', // Replace 'your_image.png' with your image asset path
-                            width: 70.0, // Set the height and width of the image
+                            width:
+                                70.0, // Set the height and width of the image
                           ),
                         ),
-                        SizedBox(width: 10.0), // Add some space between the image and the text
+                        SizedBox(
+                            width:
+                                10.0), // Add some space between the image and the text
                         const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,33 +422,41 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               Text(
                                 'Add/Verify your Email',
                                 style: TextStyle(
-                                  fontSize: 15.0, // Set larger font size for "Verify Email"
+                                  fontSize:
+                                      15.0, // Set larger font size for "Verify Email"
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 5.0), // Add some space between the texts
+                              SizedBox(
+                                  height:
+                                      5.0), // Add some space between the texts
                               Text(
                                 'Get Latest Update Your Order',
                                 style: TextStyle(
-                                  fontSize: 14.0, // Set font size for "Get Latest Update Your Order"
-                                  color: Colors.black, // Set text color to black
+                                  fontSize:
+                                      14.0, // Set font size for "Get Latest Update Your Order"
+                                  color:
+                                      Colors.black, // Set text color to black
                                 ),
                               ),
                             ],
                           ),
                         ),
 
-                        SizedBox(width: 10.0), // Add some space between the text and the button
+                        SizedBox(
+                            width:
+                                10.0), // Add some space between the text and the button
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => UpdateUserProfile()),
+                              MaterialPageRoute(
+                                  builder: (context) => UpdateUserProfile()),
                             );
                           },
-
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink, // Set button color to pink
+                            backgroundColor:
+                                Colors.pink, // Set button color to pink
                           ),
                           child: Text(
                             'Update',
@@ -407,19 +472,18 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 ),
               ),
             ),
-
-
             Container(
               height: 170.0,
               color: Colors.white,
               margin: EdgeInsets.only(bottom: 10.0),
-              child:Column(
+              child: Column(
                 children: <Widget>[
                   // Existing widgets...
                   // Heading for recently viewed images
                   Container(
                     color: Colors.pink,
-                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     alignment: Alignment.centerLeft,
                     child: const Text(
                       'Recently Viewed',
@@ -433,16 +497,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
 
                   // Recently viewed images
 
-
                   Expanded(
-                    child: RecentProductsScreen(), // Ensure RecentProductsScreen is correctly imported and defined
-                  ),// Display RecentProductsScreen here
-
-
+                    child:
+                        RecentProductsScreen(), // Ensure RecentProductsScreen is correctly imported and defined
+                  ), // Display RecentProductsScreen here
 
                   // Additional widgets...
                 ],
-              ),),
+              ),
+            ),
             Container(
               margin: EdgeInsets.only(bottom: 10.0),
               height: 250.0,
@@ -454,7 +517,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 15.0),
                         child: Text(
                           'Account Setting',
                           style: TextStyle(
@@ -472,7 +536,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       const Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -496,10 +561,16 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
-                            Navigator.push((context), MaterialPageRoute(builder: (context)=>UpdateUserProfile(),));
+                            Navigator.push(
+                                (context),
+                                MaterialPageRoute(
+                                  builder: (context) => UpdateUserProfile(),
+                                ));
                             // Add your onTap functionality here
                           },
                           child: Container(
@@ -507,7 +578,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -525,7 +597,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       const Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -549,18 +622,20 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
                             // Add your onTap functionality here
-
                           },
                           child: Container(
                             width: 30.0,
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -578,7 +653,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       const Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -602,24 +678,25 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddAddressPage(),
-                            ),
-                          );
-                           },
-
-
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddAddressPage(),
+                              ),
+                            );
+                          },
                           child: Container(
                             width: 30.0,
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: const Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -638,7 +715,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       const Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 2.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 2.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -662,7 +740,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
                             // Add your onTap functionality here
@@ -672,7 +752,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: const Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -687,7 +768,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 ],
               ),
             ),
-
             Container(
               margin: EdgeInsets.only(bottom: 10.0),
               height: 150.0,
@@ -698,7 +778,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 15.0),
                         child: Text(
                           'My Activity',
                           style: TextStyle(
@@ -715,7 +796,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -739,19 +821,23 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
-
                             Navigator.push(
-                              context,MaterialPageRoute(builder: (context)=> review()),);
+                              context,
+                              MaterialPageRoute(builder: (context) => review()),
+                            );
                           },
                           child: Container(
                             width: 30.0,
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -763,13 +849,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                     ],
                   ),
-
                   Row(
                     children: [
                       // First Part
                       const Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -793,7 +879,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           // onTap: () {
                           //   Navigator.push(context,MaterialPageRoute(builder: (context)=>User_QuestionAnswer()));
@@ -804,7 +892,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -818,7 +907,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
                 ],
               ),
-
             ),
             Container(
               margin: EdgeInsets.only(bottom: 10.0),
@@ -830,7 +918,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 15.0),
                         child: Text(
                           'Earn with claco',
                           style: TextStyle(
@@ -842,13 +931,13 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                     ],
                   ),
-
                   Row(
                     children: [
                       // First Part
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -872,10 +961,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
-
                             _launchURL(); // Call the _launchURL function using parentheses
                             Text('Open Website');
                             // Add your onTap functionality here
@@ -885,7 +975,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -899,10 +990,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
                 ],
               ),
-
             ),
-
-
             Container(
               margin: EdgeInsets.only(bottom: 10.0),
               height: 150.0,
@@ -913,7 +1001,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 15.0),
                         child: Text(
                           'Feedback & information',
                           style: TextStyle(
@@ -930,7 +1019,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -954,7 +1044,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
                             // Add your onTap functionality here
@@ -964,7 +1056,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -981,7 +1074,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       // First Part
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 5.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -1005,7 +1099,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                       ),
                       // Second Part (Arrow Icon)
                       Padding(
-                        padding: EdgeInsets.only(right: 10.0), // Add margin to the right side of the button
+                        padding: EdgeInsets.only(
+                            right:
+                                10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
                             // Add your onTap functionality here
@@ -1015,7 +1111,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             height: 30.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.withOpacity(0.3), // Adjust the color and opacity as needed
+                              color: Colors.grey.withOpacity(
+                                  0.3), // Adjust the color and opacity as needed
                             ),
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -1029,9 +1126,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   ),
                 ],
               ),
-
             ),
-
             Container(
               margin: EdgeInsets.only(bottom: 10.0),
               color: Colors.white,
@@ -1041,7 +1136,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   print('Button pressed');
                 },
                 style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(Size(350, 40)), // Set the width and height of the button
+                  minimumSize: MaterialStateProperty.all(
+                      Size(350, 40)), // Set the width and height of the button
                 ),
                 child: Text(
                   'logout',
@@ -1052,18 +1148,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 ),
               ),
             ),
-
           ],
         ),
-
-
-
-
       ),
     );
   }
-
-
 
   _launchURL() async {
     const String url = 'https://www.claco.in/vendor/';
@@ -1074,5 +1163,4 @@ class _MyProfilePageState extends State<MyProfilePage> {
       throw 'Could not launch $url';
     }
   }
-
 }

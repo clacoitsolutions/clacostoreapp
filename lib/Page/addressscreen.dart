@@ -20,12 +20,14 @@ class _AddAddressPageState extends State<AddAddressPage> {
   late Future<List<ShowAddress>> futureAddresses;
   int selectedAddressIndex = -1; // Track selected address index
   late SharedPreferences prefs; // SharedPreferences instance
+  List<ShowAddress> addresses = []; // List to store addresses
 
   @override
   void initState() {
     super.initState();
     futureAddresses = fetchAddresses();
     initSharedPreferences();
+    loadAddressesFromSharedPreferences(); // Load from SharedPreferences on init
   }
 
   // Initialize SharedPreferences instance
@@ -34,7 +36,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
   }
 
   // Function to save SrNo and CustomerId to SharedPreferences
-  Future<void> saveDataToSharedPreferences(String srNo, String customerId) async {
+  Future<void> saveDataToSharedPreferences(
+      String srNo, String customerId) async {
     await prefs.setString('SrNo', srNo);
     await prefs.setString('CustomerCode', customerId);
   }
@@ -49,10 +52,31 @@ class _AddAddressPageState extends State<AddAddressPage> {
     return prefs.getString('CustomerCode') ?? '';
   }
 
+  // Function to load addresses from SharedPreferences
+  void loadAddressesFromSharedPreferences() async {
+    final storedAddresses = prefs.getStringList('addresses');
+    if (storedAddresses != null) {
+      setState(() {
+        addresses = storedAddresses.map((address) {
+          final addressMap = jsonDecode(address) as Map<String, dynamic>;
+          return ShowAddress.fromJson(addressMap);
+        }).toList();
+      });
+    }
+  }
+
+  // Function to save addresses to SharedPreferences
+  void saveAddressesToSharedPreferences() async {
+    final encodedAddresses =
+        addresses.map((address) => jsonEncode(address.toJson())).toList();
+    await prefs.setStringList('addresses', encodedAddresses);
+  }
+
   // Function to call API to change delivery status
   Future<void> _changeDeliveryStatus(String srNo, String customerId) async {
     try {
-      final url = Uri.parse('https://clacostoreapi.onrender.com/ChangeDeliveryCurrentstatus1');
+      final url = Uri.parse(
+          'https://clacostoreapi.onrender.com/ChangeDeliveryCurrentstatus1');
       final response = await http.post(
         url,
         headers: <String, String>{
@@ -78,36 +102,39 @@ class _AddAddressPageState extends State<AddAddressPage> {
         // Navigate to checkout page
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Checkout()), // Replace with your checkout page
+          MaterialPageRoute(
+              builder: (context) =>
+                  Checkout()), // Replace with your checkout page
         );
       } else {
         // API call failed
         print('API Error: ${response.statusCode}');
         // Show error message using snackbar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update delivery status. Please try again later.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text('Failed to update delivery status. Please try again later.'),
+          duration: Duration(seconds: 2),
+        ));
       }
     } catch (e) {
       // Exception occurred during API call
       print('Exception: $e');
       // Show error message using snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred. Please check your internet connection and try again.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            'An error occurred. Please check your internet connection and try again.'),
+        duration: Duration(seconds: 2),
+      ));
     }
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: CommonAppBar(title: 'Address',),
+      appBar: CommonAppBar(
+        title: 'Address',
+      ),
       body: Container(
         color: Colors.grey[200],
         child: Center(
@@ -115,6 +142,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
+                // Add Address Button
                 SizedBox(
                   width: double.infinity,
                   child: Card(
@@ -131,7 +159,13 @@ class _AddAddressPageState extends State<AddAddressPage> {
                             MaterialPageRoute(
                               builder: (context) => const AddAddressFormPage(),
                             ),
-                          );
+                          ).then((value) {
+                            // Refresh the address list after adding a new address
+                            setState(() {
+                              futureAddresses = fetchAddresses();
+                              loadAddressesFromSharedPreferences(); // Reload from SharedPreferences
+                            });
+                          });
                         },
                         icon: const Icon(Icons.add, color: Colors.blue),
                         label: Text(
@@ -151,6 +185,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                   ),
                 ),
                 SizedBox(height: 12),
+                // Display Addresses
                 Expanded(
                   child: FutureBuilder<List<ShowAddress>>(
                     future: futureAddresses,
@@ -162,39 +197,52 @@ class _AddAddressPageState extends State<AddAddressPage> {
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return Center(child: Text('No addresses found.'));
                       } else {
+                        // Update 'addresses' list with data from the API
+                        addresses = snapshot.data!;
+                        saveAddressesToSharedPreferences(); // Save to SharedPreferences
+
                         return ListView.builder(
-                          itemCount: snapshot.data!.length,
+                          itemCount: addresses.length,
                           itemBuilder: (context, index) {
-                            final address = snapshot.data![index];
+                            final address = addresses[index];
                             return Card(
                               elevation: 3,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(0),
                               ),
-                              color: selectedAddressIndex == index ? Colors.white : Colors.white,
+                              color: selectedAddressIndex == index
+                                  ? Colors.white
+                                  : Colors.white,
                               child: InkWell(
                                 onTap: () {
                                   setState(() {
-                                    selectedAddressIndex = index; // Update selected index
+                                    selectedAddressIndex =
+                                        index; // Update selected index
                                   });
                                   // Call function to save SrNo and CustomerId to SharedPreferences
-                                  saveDataToSharedPreferences(address.srNo, address.customerCode);
+                                  saveDataToSharedPreferences(
+                                      address.srNo, address.customerCode);
                                   // Call function to change delivery status via API
-                                  _changeDeliveryStatus(address.srNo, address.customerCode);
+                                  _changeDeliveryStatus(
+                                      address.srNo, address.customerCode);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text('Name: ${address.name}'),
                                           SizedBox(height: 8),
-                                          Text('Road Name: ${address.address}'),
+                                          Text(
+                                              'Road Name: ${address.landmark}'),
                                           SizedBox(height: 8),
-                                          Text('House Number: ${address.address}'),
+                                          Text(
+                                              'House Number: ${address.address}'),
                                           SizedBox(height: 8),
                                           Text('City: ${address.cityName}'),
                                           SizedBox(height: 8),
@@ -202,7 +250,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                           SizedBox(height: 8),
                                           Text('Pincode: ${address.pinCode}'),
                                           SizedBox(height: 8),
-                                          Text('Phone Number: ${address.mobileNo}'),
+                                          Text(
+                                              'Phone Number: ${address.mobileNo}'),
                                         ],
                                       ),
                                       Radio(
@@ -210,12 +259,16 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                         groupValue: selectedAddressIndex,
                                         onChanged: (value) {
                                           setState(() {
-                                            selectedAddressIndex = value as int; // Update selected index
+                                            selectedAddressIndex = value
+                                                as int; // Update selected index
                                           });
                                           // Call function to save SrNo and CustomerId to SharedPreferences
-                                          saveDataToSharedPreferences(address.srNo, address.customerCode);
+                                          saveDataToSharedPreferences(
+                                              address.srNo,
+                                              address.customerCode);
                                           // Call function to change delivery status via API
-                                          _changeDeliveryStatus(address.srNo, address.customerCode);
+                                          _changeDeliveryStatus(address.srNo,
+                                              address.customerCode);
                                         },
                                       ),
                                     ],

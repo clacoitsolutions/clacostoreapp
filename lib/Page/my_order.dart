@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Order_model.dart';
 import '../pageUtills/common_appbar.dart';
-import 'order_details.dart';
 
 class MyOrderScreen extends StatefulWidget {
   @override
@@ -73,7 +72,8 @@ class FlippableCard extends StatefulWidget {
   final String orderId;
   final List<OrderItem> items;
 
-  const FlippableCard({Key? key, required this.orderId, required this.items}) : super(key: key);
+  const FlippableCard({Key? key, required this.orderId, required this.items})
+      : super(key: key);
 
   @override
   _FlippableCardState createState() => _FlippableCardState();
@@ -88,10 +88,14 @@ class _FlippableCardState extends State<FlippableCard> {
     });
   }
 
+  // Function to save order ID and navigate to OrderDetailsScreen
+  // Inside _MyOrderScreenState
+
   Future<void> _saveOrderIdAndNavigate(String orderId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('orderId', orderId);
-    Navigator.pushNamed(context, '/orderDetails');
+    await prefs.setString('orderId', orderId); // Save orderId
+    Navigator.pushNamed(context, '/orderDetails',
+        arguments: orderId); // Navigate with orderId
   }
 
   @override
@@ -115,13 +119,15 @@ class _FlippableCardState extends State<FlippableCard> {
           color: Colors.white,
         ),
         child: _isFrontVisible
-            ? _buildOrderItemFront(widget.orderId, widget.items.first.deliveryStatus, widget.items)
+            ? _buildOrderItemFront(
+                widget.orderId, widget.items.first.deliveryStatus, widget.items)
             : _buildOrderItemBack(),
       ),
     );
   }
 
-  Widget _buildOrderItemFront(String orderId, String deliveryStatus, List<OrderItem> items) {
+  Widget _buildOrderItemFront(
+      String orderId, String deliveryStatus, List<OrderItem> items) {
     return Container(
       padding: EdgeInsets.all(10),
       child: Column(
@@ -147,7 +153,8 @@ class _FlippableCardState extends State<FlippableCard> {
                       color: _getDeliveryStatusColor(deliveryStatus),
                     ),
                   ),
-                  SizedBox(width: 8), // Add spacing between the circle and the text
+                  SizedBox(
+                      width: 8), // Add spacing between the circle and the text
                   Text(
                     deliveryStatus,
                     style: TextStyle(
@@ -211,7 +218,6 @@ class _FlippableCardState extends State<FlippableCard> {
                               color: Colors.grey[600],
                             ),
                           ),
-
                         ],
                       ),
                     ),
@@ -224,6 +230,7 @@ class _FlippableCardState extends State<FlippableCard> {
       ),
     );
   }
+
   Color _getDeliveryStatusColor(String deliveryStatus) {
     // Normalize deliveryStatus to lower case for consistent comparison
     String status = deliveryStatus;
@@ -240,10 +247,7 @@ class _FlippableCardState extends State<FlippableCard> {
     }
   }
 
-
-
-
-        Widget _buildOrderItemBack() {
+  Widget _buildOrderItemBack() {
     return Container(
       padding: EdgeInsets.all(16),
       child: Center(
@@ -277,13 +281,17 @@ Future<Map<String, List<OrderItem>>> fetchOrderItems(String customerId) async {
       if (data.containsKey('orderItemDetails1')) {
         for (var item in data['orderItemDetails1']) {
           OrderItem orderItem = OrderItem.fromJson(item);
-          groupedOrderItems.putIfAbsent(orderItem.orderId, () => []).add(orderItem);
+          groupedOrderItems
+              .putIfAbsent(orderItem.orderId, () => [])
+              .add(orderItem);
         }
       }
       if (data.containsKey('orderItemDetails2')) {
         for (var item in data['orderItemDetails2']) {
           OrderItem orderItem = OrderItem.fromJson(item);
-          groupedOrderItems.putIfAbsent(orderItem.orderId, () => []).add(orderItem);
+          groupedOrderItems
+              .putIfAbsent(orderItem.orderId, () => [])
+              .add(orderItem);
         }
       }
 

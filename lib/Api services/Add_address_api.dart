@@ -31,14 +31,13 @@ class APIService {
         final List<dynamic> citiesData = jsonDecode(response.body)['cities'];
         List<Map<String, String>> cities = citiesData
             .where((city) =>
-        city['StateId'] == stateId && city['IsActive'] == true)
+                city['StateId'] == stateId && city['IsActive'] == true)
             .map<Map<String, String>>((city) {
           return {
             'City_id': city['ID'].toString(),
             'City_name': city['CityName'],
           };
-        })
-            .toList();
+        }).toList();
         return cities;
       } else {
         throw Exception('Failed to load cities: ${response.statusCode}');
@@ -48,7 +47,6 @@ class APIService {
     }
   }
 
-
   static Future<http.Response> insertAddress(Address address) async {
     final response = await http.post(
       Uri.parse('$baseUrl/insertAddress'),
@@ -57,9 +55,8 @@ class APIService {
     );
     return response;
   }
-
-
 }
+
 Future<List<ShowAddress>> fetchAddresses() async {
   final response = await http.post(
     Uri.parse('https://clacostoreapi.onrender.com/displayAddress'),
@@ -80,11 +77,6 @@ Future<List<ShowAddress>> fetchAddresses() async {
   }
 }
 
-
-
 class ApiService {
   static const String _baseUrl = 'https://clacostoreapi.onrender.com';
-
-
 }
-

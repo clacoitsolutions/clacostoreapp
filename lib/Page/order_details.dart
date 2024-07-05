@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:another_stepper/dto/stepper_data.dart';
+import 'package:another_stepper/widgets/another_stepper.dart';
+import 'package:claco_store/Page/deliverystatus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,36 +9,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../pageUtills/common_appbar.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
+  late final String orderId;
+  OrderDetailsScreen({required this.orderId});
+
   @override
   _OrderDetailsScreenState createState() => _OrderDetailsScreenState();
 }
 
 class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
-  String? orderId;
+  late String orderId; // Updated to late initialization
+  late SharedPreferences prefs; // Add this line for SharedPreferences
+
   bool isCancelled = false;
   double rating = 0;
   List<Map<String, dynamic>> orderItems = [];
   String? deliveryStatus;
+  List<StepperData> stepData = [];
+  int activeStep = 0;
 
   @override
   void initState() {
     super.initState();
-    _getOrderIdFromPreferences();
+    orderId = widget.orderId; // Initialize orderId from widget parameter
+    _fetchOrderDetails(orderId); // Fetch order details for initial orderId
+    _loadOrderId(); // Load order ID from SharedPreferences
   }
 
-  Future<void> _getOrderIdFromPreferences() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      orderId = prefs.getString('orderId');
-    });
-    if (orderId != null) {
-      await _fetchOrderDetails(orderId!);
-      setState(() {
-        if (orderItems.isNotEmpty && orderItems[0]['DeliveryStatus'] != null) {
-          deliveryStatus = orderItems[0]['DeliveryStatus'];
-        }
-      });
-    }
+  Future<void> _loadOrderId() async {
+    prefs = await SharedPreferences.getInstance();
+    // Get order ID from arguments
+    orderId = prefs.getString('orderId') ??
+        ''; // Assuming 'orderId' is stored as a String
+    _fetchOrderDetails(orderId); // Fetch order details for initial orderId
   }
 
   Future<void> _fetchOrderDetails(String orderId) async {
@@ -51,6 +56,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         var jsonData = json.decode(response.body);
         setState(() {
           orderItems = List<Map<String, dynamic>>.from(jsonData['orderItems']);
+          if (orderItems.isNotEmpty &&
+              orderItems[0]['DeliveryStatus'] != null) {
+            deliveryStatus = orderItems[0]['DeliveryStatus'].toLowerCase();
+            activeStep = _getOrderStatusIndex(deliveryStatus!);
+            _updateOrderStatus(deliveryStatus!);
+          }
         });
       } else {
         throw Exception('Failed to load order details');
@@ -58,6 +69,307 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     } catch (e) {
       print('Error fetching order details: $e');
     }
+  }
+
+  // Helper function to get the index of the delivery status
+  int _getOrderStatusIndex(String status) {
+    List<String> orderStatuses = [
+      'Placed',
+      'Packed', // Assuming "Packed" is a status
+      'On the Way',
+      'Delivered'
+    ];
+    return orderStatuses.indexOf(status);
+  }
+
+  // void _updateOrderStatus(String status) {
+  //   setState(() {
+  //     if (status == 'cancelled') {
+  //       stepData = [
+  //         StepperData(
+  //           title: StepperText("Order Placed"),
+  //           subtitle: StepperText("Your order has been placed."),
+  //           iconWidget: Icon(Icons.circle, color: Colors.red),
+  //         ),
+  //         StepperData(
+  //           title: StepperText(
+  //             "Cancelled",
+  //           ),
+  //           subtitle: StepperText(
+  //             "Your order has been cancelled.",
+  //           ),
+  //           iconWidget: Icon(Icons.cancel, color: Colors.red),
+  //         ),
+  //       ];
+  //     } else {
+  //       stepData = [
+  //         StepperData(
+  //           title: StepperText("Order Placed"),
+  //           subtitle: StepperText("Your order has been placed."),
+  //           iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+  //         ),
+  //         StepperData(
+  //           title: StepperText("Packed"),
+  //           subtitle: StepperText("Your order has been packed."),
+  //           iconWidget: Icon(
+  //             Icons.check_circle_outline,
+  //             color: status == 'packed' ||
+  //                     status == 'ontheway' ||
+  //                     status == 'delivered'
+  //                 ? Colors.green
+  //                 : Colors.grey,
+  //           ),
+  //         ),
+  //         StepperData(
+  //           title: StepperText("On the Way"),
+  //           subtitle: StepperText("Your order is on the way."),
+  //           iconWidget: Icon(
+  //             Icons.check_circle_outline,
+  //             color: status == 'ontheway' || status == 'delivered'
+  //                 ? Colors.green
+  //                 : Colors.grey,
+  //           ),
+  //         ),
+  //         StepperData(
+  //           title: StepperText("Delivered"),
+  //           subtitle: StepperText("Your order has been delivered."),
+  //           iconWidget: Icon(
+  //             Icons.check_circle_outline,
+  //             color: status == 'Delivered' ? Colors.green : Colors.grey,
+  //           ),
+  //         ),
+  //       ];
+  //     }
+  //   });
+  // }
+
+  void _updateOrderStatus(String status) {
+    setState(() {
+      switch (status.toLowerCase()) {
+        case 'placed':
+          stepData = [
+            StepperData(
+              title: StepperText("Order Placed"),
+              subtitle: StepperText("Your order has been placed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Packed"),
+              subtitle: StepperText("Your order has been packed."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("On the Way"),
+              subtitle: StepperText("Your order is on the way."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("Delivered"),
+              subtitle: StepperText("Your order has been delivered."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("Returned"),
+              subtitle: StepperText("Your order has been returned."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("Cancelled"),
+              subtitle: StepperText("Your order has been cancelled."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+          ];
+          break;
+        case 'ontheway':
+          stepData = [
+            StepperData(
+              title: StepperText("Order Placed"),
+              subtitle: StepperText("Your order has been placed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Packed"),
+              subtitle: StepperText("Your order has been packed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("On the Way"),
+              subtitle: StepperText("Your order is on the way."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            // StepperData(
+            //   title: StepperText("Delivered"),
+            //   subtitle: StepperText("Your order has been delivered."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+            // StepperData(
+            //   title: StepperText("Returned"),
+            //   subtitle: StepperText("Your order has been returned."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+            // StepperData(
+            //   title: StepperText("Cancelled"),
+            //   subtitle: StepperText("Your order has been cancelled."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+          ];
+          break;
+        case 'delivered':
+          stepData = [
+            StepperData(
+              title: StepperText("Order Placed"),
+              subtitle: StepperText("Your order has been placed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Packed"),
+              subtitle: StepperText("Your order has been packed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("On the Way"),
+              subtitle: StepperText("Your order is on the way."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Delivered"),
+              subtitle: StepperText("Your order has been delivered."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            // StepperData(
+            //   title: StepperText("Returned"),
+            //   subtitle: StepperText("Your order has been returned."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+            // StepperData(
+            //   title: StepperText("Cancelled"),
+            //   subtitle: StepperText("Your order has been cancelled."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+          ];
+          break;
+        case 'returned':
+          stepData = [
+            StepperData(
+              title: StepperText("Order Placed"),
+              subtitle: StepperText("Your order has been placed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Packed"),
+              subtitle: StepperText("Your order has been packed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("On the Way"),
+              subtitle: StepperText("Your order is on the way."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Delivered"),
+              subtitle: StepperText("Your order has been delivered."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Returned"),
+              subtitle: StepperText("Your order has been returned."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Cancelled"),
+              subtitle: StepperText("Your order has been cancelled."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+          ];
+          break;
+        case 'cancelled':
+          stepData = [
+            StepperData(
+              title: StepperText("Order Placed"),
+              subtitle: StepperText("Your order has been placed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            // StepperData(
+            //   title: StepperText("Packed"),
+            //   subtitle: StepperText("Your order has been packed."),
+            //   iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            // ),
+            // StepperData(
+            //   title: StepperText("On the Way"),
+            //   subtitle: StepperText("Your order is on the way."),
+            //   iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            // ),
+            // StepperData(
+            //   title: StepperText("Delivered"),
+            //   subtitle: StepperText("Your order has been delivered."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+            // StepperData(
+            //   title: StepperText("Returned"),
+            //   subtitle: StepperText("Your order has been returned."),
+            //   iconWidget:
+            //       Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            // ),
+            StepperData(
+              title: StepperText("Cancelled"),
+              subtitle: StepperText("Your order has been cancelled."),
+              iconWidget: Icon(Icons.cancel, color: Colors.red),
+            ),
+          ];
+          break;
+        default:
+          // Default to initial status if none matches
+          stepData = [
+            StepperData(
+              title: StepperText("Order Placed"),
+              subtitle: StepperText("Your order has been placed."),
+              iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
+            ),
+            StepperData(
+              title: StepperText("Packed"),
+              subtitle: StepperText("Your order has been packed."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("On the Way"),
+              subtitle: StepperText("Your order is on the way."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("Delivered"),
+              subtitle: StepperText("Your order has been delivered."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("Returned"),
+              subtitle: StepperText("Your order has been returned."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+            StepperData(
+              title: StepperText("Cancelled"),
+              subtitle: StepperText("Your order has been cancelled."),
+              iconWidget:
+                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            ),
+          ];
+      }
+    });
   }
 
   @override
@@ -138,10 +450,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               },
             ),
             SizedBox(height: 20),
-
-
-
-
             Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -156,48 +464,58 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildTrackingItem('Placed', deliveryStatus != null, false),
-                  _buildVerticalLine(deliveryStatus != 'Delivered' && deliveryStatus != 'Cancelled'),
-                  _buildTrackingItem('On the Way', deliveryStatus == 'On the Way' || deliveryStatus == 'Delivered', deliveryStatus == 'Cancelled'),
-                  _buildVerticalLine(deliveryStatus == 'On the Way'),
-                  if (deliveryStatus == 'Cancelled') ...[
-                    _buildTrackingItem('Cancelled', true, true),
-                  ] else ...[
-                    _buildTrackingItem('Delivered', deliveryStatus == 'Delivered', false),
-                  ],
+                  InkWell(
+                    onTap: () {
+                      // Navigate to deliveryStatus page here
+                      // You'll need to define your deliveryStatus page and pass the status
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Deliverystatus(
+                            status:
+                                deliveryStatus!, // Pass the current deliveryStatus
+                          ),
+                        ),
+                      );
+                    },
+                    child: AnotherStepper(
+                      stepperList: stepData,
+                      stepperDirection: Axis.vertical,
+                      // iconWidth: 40,
+                      // iconHeight: 40,
+                      activeBarColor: Colors.green,
+                      inActiveBarColor: Colors.grey,
+                      inverted: false,
+                      verticalGap: 20,
+                      // horizontalGap: 20,
+                      // animationDuration: 500,
+                      activeIndex: activeStep,
+                    ),
+                  ),
                 ],
               ),
             ),
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
             SizedBox(height: 10),
-            InkWell(
-              onTap: () {
-                _showCancelOrderDialog(context);
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Text(
-                  'Cancel Order',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+            Visibility(
+              visible: deliveryStatus != 'delivered' &&
+                  deliveryStatus != 'cancelled',
+              child: InkWell(
+                onTap: () {
+                  _showCancelOrderDialog(context);
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.pink,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text(
+                    'Cancel Order',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -235,10 +553,50 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildShippingDetail('Name:', orderItems.isNotEmpty ? orderItems[0]['CustomerName'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail('Mobile No:', orderItems.isNotEmpty ? orderItems[0]['CustomerMobile'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail('Address:', orderItems.isNotEmpty ? orderItems[0]['CustomerAddress']?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail('Pincode:', orderItems.isNotEmpty ? orderItems[0]['CustomerPinCode']?? 'Loading...' : 'Loading...'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Name:',
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black54),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          orderItems.isNotEmpty
+                              ? orderItems[0]['CustomerName'] ?? 'Loading...'
+                              : 'Loading...',
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ), // Add space between name and mobile number
+                      SizedBox(
+                          width:
+                              10), // Add space between name and mobile number
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            right: 60), // Add right padding to Mobile No
+                        child: Text(
+                          orderItems.isNotEmpty
+                              ? orderItems[0]['CustomerMobile'] ?? 'Loading...'
+                              : 'Loading...',
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  _buildShippingDetail(
+                    'Address:',
+                    orderItems.isNotEmpty
+                        ? orderItems[0]['CustomerAddress'] ?? 'Loading...'
+                        : 'Loading...',
+                  ),
                 ],
               ),
             ),
@@ -256,7 +614,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
                     child: Text(
                       'Payment details',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
@@ -275,51 +634,39 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildShippingDetail('Payment Method:', orderItems.isNotEmpty ? orderItems[0]['PaymentMode'] ?? 'Loading...' : 'Loading...'),
-                  _buildShippingDetail('Delivery', orderItems.isNotEmpty ? orderItems[0]['DeliveryTime'] ?? 'Fast' : 'Fast'),
-                  _buildShippingDetail('Delivery Charges:', orderItems.isNotEmpty ? orderItems[0]['DeliveryCharges'].toString() ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetail(
+                    'Payment Method:',
+                    orderItems.isNotEmpty
+                        ? orderItems[0]['PaymentMode'] ?? 'Loading...'
+                        : 'Loading...',
+                  ),
+                  _buildShippingDetail(
+                    'Delivery',
+                    orderItems.isNotEmpty
+                        ? orderItems[0]['DeliveryTime'] ?? 'Fast'
+                        : 'Fast',
+                  ),
+                  _buildShippingDetail(
+                    'Delivery Charges:',
+                    orderItems.isNotEmpty
+                        ? orderItems[0]['DeliveryCharges'].toString() ??
+                            'Loading...'
+                        : 'Loading...',
+                  ),
                   _buildDivider(),
-                  _buildShippingDetailprice('Gross Amount:', orderItems.isNotEmpty ? orderItems[0]['TotalAmount'].toString() ?? 'Loading...' : 'Loading...'),
+                  _buildShippingDetailprice(
+                    'Gross Amount:',
+                    orderItems.isNotEmpty
+                        ? orderItems[0]['TotalAmount'].toString() ??
+                            'Loading...'
+                        : 'Loading...',
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTrackingItem(String title, bool isActive, bool isCancelled) {
-    return Row(
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isCancelled
-                ? Colors.red
-                : (isActive ? Colors.green : Colors.grey),
-          ),
-        ),
-        SizedBox(width: 10),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            color: isCancelled ? Colors.red : (isActive ? Colors.black : Colors.grey),
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildVerticalLine(bool isActive) {
-    return Container(
-      width: 2,
-      height: 20,
-      color: isActive ? Colors.green : Colors.grey,
     );
   }
 
@@ -334,7 +681,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black54),
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black54),
               ),
               SizedBox(width: 10),
               Expanded(
@@ -367,7 +717,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               SizedBox(width: 10),
               Text(
                 '₹ $value',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.pink),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.pink),
               ),
             ],
           ),
@@ -405,6 +758,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               onPressed: () {
                 setState(() {
                   isCancelled = true;
+                  _updateOrderStatus('cancelled');
                 });
                 Navigator.of(context).pop();
               },
