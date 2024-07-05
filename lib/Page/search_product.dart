@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:html';
-import 'dart:js';
 import 'package:claco_store/Page/Category_Page.dart';
-import 'package:claco_store/Page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'filter_page.dart';
 import 'package:claco_store/models/Category_filter.dart';
@@ -294,7 +291,7 @@ class _SearchProductState extends State<SearchProduct> {
           onTap: () {
             _navigateToSizeDetailPage(context, size);
           },
-          child: _buildSizeCard(size: size),
+          child: _buildSizeCard(size: size, context: context),
         );
       },
     );
@@ -502,7 +499,8 @@ class _SearchProductState extends State<SearchProduct> {
   }
 }
 
-Widget _buildSizeCard({required SizeModel size}) {
+Widget _buildSizeCard(
+    {required BuildContext context, required SizeModel size}) {
   return GestureDetector(
     onTap: () {
       _navigateToSizeDetailPage(context, size); // Pass context and size data

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:html';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../Api services/slder_service.dart' as serviceapi;
-
 
 class BannerWithModel extends StatefulWidget {
   const BannerWithModel({Key? key}) : super(key: key);
@@ -29,9 +27,11 @@ class _BannerWithModelState extends State<BannerWithModel> {
       future: _bannersFuture, // Use the future for banner data
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // Show a loading indicator
+          return Center(
+              child: CircularProgressIndicator()); // Show a loading indicator
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}')); // Show an error message
+          return Center(
+              child: Text('Error: ${snapshot.error}')); // Show an error message
         } else if (snapshot.hasData) {
           final banners = snapshot.data!;
           return CarouselSlider(
@@ -59,10 +59,9 @@ class _BannerWithModelState extends State<BannerWithModel> {
                           fit: BoxFit.cover,
                           placeholder: (context, url) =>
                               Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) =>
-                              Center(
-                                child: Icon(Icons.error),
-                              ),
+                          errorWidget: (context, url, error) => Center(
+                            child: Icon(Icons.error),
+                          ),
                         ),
                       ),
                     ),
@@ -72,7 +71,9 @@ class _BannerWithModelState extends State<BannerWithModel> {
             }).toList(),
           );
         } else {
-          return Center(child: Text('No banners available')); // Handle the case where there's no data
+          return Center(
+              child: Text(
+                  'No banners available')); // Handle the case where there's no data
         }
       },
     );
@@ -117,9 +118,8 @@ class Banner {
       categoryId: json['CategoryId'] ?? "",
       bannerImage: json['BannerImage'] ?? "", // Get the URL from your API
       isActive: json['IsActive'] ?? false,
-      entryDate: json['EntryDate'] != null
-          ? DateTime.parse(json['EntryDate'])
-          : null,
+      entryDate:
+          json['EntryDate'] != null ? DateTime.parse(json['EntryDate']) : null,
       entryBy: json['EntryBy'] ?? "",
     );
   }
