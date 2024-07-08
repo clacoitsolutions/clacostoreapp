@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SliverToBoxAdapter(
             child: Container(
               color: Colors.pink, // Set the background color to pink
-              padding: const EdgeInsets.fromLTRB(16, 25, 16, 4),
+              padding: const EdgeInsets.fromLTRB(16, 30, 16, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(top: 25,left:20,right: 20,bottom: 10),
+                  padding: EdgeInsets.only(top: 28,left:20,right: 20,bottom: 5),
 
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,15 +85,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(5),
                               ),
                             ),
                             child: const Text(
                               'Claco',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                               ),
@@ -120,15 +120,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 5,),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(5),
                               ),
                             ),
                             child: Text(
                               'Grocery',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
@@ -144,14 +144,14 @@ class _HomeScreenState extends State<HomeScreen> {
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(50),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: EdgeInsets.only(top: 5,bottom: 5,left: 10,right: 10),
                 color: Colors.black.withOpacity(0.02),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Container(
-                        height: 40,
+                        height: 35,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(5),
@@ -159,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           children: [
                             Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: EdgeInsets.only(left: 10,right: 10),
                               child: Icon(Icons.search, color: Colors.grey.withOpacity(0.5)),
                             ),
                             Expanded(
@@ -170,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     hintText: 'Search any products..',
                                     hintStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
                                     border: InputBorder.none,
-                                    contentPadding: EdgeInsets.only(bottom: 8.0),
+                                    contentPadding: EdgeInsets.only(bottom: 11.0),
                                   ),
                                 ),
                               ),

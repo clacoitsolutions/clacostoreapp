@@ -62,7 +62,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       srno = prefs.getString('SrNo');
-
       productId = prefs.getString('ProductCode');
     });
 

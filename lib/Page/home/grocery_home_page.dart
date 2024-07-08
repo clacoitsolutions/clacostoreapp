@@ -175,7 +175,9 @@ class _GroceryHomePage extends State<GroceryHomePage> {
               saveProductDetailsAndNavigate(srno, productId);
             });
           },
-          child: Container(
+       child:Padding(
+        padding: EdgeInsets.only(left: 2,right: 2),
+         child:  Container(
             margin: EdgeInsets.only(left: 0,right: 0),
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -374,6 +376,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
               ],
             ),
           ),
+       ),
         );
       },
     );
