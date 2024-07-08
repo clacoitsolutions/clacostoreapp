@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 import 'barcode_card.dart';
 import 'generateQR.dart';
@@ -18,11 +19,12 @@ class _CoinPageState extends State<CoinPage> {
   Barcode? result;
   QRViewController? controller;
   String totalCoins = ''; // State variable to hold total coins
+  String customerId = '';
 
   @override
   void initState() {
     super.initState();
-    _fetchTotalCoins(); // Fetch total coins when the widget initializes
+    _getCustomerIDAndFetchCoins(); // Get CustomerID and fetch total coins when the widget initializes
   }
 
   @override
@@ -35,12 +37,27 @@ class _CoinPageState extends State<CoinPage> {
     }
   }
 
-  Future<void> _fetchTotalCoins() async {
+  Future<void> _getCustomerIDAndFetchCoins() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId') ??
+          ''; // Retrieve CustomerID from SharedPreferences
+    });
+    if (customerId.isNotEmpty) {
+      _fetchTotalCoins(
+          customerId); // Fetch total coins if CustomerID is not empty
+    } else {
+      // Handle case when CustomerID is not found in SharedPreferences
+      print('CustomerID not found in SharedPreferences');
+    }
+  }
+
+  Future<void> _fetchTotalCoins(String customerId) async {
     try {
       final response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/getTotalCoin'),
         body: json.encode({
-          "CustomerID": "CUST000388", // Replace with the actual customer ID
+          "CustomerID": customerId, // Use the retrieved CustomerID
         }),
         headers: {
           "Content-Type": "application/json",

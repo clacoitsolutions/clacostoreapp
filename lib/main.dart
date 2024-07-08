@@ -1,10 +1,10 @@
+import 'package:claco_store/pageUtills/bottom_navbar.dart';
 import 'package:claco_store/pageUtills/splashScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
-import 'Page/home_page.dart';
 import 'Page/order_details.dart';
 
 void main() async {
@@ -17,8 +17,8 @@ void main() async {
   );
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String initialOrderId = prefs.getString('orderId') ??
-      'ORD101001128'; // Default value if not found
+  String initialOrderId =
+      prefs.getString('orderId') ?? ''; // Default value if not found
   runApp(MyApp(initialOrderId: initialOrderId));
 }
 
@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
   final String initialOrderId;
 
   const MyApp({Key? key, required this.initialOrderId}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -34,13 +35,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.yellow,
       ),
       debugShowCheckedModeBanner: false,
-      // Initially, use your new LoginPage
-      home: SplashScreen(),
+      home: SplashScreen(), // Now starts with SplashScreen
       routes: {
-        '/orderDetails': (context) => OrderDetailsScreen(
-            orderId: ModalRoute.of(context)!.settings.arguments as String),
-        '/home': (context) =>
-            const HomeScreen(), // Assuming this is your home page
+        '/orderDetails': (context) =>
+            OrderDetailsScreen(orderId: initialOrderId),
+        '/home': (context) => const BottomPage(),
       },
     );
   }

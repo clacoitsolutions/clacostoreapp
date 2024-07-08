@@ -35,7 +35,6 @@ class MyProfileScreen extends StatelessWidget {
       body: MyProfilePage(
         title: 'Claco',
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 }

@@ -31,7 +31,9 @@ class _GroceryHomeState extends State<GroceryHome> {
 
   Future<String> _loadFullLocationName() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('fullLocationName') ?? '';
+    String city = prefs.getString('city') ?? '';
+    String pincode = prefs.getString('pinCode') ?? '';
+    return "$city, $pincode";
   }
 
   Future<void> _fetchCartItems() async {
@@ -341,30 +343,31 @@ class _GroceryHomeState extends State<GroceryHome> {
           SliverToBoxAdapter(
             child: Container(
               color: Colors.pink, // Set the background color to pink
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              padding: const EdgeInsets.fromLTRB(10, 8, 16, 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.location_on, color: Colors.white),
-                      SizedBox(width: 5),
+                      Icon(Icons.location_on, color: Colors.white, size: 22),
+                      SizedBox(width: 0),
+                      // Here we display the full location name
                       FutureBuilder<String>(
                         future: _loadFullLocationName(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return Text(
                               snapshot.data!,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
                             );
                           } else if (snapshot.hasError) {
                             return Text(
                               'Error: ${snapshot.error}',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             );
                           } else {
                             return CircularProgressIndicator(
@@ -420,7 +423,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
                               padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 0),
+                                  vertical: 8, horizontal: 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -458,7 +461,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
                               padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 0),
+                                  vertical: 8, horizontal: 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -482,7 +485,7 @@ class _GroceryHomeState extends State<GroceryHome> {
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(50),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 color: Colors.black.withOpacity(0.02),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -33,14 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
           SliverToBoxAdapter(
             child: Container(
               color: Colors.pink, // Set the background color to pink
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              padding: const EdgeInsets.fromLTRB(10, 8, 16, 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.location_on, color: Colors.white),
-                      SizedBox(width: 5),
+                      Icon(Icons.location_on, color: Colors.white, size: 22),
+                      SizedBox(width: 0),
                       // Here we display the full location name
                       FutureBuilder<String>(
                         future: _loadFullLocationName(),
@@ -48,16 +48,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           if (snapshot.hasData) {
                             return Text(
                               snapshot.data!,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
                             );
                           } else if (snapshot.hasError) {
                             return Text(
                               'Error: ${snapshot.error}',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
+                                  TextStyle(color: Colors.white, fontSize: 12),
                             );
                           } else {
                             return CircularProgressIndicator(
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       // Handle user icon tap
                     },
-                    child: Icon(Icons.person, color: Colors.white, size: 26),
+                    child: Icon(Icons.person, color: Colors.white, size: 24),
                   ),
                 ],
               ),
@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 1),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => HomeScreen()),
+                                  builder: (context) => BottomPage()),
                             );
                           },
                           child: OutlinedButton(
@@ -106,14 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => HomeScreen()),
+                                    builder: (context) => BottomPage()),
                               );
                             },
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
                               padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 0),
+                                  vertical: 8, horizontal: 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               side: BorderSide(color: Colors.white, width: 2),
                               backgroundColor: Colors.transparent,
                               padding: EdgeInsets.symmetric(
-                                  vertical: 12, horizontal: 0),
+                                  vertical: 8, horizontal: 0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(50),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 color: Colors.black.withOpacity(0.02),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,13 +226,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 
   Future<String> _loadFullLocationName() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('fullLocationName') ?? '';
+    String city = prefs.getString('city') ?? '';
+    String pincode = prefs.getString('pinCode') ?? '';
+    return "$city, $pincode";
   }
 }
 

@@ -12,8 +12,6 @@ class WishListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'WishList'),
-      body: WishlistPage(),
-      bottomNavigationBar: CustomBottomNavigationBar(context: context),
     );
   }
 }
@@ -56,7 +54,8 @@ class _WishlistPageState extends State<WishlistPage> {
   Future<void> _loadUserDataApi() async {
     print("Loading user data...");
     try {
-      List<WishList> data = await WishlistService.loadWishlistData('ayush@gmail.com');
+      List<WishList> data =
+          await WishlistService.loadWishlistData('ayush@gmail.com');
       setState(() {
         wishList = data;
         if (wishList.isEmpty) {
@@ -71,21 +70,24 @@ class _WishlistPageState extends State<WishlistPage> {
     } catch (e) {
       print('Error occurred: $e');
       setState(() {
-        message = 'Error occurred while loading wishlist. Please check your internet connection.';
+        message =
+            'Error occurred while loading wishlist. Please check your internet connection.';
       });
     }
   }
 
   Future<void> _removeItemFromWishlist(String productId) async {
     try {
-      String apiMessage = await WishlistService.removeItemFromWishlist(customerId!, productId);
+      String apiMessage =
+          await WishlistService.removeItemFromWishlist(customerId!, productId);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(apiMessage),
       ));
       _loadUserData(); // Reload wishlist after deletion
     } catch (e) {
       print('Error occurred: $e');
-      var errorMessage = 'Error occurred while removing item from wishlist. Please check your internet connection.';
+      var errorMessage =
+          'Error occurred while removing item from wishlist. Please check your internet connection.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
@@ -95,13 +97,15 @@ class _WishlistPageState extends State<WishlistPage> {
 
   Future<void> _addToCart(String productId) async {
     try {
-      String apiMessage = await WishlistService.addToCart(customerId!, productId);
+      String apiMessage =
+          await WishlistService.addToCart(customerId!, productId);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(apiMessage),
       ));
     } catch (e) {
       print('Error occurred: $e');
-      var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
+      var errorMessage =
+          'Error occurred while adding item to cart. Please check your internet connection.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
@@ -241,7 +245,8 @@ class _WishlistPageState extends State<WishlistPage> {
                         border: Border.all(color: Colors.pink),
                         borderRadius: BorderRadius.circular(4.0),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
                       child: const Center(
                         child: Text(
                           'Add to Cart',
@@ -265,7 +270,8 @@ class _WishlistPageState extends State<WishlistPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Confirmation'),
-          content: Text('Are you sure you want to remove this item from wishlist?'),
+          content:
+              Text('Are you sure you want to remove this item from wishlist?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {

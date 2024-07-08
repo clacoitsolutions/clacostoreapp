@@ -82,67 +82,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     return orderStatuses.indexOf(status);
   }
 
-  // void _updateOrderStatus(String status) {
-  //   setState(() {
-  //     if (status == 'cancelled') {
-  //       stepData = [
-  //         StepperData(
-  //           title: StepperText("Order Placed"),
-  //           subtitle: StepperText("Your order has been placed."),
-  //           iconWidget: Icon(Icons.circle, color: Colors.red),
-  //         ),
-  //         StepperData(
-  //           title: StepperText(
-  //             "Cancelled",
-  //           ),
-  //           subtitle: StepperText(
-  //             "Your order has been cancelled.",
-  //           ),
-  //           iconWidget: Icon(Icons.cancel, color: Colors.red),
-  //         ),
-  //       ];
-  //     } else {
-  //       stepData = [
-  //         StepperData(
-  //           title: StepperText("Order Placed"),
-  //           subtitle: StepperText("Your order has been placed."),
-  //           iconWidget: Icon(Icons.check_circle_outline, color: Colors.green),
-  //         ),
-  //         StepperData(
-  //           title: StepperText("Packed"),
-  //           subtitle: StepperText("Your order has been packed."),
-  //           iconWidget: Icon(
-  //             Icons.check_circle_outline,
-  //             color: status == 'packed' ||
-  //                     status == 'ontheway' ||
-  //                     status == 'delivered'
-  //                 ? Colors.green
-  //                 : Colors.grey,
-  //           ),
-  //         ),
-  //         StepperData(
-  //           title: StepperText("On the Way"),
-  //           subtitle: StepperText("Your order is on the way."),
-  //           iconWidget: Icon(
-  //             Icons.check_circle_outline,
-  //             color: status == 'ontheway' || status == 'delivered'
-  //                 ? Colors.green
-  //                 : Colors.grey,
-  //           ),
-  //         ),
-  //         StepperData(
-  //           title: StepperText("Delivered"),
-  //           subtitle: StepperText("Your order has been delivered."),
-  //           iconWidget: Icon(
-  //             Icons.check_circle_outline,
-  //             color: status == 'Delivered' ? Colors.green : Colors.grey,
-  //           ),
-  //         ),
-  //       ];
-  //     }
-  //   });
-  // }
-
   void _updateOrderStatus(String status) {
     setState(() {
       switch (status.toLowerCase()) {

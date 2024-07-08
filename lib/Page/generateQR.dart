@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class QRCodeGeneratorWidget extends StatefulWidget {
   @override
@@ -15,7 +16,21 @@ class _QRCodeGeneratorWidgetState extends State<QRCodeGeneratorWidget> {
   @override
   void initState() {
     super.initState();
-    _customerDataFuture = _fetchCustomerData(customerId);
+    _getCustomerIDAndFetchData(); // Get CustomerID from SharedPreferences and fetch customer data
+  }
+
+  Future<void> _getCustomerIDAndFetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedCustomerId = prefs.getString('customerId');
+    if (storedCustomerId != null) {
+      setState(() {
+        customerId = storedCustomerId;
+        _customerDataFuture = _fetchCustomerData(customerId);
+      });
+    } else {
+      // Handle the case when CustomerID is not found in SharedPreferences
+      print('CustomerID not found in SharedPreferences');
+    }
   }
 
   Future<Customer?> _fetchCustomerData(String customerId) async {

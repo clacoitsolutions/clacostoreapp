@@ -9,17 +9,17 @@ import '../../pageUtills/common_drawer.dart';
 import '../../pageUtills/top_navbar.dart';
 import '../Page/filter_page.dart';
 
-
 class GroceryMain extends StatelessWidget {
   const GroceryMain({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Grocery'), // Displaying the app bar with a title
+      appBar:
+          CommonAppBar(title: 'Grocery'), // Displaying the app bar with a title
       drawer: CommonDrawer(), // Using the CommonDrawer for the drawer
       body: GroceryMainPage(), // Displaying the main content
-      bottomNavigationBar: CustomBottomNavigationBar(context: context), // Displaying the bottom navigation bar
+      // bottomNavigationBar: BottomNavigation(),
     );
   }
 }
@@ -30,8 +30,6 @@ class GroceryMainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-
-
       color: Colors.black.withOpacity(0.02),
       child: SingleChildScrollView(
         child: Padding(
@@ -82,7 +80,6 @@ class GroceryMainPage extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -117,13 +114,15 @@ class GroceryMainPage extends StatelessWidget {
                       height: 60,
                       decoration: BoxDecoration(
                         color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(10), // Border radius for all sides
+                        borderRadius: BorderRadius.circular(
+                            10), // Border radius for all sides
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(left: 10, top: 8), // Add top padding here
+                            padding: EdgeInsets.only(
+                                left: 10, top: 8), // Add top padding here
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -142,7 +141,9 @@ class GroceryMainPage extends StatelessWidget {
                                       color: Colors.white,
                                       size: 16, // Adjust the size as needed
                                     ),
-                                    SizedBox(width: 4), // Add some space between the icon and the text
+                                    SizedBox(
+                                        width:
+                                            4), // Add some space between the icon and the text
                                     Text(
                                       '22h 55m 20s remaining',
                                       style: TextStyle(
@@ -152,26 +153,28 @@ class GroceryMainPage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                               ],
                             ),
                           ),
-
                           const SizedBox(
                             width: 10, // Add space between text and button
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(right: 10), // Add padding to the right
+                            padding: const EdgeInsets.only(
+                                right: 10), // Add padding to the right
                             child: ElevatedButton(
                               onPressed: () {
                                 // Add functionality for the button
                               },
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
-                                backgroundColor: Colors.blueAccent.withOpacity(0.8),
-                                side: const BorderSide(color: Colors.white), // Add border
+                                backgroundColor:
+                                    Colors.blueAccent.withOpacity(0.8),
+                                side: const BorderSide(
+                                    color: Colors.white), // Add border
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(3), // Border radius for button
+                                  borderRadius: BorderRadius.circular(
+                                      3), // Border radius for button
                                 ),
                               ),
                               child: const Row(
@@ -182,11 +185,9 @@ class GroceryMainPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-
                           ),
                         ],
                       ),
-
                     ),
                   ),
 
@@ -220,7 +221,9 @@ class GroceryMainPage extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               const Padding(
-                                padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
+                                padding: EdgeInsets.only(
+                                    left:
+                                        10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -248,10 +251,14 @@ class GroceryMainPage extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
                                         Icon(
                                           Icons.star_half,
                                           color: Colors.grey,
@@ -269,7 +276,6 @@ class GroceryMainPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -295,7 +301,9 @@ class GroceryMainPage extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               const Padding(
-                                padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
+                                padding: EdgeInsets.only(
+                                    left:
+                                        10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -323,10 +331,14 @@ class GroceryMainPage extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
                                         Icon(
                                           Icons.star_half,
                                           color: Colors.grey,
@@ -344,27 +356,31 @@ class GroceryMainPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
                       )
                     ],
                   ),
-                  SizedBox(height: 15), // Add space between existing row and new background image
+                  SizedBox(
+                      height:
+                          15), // Add space between existing row and new background image
                   // Background image with button
                   Container(
                     height: 200, // Adjust the height as needed
                     decoration: const BoxDecoration(
                       image: DecorationImage(
-                        image: NetworkImage('https://cdn.pixabay.com/photo/2020/05/26/07/43/skateboard-5221914_640.jpg'),
+                        image: NetworkImage(
+                            'https://cdn.pixabay.com/photo/2020/05/26/07/43/skateboard-5221914_640.jpg'),
                         fit: BoxFit.cover,
                       ),
                     ),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
-                        padding: EdgeInsets.only(right:10,left:195), // Adjust the padding as needed
+                        padding: EdgeInsets.only(
+                            right: 10,
+                            left: 195), // Adjust the padding as needed
 
                         child: ElevatedButton(
                           onPressed: () {
@@ -373,9 +389,11 @@ class GroceryMainPage extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
                             backgroundColor: Colors.red,
-                            side: const BorderSide(color: Colors.red), // Add border
+                            side: const BorderSide(
+                                color: Colors.red), // Add border
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(3), // Border radius for button
+                              borderRadius: BorderRadius.circular(
+                                  3), // Border radius for button
                             ),
                           ),
                           child: const Row(
@@ -400,13 +418,15 @@ class GroceryMainPage extends StatelessWidget {
                       height: 60,
                       decoration: BoxDecoration(
                         color: Colors.pink.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(10), // Border radius for all sides
+                        borderRadius: BorderRadius.circular(
+                            10), // Border radius for all sides
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Padding(
-                            padding: EdgeInsets.only(left: 10, top: 8), // Add top padding here
+                            padding: EdgeInsets.only(
+                                left: 10, top: 8), // Add top padding here
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -425,7 +445,9 @@ class GroceryMainPage extends StatelessWidget {
                                       color: Colors.white,
                                       size: 16, // Adjust the size as needed
                                     ),
-                                    SizedBox(width: 4), // Add some space between the icon and the text
+                                    SizedBox(
+                                        width:
+                                            4), // Add some space between the icon and the text
                                     Text(
                                       '22h 55m 20s remaining',
                                       style: TextStyle(
@@ -435,16 +457,15 @@ class GroceryMainPage extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                               ],
                             ),
                           ),
-
                           const SizedBox(
                             width: 10, // Add space between text and button
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(right: 10), // Add padding to the right
+                            padding: const EdgeInsets.only(
+                                right: 10), // Add padding to the right
                             child: ElevatedButton(
                               onPressed: () {
                                 // Add functionality for the button
@@ -452,9 +473,11 @@ class GroceryMainPage extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
                                 backgroundColor: Colors.pink,
-                                side: const BorderSide(color: Colors.white), // Add border
+                                side: const BorderSide(
+                                    color: Colors.white), // Add border
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(3), // Border radius for button
+                                  borderRadius: BorderRadius.circular(
+                                      3), // Border radius for button
                                 ),
                               ),
                               child: const Row(
@@ -505,7 +528,9 @@ class GroceryMainPage extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               const Padding(
-                                padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
+                                padding: EdgeInsets.only(
+                                    left:
+                                        10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -533,10 +558,14 @@ class GroceryMainPage extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
                                         Icon(
                                           Icons.star_half,
                                           color: Colors.grey,
@@ -554,7 +583,6 @@ class GroceryMainPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -580,7 +608,9 @@ class GroceryMainPage extends StatelessWidget {
                               ),
                               SizedBox(height: 8),
                               const Padding(
-                                padding: EdgeInsets.only(left: 10), // Adjust the left padding as needed
+                                padding: EdgeInsets.only(
+                                    left:
+                                        10), // Adjust the left padding as needed
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -608,10 +638,14 @@ class GroceryMainPage extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
-                                        Icon(Icons.star, color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
+                                        Icon(Icons.star,
+                                            color: Colors.yellow, size: 15),
                                         Icon(
                                           Icons.star_half,
                                           color: Colors.grey,
@@ -629,12 +663,10 @@ class GroceryMainPage extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                             ],
                           ),
                         ),
                       ),
-
                     ],
                   ),
                   const SizedBox(
@@ -645,25 +677,31 @@ class GroceryMainPage extends StatelessWidget {
                     width: double.infinity, // Make it full width
                     color: Colors.white,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start, // Align text to the left
                       children: [
                         Container(
                           height: 200, // 80% of the container's height
                           width: double.infinity, // Make it full width
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5), // Add border radius
+                            borderRadius:
+                                BorderRadius.circular(5), // Add border radius
                             image: const DecorationImage(
-                              image: NetworkImage('https://cdn.pixabay.com/photo/2017/09/26/17/34/ballet-2789416_640.jpg'),
+                              image: NetworkImage(
+                                  'https://cdn.pixabay.com/photo/2017/09/26/17/34/ballet-2789416_640.jpg'),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        SizedBox(height: 10), // Add some space between the image and the text
+                        SizedBox(
+                            height:
+                                10), // Add some space between the image and the text
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Padding(
-                              padding: EdgeInsets.only(left: 20), // Add left padding to the column
+                              padding: EdgeInsets.only(
+                                  left: 20), // Add left padding to the column
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -686,124 +724,130 @@ class GroceryMainPage extends StatelessWidget {
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(right: 10), // Add right padding to the button
+                              padding: EdgeInsets.only(
+                                  right: 10), // Add right padding to the button
                               child: ElevatedButton.icon(
                                 onPressed: () {
                                   // Add functionality for the button
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(horizontal: 20), // Add padding to the button
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal:
+                                          20), // Add padding to the button
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5), // Border radius for button
+                                    borderRadius: BorderRadius.circular(
+                                        5), // Border radius for button
                                   ),
                                 ),
-                                icon: Icon(Icons.arrow_forward), // Right arrow icon
+                                icon: Icon(
+                                    Icons.arrow_forward), // Right arrow icon
                                 label: Text('Button'), // Text of the button
                               ),
                             ),
                           ],
                         ),
-
-
                       ],
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20), // Add some space between the image and the text
-              Column(
-                  children:
-                  [
-                    Container(
-                      height: 310, // Set the height as needed
-                      width: double.infinity, // Make it full width
-                      color: Colors.white,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+              SizedBox(
+                  height: 20), // Add some space between the image and the text
+              Column(children: [
+                Container(
+                  height: 310, // Set the height as needed
+                  width: double.infinity, // Make it full width
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align text to the left
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 20,top:5,bottom:5), // Add left padding to the column
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Sponserd ', // Your additional text
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 20,
+                                top: 5,
+                                bottom: 5), // Add left padding to the column
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Sponserd ', // Your additional text
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-
-                            ],
+                              ],
+                            ),
                           ),
-                          Container(
-                            height: 230, // 80% of the container's height
-                            width: double.infinity, // Make it full width
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10), // Add border radius
-                              image: const DecorationImage(
-                                image: NetworkImage('https://cdn.pixabay.com/photo/2020/05/03/19/09/nike-5126389_640.jpg'),
-                                fit: BoxFit.cover,
+                        ],
+                      ),
+                      Container(
+                        height: 230, // 80% of the container's height
+                        width: double.infinity, // Make it full width
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(10), // Add border radius
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://cdn.pixabay.com/photo/2020/05/03/19/09/nike-5126389_640.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                          height:
+                              10), // Add some space between the image and the text
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                left: 20), // Add left padding to the column
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Up to 50% off ', // Your additional text
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                right: 10), // Add right padding to the button
+                            child: GestureDetector(
+                              onTap: () {
+                                // Add functionality for the icon
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20), // Add padding to the icon
+                                child: Icon(
+                                  Icons.arrow_forward, // Right arrow icon
+                                  color: Colors.black, // Set icon color
+                                  size: 24, // Set icon size
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 10), // Add some space between the image and the text
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(left: 20), // Add left padding to the column
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Up to 50% off ', // Your additional text
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(right: 10), // Add right padding to the button
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // Add functionality for the icon
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 20), // Add padding to the icon
-                                    child: Icon(
-                                      Icons.arrow_forward, // Right arrow icon
-                                      color: Colors.black, // Set icon color
-                                      size: 24, // Set icon size
-                                    ),
-                                  ),
-                                ),
-
-                              ),
-                            ],
-                          ),
-
-
                         ],
                       ),
-                    ),
-
-                  ]
-              )
-
+                    ],
+                  ),
+                ),
+              ])
             ],
           ),
         ),
