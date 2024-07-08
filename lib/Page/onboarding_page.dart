@@ -24,9 +24,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   final List<String> _imagePaths = [
-    "assets/images/choosepro.png", // Replace with your image paths
-    "assets/images/online payment.png",
-    "assets/images/26.jpg",
+    "images/choosepro.png", // Replace with your image paths
+    "images/online payment.png",
+    "images/26.jpg",
   ];
 
   @override
