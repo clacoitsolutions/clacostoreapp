@@ -175,7 +175,9 @@ class _GroceryHomePage extends State<Vegitable> {
               saveProductDetailsAndNavigate(srno, productId);
             });
           },
-          child: Container(
+          child:Padding(
+            padding: EdgeInsets.only(left: 2,right: 2),
+         child:  Container(
             margin: EdgeInsets.only(left: 2,right: 2),
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -374,6 +376,7 @@ class _GroceryHomePage extends State<Vegitable> {
               ],
             ),
           ),
+          ),
         );
       },
     );
@@ -390,8 +393,8 @@ class _GroceryHomePage extends State<Vegitable> {
           physics: NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 0,
             childAspectRatio: 0.7, // Adjust the aspect ratio as needed
           ),
           itemCount: products.length,
