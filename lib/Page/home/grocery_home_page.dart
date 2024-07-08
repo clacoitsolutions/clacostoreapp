@@ -47,7 +47,8 @@ class _GroceryHomePage extends State<GroceryHomePage> {
     }
   }
 
-  Future<void> saveProductDetailsAndNavigate(String? srno, String? productId) async {
+  Future<void> saveProductDetailsAndNavigate(
+      String? srno, String? productId) async {
     if (srno == null || productId == null) {
       print('Invalid product details: srno = $srno, productId = $productId');
       return;
@@ -60,7 +61,10 @@ class _GroceryHomePage extends State<GroceryHomePage> {
       print('Product details saved: SrNo = $srno, ProductCode = $productId');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ProductDetails(productId: null,)),
+        MaterialPageRoute(
+            builder: (context) => ProductDetails(
+                  productId: null,
+                )),
       );
     } catch (e) {
       print('Error saving product details: $e');
@@ -134,8 +138,10 @@ class _GroceryHomePage extends State<GroceryHomePage> {
           content: Text(apiMessage),
         ));
       } else {
-        print('Failed to add item to cart. Status code: ${response.statusCode}');
-        var errorMessage = 'Failed to add item to cart. Status code: ${response.statusCode}';
+        print(
+            'Failed to add item to cart. Status code: ${response.statusCode}');
+        var errorMessage =
+            'Failed to add item to cart. Status code: ${response.statusCode}';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(errorMessage),
           backgroundColor: Colors.red,
@@ -143,7 +149,8 @@ class _GroceryHomePage extends State<GroceryHomePage> {
       }
     } catch (e) {
       print('Error occurred: $e');
-      var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
+      var errorMessage =
+          'Error occurred while adding item to cart. Please check your internet connection.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
@@ -157,7 +164,8 @@ class _GroceryHomePage extends State<GroceryHomePage> {
     double? discountPercentage;
 
     if (regularPrice != null && onlinePrice != null) {
-      discountPercentage = calculateDiscountPercentage(regularPrice, onlinePrice);
+      discountPercentage =
+          calculateDiscountPercentage(regularPrice, onlinePrice);
     }
 
     bool isFavorited = false;
@@ -176,7 +184,7 @@ class _GroceryHomePage extends State<GroceryHomePage> {
             });
           },
           child: Container(
-            margin: EdgeInsets.only(left: 0,right: 0),
+            margin: EdgeInsets.only(left: 0, right: 0),
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -196,9 +204,11 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(5)),
                       child: Image.network(
-                        product['ProductMainImageUrl'] ?? '', // Use product's image URL with null check
+                        product['ProductMainImageUrl'] ??
+                            '', // Use product's image URL with null check
                         width: double.infinity,
                         height: 105,
                         fit: BoxFit.cover,
@@ -210,7 +220,8 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            product['ProductName'] ?? '', // Product name with null check
+                            product['ProductName'] ??
+                                '', // Product name with null check
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -221,7 +232,9 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                           SizedBox(height: 4),
                           Row(
                             children: [
-                              if (regularPrice != null && onlinePrice != null && regularPrice > onlinePrice)
+                              if (regularPrice != null &&
+                                  onlinePrice != null &&
+                                  regularPrice > onlinePrice)
                                 Text(
                                   '  ${product['RegularPrice']}', // Product price with null check
                                   style: TextStyle(
@@ -241,7 +254,8 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                             ],
                           ),
                           SizedBox(height: 2),
-                          if (discountPercentage != null && discountPercentage > 0)
+                          if (discountPercentage != null &&
+                              discountPercentage > 0)
                             Text(
                               '${discountPercentage.toStringAsFixed(2)}% off',
                               style: TextStyle(
@@ -256,10 +270,12 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                               Icon(Icons.star, color: Colors.yellow, size: 15),
                               Icon(Icons.star, color: Colors.yellow, size: 15),
                               Icon(Icons.star, color: Colors.yellow, size: 15),
-                              Icon(Icons.star_half, color: Colors.grey, size: 15),
+                              Icon(Icons.star_half,
+                                  color: Colors.grey, size: 15),
                               SizedBox(width: 5),
                               Text(
-                                product['rating']?.toString() ?? '0', // Product rating with null check
+                                product['rating']?.toString() ??
+                                    '0', // Product rating with null check
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Colors.grey,
@@ -284,12 +300,14 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.remove, color: Colors.white, size: 10),
+                                icon: const Icon(Icons.remove,
+                                    color: Colors.white, size: 10),
                                 onPressed: () {
                                   setState(() {
                                     if (productCount > 0) productCount--;
                                     // Update the productId and quantity
-                                    productId = product['ProductCode']?.toString();
+                                    productId =
+                                        product['ProductCode']?.toString();
                                     quantity = productCount.toString();
                                   });
                                 },
@@ -312,12 +330,14 @@ class _GroceryHomePage extends State<GroceryHomePage> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.add, color: Colors.white, size: 10),
+                                icon: const Icon(Icons.add,
+                                    color: Colors.white, size: 10),
                                 onPressed: () {
                                   setState(() {
                                     productCount++;
                                     // Update the productId and quantity
-                                    productId = product['ProductCode']?.toString();
+                                    productId =
+                                        product['ProductCode']?.toString();
                                     quantity = productCount.toString();
                                   });
                                 },
@@ -386,19 +406,19 @@ class _GroceryHomePage extends State<GroceryHomePage> {
         const SizedBox(height: 15), // Add space between images
         products.isNotEmpty
             ? GridView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.7, // Adjust the aspect ratio as needed
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            return buildProductCard(products[index]);
-          },
-        )
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.7, // Adjust the aspect ratio as needed
+                ),
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  return buildProductCard(products[index]);
+                },
+              )
             : CircularProgressIndicator(),
         const SizedBox(height: 20),
       ],

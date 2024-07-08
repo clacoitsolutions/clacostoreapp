@@ -332,6 +332,7 @@ class _FilterState extends State<Filter> {
               flex: 4,
               child: SingleChildScrollView(
                 child: Container(
+                  color: Colors.grey,
                   height: 700,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 20.0, left: 0.0),
