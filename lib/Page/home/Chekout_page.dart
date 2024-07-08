@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../Api services/Add_address_api.dart';
 import '../../Api services/Checkout_Api.dart';
 import '../../pageUtills/common_appbar.dart';
 import '../addressscreen.dart';
