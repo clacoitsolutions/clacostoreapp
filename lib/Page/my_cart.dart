@@ -32,7 +32,7 @@ class _MyCartState extends State<MyCart> {
   String? userEmail;
   String? customerId;
   String? mobileNo;
-
+  bool _isFavorited = false;
   @override
   void initState() {
     super.initState();
@@ -78,6 +78,40 @@ class _MyCartState extends State<MyCart> {
       print('Error updating cart item quantity: $e');
     }
   }
+
+  Future  _addToWishlist(String variationId, String productId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/AddWishlist1'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'VariationId': variationId,
+          'ProductId': productId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          _isFavorited = true; // Set the state to favorited
+        });
+
+        // Show snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added to wishlist'),
+          ),
+        );
+      } else {
+        print('Failed to add to wishlist: ${response.statusCode}');
+        // Handle error
+      }
+    } catch (e) {
+      print('Error adding to wishlist: $e');
+      // Handle error
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -386,28 +420,28 @@ class _MyCartState extends State<MyCart> {
                                       child: GestureDetector(
                                         onTap: () {
                                           // Handle tap event
+                                          _addToWishlist('CUST000394', item['ProductID'].toString());
                                         },
                                         child: MouseRegion(
                                           cursor: SystemMouseCursors.click,
                                           child: Container(
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              border: Border(
-                                                top: BorderSide(color: Colors.grey.withOpacity(0.2)),
-                                              ),
+                                              color: _isFavorited ? Colors.pink : Colors.transparent,
+                                              borderRadius: BorderRadius.circular(5),
                                             ),
-                                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
-                                            child: const Row(
+                                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                                            child: Row(
                                               children: [
                                                 Icon(
-                                                  Icons.save_alt_sharp,
-                                                  color: Colors.black45,
+                                                  _isFavorited ? Icons.favorite : Icons.favorite_border,
+                                                  color: _isFavorited ? Colors.white : null,
                                                   size: 18,
                                                 ),
+                                                SizedBox(width: 5),
                                                 Text(
-                                                  ' Save for later',
+                                                  ' Wishlist',
                                                   style: TextStyle(
-                                                    color: Colors.black45,
+                                                    color: _isFavorited ? Colors.white :Colors.black45,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 12,
                                                   ),

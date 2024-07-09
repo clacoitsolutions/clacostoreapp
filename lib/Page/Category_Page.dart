@@ -1,10 +1,11 @@
-import 'package:claco_store/Page/details.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/categorymodel.dart';
+import 'details.dart';
+import 'home/Category_details_product.dart';
 
 class CategoryScreen extends StatefulWidget {
   @override
@@ -14,9 +15,11 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
   late Future<List<Category>> futureCategories;
 
+  static const String apiUrl =
+      'https://clacostoreapi.onrender.com/category/getCategory';
+
   Future<List<Category>> fetchCategories() async {
-    final response = await http.get(
-        Uri.parse('https://clacostoreapi.onrender.com/category/getCategory'));
+    final response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);
@@ -35,16 +38,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Categories'),
-      ),
       body: FutureBuilder<List<Category>>(
         future: futureCategories,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("${snapshot.error}"));
+            return Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -79,12 +79,15 @@ class CategoryCard extends StatelessWidget {
         try {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('SrNo', category.srNo);
+          await prefs.setString('ProductCategory', category.productCategory);
           print('srNo stored: ${category.srNo}');
-
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CategoryDetailPage(srNo: category.srNo),
+              builder: (context) => CategoryDetailsPage(
+                categoryName: category.productCategory,
+                srNoList: [category.srNo], // Convert srNo to a List<String>
+              ),
             ),
           );
         } catch (e) {
@@ -92,25 +95,30 @@ class CategoryCard extends StatelessWidget {
         }
       },
       child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Expanded(
-              child: Image.network(
-                category.categoryImage,
-                fit: BoxFit.cover,
-                width: double.infinity,
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                child: Image.network(
+                  category.categoryImage,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               ),
-            ),
-            Text(
-              'SrNo: ${category.srNo}', // Display srNo
-              style: TextStyle(fontSize: 14),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 category.productCategory,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                maxLines: 2, // Adjust according to your design
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

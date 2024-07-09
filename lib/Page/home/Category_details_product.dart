@@ -70,7 +70,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          selectedCategoryName ?? "Category Details",
+          "Category Details",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.pink, // Set the background color to pink
