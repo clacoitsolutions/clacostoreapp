@@ -35,16 +35,31 @@ class _SearchProductState extends State<SearchProduct> {
   bool _isListening = false;
   String _text = 'Search for products...';
   Timer? _listenTimer;
+  List<dynamic> _filteredProducts = [];
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
+    _filteredProducts = widget.products;
+    _searchController.addListener(_filterProducts);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterProducts);
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _initSpeech() async {
-    await _speech.initialize();
-    setState(() {});
+    bool available = await _speech.initialize();
+    if (available) {
+      setState(() {});
+    } else {
+      // Handle initialization error
+      print("The user has denied the use of speech recognition.");
+    }
   }
 
   void _startListening() async {
@@ -71,6 +86,16 @@ class _SearchProductState extends State<SearchProduct> {
     await _speech.stop();
     setState(() {
       _isListening = false;
+    });
+  }
+
+  void _filterProducts() {
+    setState(() {
+      _filteredProducts = widget.products
+          .where((product) => product
+          .toLowerCase()
+          .contains(_searchController.text.toLowerCase()))
+          .toList();
     });
   }
 

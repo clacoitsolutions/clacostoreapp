@@ -102,10 +102,6 @@ class CategoryCard extends StatelessWidget {
                 width: double.infinity,
               ),
             ),
-            Text(
-              'SrNo: ${category.srNo}', // Display srNo
-              style: TextStyle(fontSize: 14),
-            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
