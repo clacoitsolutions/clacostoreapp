@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:claco_store/Page/User/phone.dart';
 import 'package:claco_store/Page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,8 +50,6 @@ class _SplashScreensState extends State<SplashScreens> {
     // );
   }
 
-
-
   Future<void> _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final customerId = prefs.getString('customerId');
@@ -60,6 +59,7 @@ class _SplashScreensState extends State<SplashScreens> {
       Navigator.pushReplacementNamed(context, '/home');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,17 +76,20 @@ class _SplashScreensState extends State<SplashScreens> {
               SplashScreenContent(
                 imagePath: 'images/image1.jpeg',
                 title: 'Welcome To Claco',
-                description: 'Learn from the best teachers of India in a simple and easy way',
+                description:
+                    'Learn from the best teachers of India in a simple and easy way',
               ),
               SplashScreenContent(
                 imagePath: 'images/image2.jpeg',
                 title: 'Find yourself by learning whatever you learn',
-                description: 'Learn whatever you want to learn with the best content at an affordable price by looking for courses and batches.',
+                description:
+                    'Learn whatever you want to learn with the best content at an affordable price by looking for courses and batches.',
               ),
               SplashScreenContent(
                 imagePath: 'images/image3.jpeg',
                 title: 'It’s not just learning, It’s a promise!',
-                description: 'We will deliver our best to make you the best and it\'s our promise.',
+                description:
+                    'We will deliver our best to make you the best and it\'s our promise.',
               ),
             ],
           ),
@@ -111,7 +114,9 @@ class _SplashScreensState extends State<SplashScreens> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>HomeScreen()), // Ensure this widget exists
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          HomeScreen()), // Ensure this widget exists
                 );
               },
               child: const Row(
@@ -151,18 +156,23 @@ class _SplashScreensState extends State<SplashScreens> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) =>RegistrationScreen()), // Ensure this widget exists
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                RegistrationScreen()), // Ensure this widget exists
                       );
                     },
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(10.0)),
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          const EdgeInsets.all(10.0)),
                       shape: MaterialStateProperty.all<OutlinedBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                       ),
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.pink),
-                      foregroundColor: MaterialStateProperty.resolveWith((states) {
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.pink),
+                      foregroundColor:
+                          MaterialStateProperty.resolveWith((states) {
                         if (states.contains(MaterialState.disabled)) {
                           return Colors.black54;
                         }
@@ -187,18 +197,23 @@ class _SplashScreensState extends State<SplashScreens> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage1()), // Navigate to WebViewPage
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                MyPhone()), // Navigate to WebViewPage
                       );
                     },
                     style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(const EdgeInsets.all(10.0)),
+                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          const EdgeInsets.all(10.0)),
                       shape: MaterialStateProperty.all<OutlinedBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                       ),
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.pink),
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.pink),
                     ),
                     child: const Text(
                       'Login',
