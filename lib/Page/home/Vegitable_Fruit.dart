@@ -178,7 +178,7 @@ class _GroceryHomePage extends State<Vegitable> {
           child:Padding(
             padding: EdgeInsets.only(left: 2,right: 2),
          child:  Container(
-            margin: EdgeInsets.only(left: 2,right: 2),
+            margin: EdgeInsets.only(left: 2,right: 2,top: 8),
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.white,
