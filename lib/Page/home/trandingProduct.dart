@@ -1,36 +1,48 @@
 import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Api services/service_api.dart';
 import '../product_details.dart';
 
 class TrendingProduct extends StatefulWidget {
+  final List<Map<String, String>> categories;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
+
+  const TrendingProduct({
+    required this.categories,
+    this.padding = const EdgeInsets.all(0.0),
+    this.margin = const EdgeInsets.all(0.0),
+  });
+
   @override
   _TrendingProductState createState() => _TrendingProductState();
 }
 
 class _TrendingProductState extends State<TrendingProduct> {
-  List<dynamic> products = [];
+  List<Map<String, dynamic>> categoryProducts = [];
   final APIService apiService = APIService();
-  final String customerId = ''; // Hardcoded Customer ID
+  final String customerId = '';
 
   @override
   void initState() {
     super.initState();
-    fetchProducts();
+    fetchAllProducts();
   }
 
-  Future<void> fetchProducts() async {
-    try {
-      final fetchedProducts = await apiService.fetchProducts('13');
-      setState(() {
-        products = fetchedProducts;
-      });
-    } catch (e) {
-      // Handle the error
-      print(e);
+  Future<void> fetchAllProducts() async {
+    for (var category in widget.categories) {
+      try {
+        final fetchedProducts = await apiService.fetchProducts(category['']!);
+        setState(() {
+          categoryProducts.add({
+            'CatName': category['CatName'],
+            'Products': fetchedProducts,
+          });
+        });
+      } catch (e) {
+        print('Failed to load products for category: ${category['CatName']}');
+      }
     }
   }
 
@@ -44,29 +56,24 @@ class _TrendingProductState extends State<TrendingProduct> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('SrNo', srno);
       await prefs.setString('ProductCode', productId);
-      print('Product details saved: SrNo = $srno, ProductCode = $productId');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ProductDetails(productId: null,)),
+        MaterialPageRoute(builder: (context) => ProductDetails(productId: productId)),
       );
     } catch (e) {
       print('Error saving product details: $e');
     }
   }
 
-  // Recent view store data
   Future<void> saveProductToRecent(dynamic product) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> recentProducts = prefs.getStringList('recentProducts') ?? [];
 
     String productJson = jsonEncode(product);
 
-    // Duplicate check: remove if already exists to update its position
     recentProducts.removeWhere((item) => item == productJson);
-
     recentProducts.add(productJson);
 
-    // Limit to 10 recent products
     if (recentProducts.length > 10) {
       recentProducts = recentProducts.sublist(recentProducts.length - 10);
     }
@@ -106,8 +113,6 @@ class _TrendingProductState extends State<TrendingProduct> {
           onTap: () {
             final srno = product['SrNo']?.toString();
             final productId = product['ProductCode']?.toString();
-            print('Product card tapped: ${product['ProductName']}');
-
             saveProductToRecent(product).then((_) {
               saveProductDetailsAndNavigate(srno, productId);
             });
@@ -123,7 +128,7 @@ class _TrendingProductState extends State<TrendingProduct> {
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: Offset(0, 5), // changes position of shadow
+                  offset: Offset(0, 5),
                 ),
               ],
             ),
@@ -135,19 +140,19 @@ class _TrendingProductState extends State<TrendingProduct> {
                     ClipRRect(
                       borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
                       child: Image.network(
-                        product['ProductMainImageUrl'] ?? '', // Use product's image URL with null check
+                        product['ProductMainImageUrl'] ?? '',
                         width: double.infinity,
                         height: 120,
                         fit: BoxFit.cover,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.all(4), // Adjust padding as needed
+                      padding: EdgeInsets.all(4),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            product['ProductName'] ?? '', // Product name with null check
+                            product['ProductName'] ?? '',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -160,16 +165,16 @@ class _TrendingProductState extends State<TrendingProduct> {
                             children: [
                               if (regularPrice != null && onlinePrice != null && regularPrice > onlinePrice)
                                 Text(
-                                  '  ${product['RegularPrice']}', // Product price with null check
-                                  style: TextStyle(
+                                  ' ₹${product['RegularPrice']}',
+                                  style: const TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey[500],
+                                    color: Colors.red,
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
                               SizedBox(width: 3),
                               Text(
-                                ' ₹${product['OnlinePrice']}', // Product price with null check
+                                ' ₹${product['OnlinePrice']}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.black87,
@@ -192,12 +197,10 @@ class _TrendingProductState extends State<TrendingProduct> {
                               if (product['Avg'] != null && product['Avg'] >= index + 1) {
                                 return Icon(Icons.star, color: Colors.green, size: 15);
                               } else {
-                                return Icon(Icons.star, color: Colors.green, size: 15);
+                                return Icon(Icons.star_border, color: Colors.green, size: 15);
                               }
                             }),
                           ),
-
-
                         ],
                       ),
                     ),
@@ -212,7 +215,6 @@ class _TrendingProductState extends State<TrendingProduct> {
                       color: isFavorited ? Colors.red : null,
                     ),
                     onPressed: () async {
-                      // Handle heart icon click event
                       try {
                         final productId = product['ProductCode']?.toString();
                         if (productId != null) {
@@ -246,105 +248,57 @@ class _TrendingProductState extends State<TrendingProduct> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(10), // Border radius for all sides
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 10, top: 8), // Add top padding here
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Deal of the Day',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                color: Colors.white,
-                                size: 16, // Adjust the size as needed
-                              ),
-                              SizedBox(width: 4), // Add some space between the icon and the text
-                              Text(
-                                '22h 55m 20s remaining',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10, // Add space between text and button
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10), // Add padding to the right
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Add functionality for the button
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.blueAccent.withOpacity(0.8),
-                          side: const BorderSide(color: Colors.white), // Add border
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(3), // Border radius for button
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('View all'),
-                            Icon(Icons.arrow_forward), // Right arrow icon
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+    return Container(
+      padding: widget.padding,
+      margin: widget.margin,
+      child: categoryProducts.isNotEmpty
+          ? ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: categoryProducts.length,
+        itemBuilder: (context, index) {
+          final category = categoryProducts[index];
+          final products = category['Products'];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10),
+              Container(
+                height: 40,
+                width: double.infinity,
+                padding: EdgeInsets.all(8.0),
+                color: Colors.pink,
+                child: Text(
+                  category['CatName'] ?? '',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 15), // Add space between images
-        products.isNotEmpty
-            ? GridView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.7, // Adjust the aspect ratio as needed
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            return buildProductCard(products[index]);
-          },
-        )
-            : CircularProgressIndicator(),
-        const SizedBox(height: 20),
-      ],
+              SizedBox(height: 10),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.7,
+                ),
+                itemCount: products.length,
+                itemBuilder: (context, productIndex) {
+                  return buildProductCard(products[productIndex]);
+                },
+              ),
+            ],
+          );
+        },
+      )
+          : Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import '../pageUtills/bottom_navbar.dart';
 import '../pageUtills/common_drawer.dart';
 import '../pageUtills/top_navbar.dart';
 import 'home/Grocery_vegitable_home_page.dart';
+import 'home/Product_category_wise.dart';
 import 'home/category.dart';
 import 'home/slider.dart';
 import 'package:http/http.dart' as http;
@@ -735,7 +736,7 @@ class _HomeBodyState extends State<HomeBody> {
               topSectionFilter(context),
               SizedBox(height: 0),
               // Toggle Trending Products
-              TrendingProduct(),
+              CategoryWiseProduct(),
               SizedBox(height: 20),
               // ... rest of your widgets ...
 
