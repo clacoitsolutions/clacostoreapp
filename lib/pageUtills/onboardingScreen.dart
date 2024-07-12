@@ -199,7 +199,7 @@ class _SplashScreensState extends State<SplashScreens> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                MyPhone()), // Navigate to WebViewPage
+                                LoginPage1()), // Navigate to WebViewPage
                       );
                     },
                     style: ButtonStyle(

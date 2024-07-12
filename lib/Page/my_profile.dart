@@ -13,7 +13,9 @@ import '../pageUtills/coupons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../pageUtills/help_center.dart';
+import '../pageUtills/question_answer.dart';
 import '../pageUtills/recent_product_view.dart';
+import '../pageUtills/term_conditions.dart';
 import '../pageUtills/top_navbar.dart';
 import '../pageUtills/update_user_profile.dart';
 import '../pageUtills/user_profile_review.dart';
@@ -882,10 +884,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             right:
                                 10.0), // Add margin to the right side of the button
                         child: InkWell(
-                          // onTap: () {
-                          //   Navigator.push(context,MaterialPageRoute(builder: (context)=>User_QuestionAnswer()));
-                          //   // Add your onTap functionality here
-                          // },
+                          onTap: () {
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=> FAQPage()));
+                            // Add your onTap functionality here
+                          },
                           child: Container(
                             width: 30.0,
                             height: 30.0,
@@ -1048,6 +1050,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                                 10.0), // Add margin to the right side of the button
                         child: InkWell(
                           onTap: () {
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=> TermsConditionsPage()));
                             // Add your onTap functionality here
                           },
                           child: Container(
