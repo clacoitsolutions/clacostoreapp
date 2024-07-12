@@ -211,7 +211,7 @@ class _SignInFormState extends State<SignInForm> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Create An Account?',
                     style: TextStyle(fontSize: 16),
                   ),
@@ -220,7 +220,7 @@ class _SignInFormState extends State<SignInForm> {
                     onTap: () {
                       // Add your click event here
                     },
-                    child: Text(
+                    child: const Text(
                       'Sign Up',
                       style: TextStyle(
                         fontSize: 16,
