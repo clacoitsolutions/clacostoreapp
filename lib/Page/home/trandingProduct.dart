@@ -33,7 +33,7 @@ class _TrendingProductState extends State<TrendingProduct> {
   Future<void> fetchAllProducts() async {
     for (var category in widget.categories) {
       try {
-        final fetchedProducts = await apiService.fetchProducts(category['']!);
+        final fetchedProducts = await apiService.fetchProducts(category['CatId']!);
         setState(() {
           categoryProducts.add({
             'CatName': category['CatName'],

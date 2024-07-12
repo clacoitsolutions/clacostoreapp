@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:claco_store/Page/Category_Page.dart';
+import 'package:claco_store/Page/product_details.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'filter_page.dart';
 import 'package:claco_store/models/Category_filter.dart';
 import 'package:claco_store/models/sizemodel.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import 'package:avatar_glow/avatar_glow.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -34,9 +35,88 @@ class _SearchProductState extends State<SearchProduct> {
   TextEditingController _searchController = TextEditingController();
   stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
-  String _text = 'Search for products...';
+  String _text = '';
   Timer? _listenTimer;
   List<dynamic> _filteredProducts = [];
+  List<dynamic> _searchResults = [];
+  bool _isSearching = false;
+
+
+  Future<void> _searchProducts(String searchText) async {
+    String apiUrl = 'https://clacostoreapi.onrender.com/SearchProduct';
+
+    try {
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'SearchText': searchText,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        setState(() {
+          _searchResults = data['data'];
+        });
+      } else {
+        throw Exception('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Failed to fetch search results. Please try again later.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+  Future<void> saveProductDetailsAndNavigate( String? productId) async {
+    if ( productId == null) {
+      print(' productId = $productId');
+      return;
+    }
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('ProductCode', productId);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProductDetails(productId: productId)),
+      );
+    } catch (e) {
+      print('Error saving product details: $e');
+    }
+  }
+  Future<void> saveProductToRecent(dynamic product) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> recentProducts = prefs.getStringList('recentProducts') ?? [];
+
+    String productJson = jsonEncode(product);
+
+    recentProducts.removeWhere((item) => item == productJson);
+    recentProducts.add(productJson);
+
+    if (recentProducts.length > 10) {
+      recentProducts = recentProducts.sublist(recentProducts.length - 10);
+    }
+
+    await prefs.setStringList('recentProducts', recentProducts);
+  }
+
 
   @override
   void initState() {
@@ -44,11 +124,19 @@ class _SearchProductState extends State<SearchProduct> {
     _initSpeech();
     _filteredProducts = widget.products;
     _searchController.addListener(_filterProducts);
+    _searchController.addListener(_onSearchTextChanged);
+
   }
+
+
+
+
 
   @override
   void dispose() {
     _searchController.removeListener(_filterProducts);
+    _searchController.dispose();
+    super.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -81,6 +169,25 @@ class _SearchProductState extends State<SearchProduct> {
       });
     }
   }
+
+
+  void _onSearchTextChanged() {
+    String searchText = _searchController.text.trim();
+    if (searchText.isNotEmpty) {
+      _searchProducts(searchText);
+      setState(() {
+        _isSearching = true;
+      });
+    } else {
+      setState(() {
+        _isSearching = false;
+        _searchResults.clear(); // Clear search results if search text is empty
+      });
+    }
+  }
+
+
+
 
   void _stopListening() async {
     _listenTimer?.cancel();
@@ -122,48 +229,47 @@ class _SearchProductState extends State<SearchProduct> {
               IconButton(
                 icon: Icon(Icons.search, color: Colors.grey),
                 onPressed: () {
-                  setState(() {});
+                  setState(() {
+                    _isSearching = true;
+                  });
                 },
               ),
               Expanded(
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: _text, // Display recognized text here
+                    hintText: 'Search for products...',
                     border: InputBorder.none,
                   ),
+                  onChanged: (value) {
+                    _onSearchTextChanged();
+                  },
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty) {
+                      _searchProducts(value);
+                    }
+                  },
                 ),
               ),
               IconButton(
-                icon: AvatarGlow(
-                  animate: _isListening,
-                  glowColor: Colors.pink,
-                  duration: const Duration(milliseconds: 2000),
-                  repeat: true,
-                  child: Icon(
-                    _isListening ? Icons.mic : Icons.mic_none,
-                    color: Colors.green,
-                  ),
-                ),
+                icon: Icon(Icons.mic, color: Colors.grey),
                 onPressed: () {
-                  if (_isListening) {
-                    _stopListening();
-                  } else {
-                    _startListening();
-                  }
+                  // Implement voice search functionality
                 },
               ),
             ],
           ),
         ),
       ),
-      body: Column(
+        body: _isSearching
+            ? _buildSearchResults()
+            : Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "Popular Products",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -194,7 +300,7 @@ class _SearchProductState extends State<SearchProduct> {
                     color: Colors.black,
                     size: 14,
                   ),
-                  label: Text(
+                  label: const Text(
                     "Filter",
                     style: TextStyle(color: Colors.black),
                   ),
@@ -210,6 +316,127 @@ class _SearchProductState extends State<SearchProduct> {
       ),
     );
   }
+  Widget _buildSearchResults() {
+    return GridView.builder(
+      padding: EdgeInsets.all(8.0), // Adjusted padding around the GridView
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 8.0, // Reduced spacing between cards horizontally
+        mainAxisSpacing: 8.0, // Reduced spacing between rows vertically
+        childAspectRatio: 0.7, // Adjusted aspect ratio for better mobile view
+      ),
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        var product = _searchResults[index];
+        String productName = product['ProductName'];
+        if (productName.length > 20) {
+          productName = productName.substring(0, 20) + '...';
+        }
+
+        String regularPrice = product['RegularPrice'].toString();
+        String salePrice = product['SalePrice'].toString();
+
+        // Calculate percentage discount
+        double regularPriceValue = double.parse(regularPrice);
+        double salePriceValue = double.parse(salePrice);
+        double discountPercentage = ((regularPriceValue - salePriceValue) / regularPriceValue) * 100;
+
+        // Check if there's a discount to display
+        bool hasDiscount = discountPercentage > 0;
+
+        return GestureDetector(
+            onTap: () {
+
+          final productId = product['ProductCode']?.toString();
+          saveProductToRecent(product).then((_) {
+            saveProductDetailsAndNavigate( productId);
+          });
+        },
+         child: Card(
+          elevation: 7,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)),
+                child: Image.network(
+                  product['ProductMainImageUrl'],
+                  width: double.infinity,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      productName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          ' ₹${regularPrice}',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 14,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+
+                        SizedBox(width: 3),
+                        Text(
+                          ' ₹${salePrice}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    if (hasDiscount)
+                      Text(
+                        '${discountPercentage.toStringAsFixed(0)}% off', // Display percentage discount
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    SizedBox(height: 4),
+                    Row(
+                      children: List.generate(5, (index) {
+                        if (product['Avg'] != null && product['Avg'] >= index + 1) {
+                          return Icon(Icons.star, color: Colors.green, size: 15);
+                        } else {
+                          return Icon(Icons.star_border, color: Colors.green, size: 15);
+                        }
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        );
+      },
+    );
+  }
+
 
   Widget _buildContent() {
     if (widget.products.isNotEmpty) {
@@ -782,4 +1009,12 @@ class SizeDetailPage extends StatelessWidget {
       ),
     );
   }
+
+
+
+
+
+
+
+
 }

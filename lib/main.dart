@@ -1,6 +1,7 @@
 import 'package:claco_store/Page/home/Product_category_wise.dart';
 import 'package:claco_store/Page/login.dart';
 import 'package:claco_store/pageUtills/bottom_navbar.dart';
+import 'package:claco_store/pageUtills/splashScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.yellow,
       ),
       debugShowCheckedModeBanner: false,
-      home:HomeScreen(), // Now starts with SplashScreen
+      home:SplashScreen(), // Now starts with SplashScreen
       routes: {
         '/orderDetails': (context) =>
             OrderDetailsScreen(orderId: initialOrderId),
