@@ -83,24 +83,19 @@ class _SearchProductState extends State<SearchProduct> {
       );
     }
   }
-  Future<void> saveProductDetailsAndNavigate( String? productId) async {
-    if ( productId == null) {
-      print(' productId = $productId');
-      return;
-    }
+  Future<void> _navigateToProductDetails(String productId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('ProductCode', productId);
 
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('ProductCode', productId);
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ProductDetails(productId: productId)),
-      );
-    } catch (e) {
-      print('Error saving product details: $e');
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetails(productId: productId),
+      ),
+    );
   }
+
+
   Future<void> saveProductToRecent(dynamic product) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> recentProducts = prefs.getStringList('recentProducts') ?? [];
@@ -345,13 +340,7 @@ class _SearchProductState extends State<SearchProduct> {
         bool hasDiscount = discountPercentage > 0;
 
         return GestureDetector(
-            onTap: () {
-
-          final productId = product['ProductCode']?.toString();
-          saveProductToRecent(product).then((_) {
-            saveProductDetailsAndNavigate( productId);
-          });
-        },
+          onTap: () => _navigateToProductDetails(product['ProductCode']),
          child: Card(
           elevation: 7,
 
