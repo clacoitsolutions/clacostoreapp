@@ -85,8 +85,8 @@ class _GroceryHomeState extends State<GroceryHome> {
 
     setState(() {
       _locationSuggestions = result?.predictions
-              ?.map((prediction) => prediction.description ?? '')
-              .toList() ??
+          ?.map((prediction) => prediction.description ?? '')
+          .toList() ??
           []; // Handle null predictions
     });
   }
@@ -303,7 +303,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                                 color: Colors.pink,
                                 borderRadius: BorderRadius.circular(0),
                                 border:
-                                    Border.all(color: Colors.pink, width: 2),
+                                Border.all(color: Colors.pink, width: 2),
                               ),
                               child: TextButton(
                                 onPressed: () {
@@ -425,11 +425,11 @@ class _GroceryHomeState extends State<GroceryHome> {
                                         horizontal: 6, vertical: 5),
                                     decoration: BoxDecoration(
                                       color:
-                                          Colors.pink, // Pink background color
+                                      Colors.pink, // Pink background color
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child:
-                                        Icon(Icons.remove, color: Colors.white),
+                                    Icon(Icons.remove, color: Colors.white),
                                   ),
                                 ),
                                 Container(
@@ -460,7 +460,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                                         horizontal: 6, vertical: 4),
                                     decoration: BoxDecoration(
                                       color:
-                                          Colors.pink, // Pink background color
+                                      Colors.pink, // Pink background color
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Icon(Icons.add, color: Colors.white),
@@ -493,7 +493,7 @@ class _GroceryHomeState extends State<GroceryHome> {
               onTap: () async {
                 // Call method to show location selection and get new location
                 var newLocation =
-                    await _showLocationSelectionBottomSheet(context);
+                await _showLocationSelectionBottomSheet(context);
                 if (newLocation != null) {
                   setState(() {
                     // Update the state with the new location
@@ -510,7 +510,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                     Row(
                       children: [
                         Icon(Icons.location_on, color: Colors.white),
-                        SizedBox(width: 5),
+                        SizedBox(width: 15),
                         Text(
                           _fullLocationName.isEmpty
                               ? 'Get Current Location' // Default text
@@ -541,7 +541,7 @@ class _GroceryHomeState extends State<GroceryHome> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -626,7 +626,7 @@ class _GroceryHomeState extends State<GroceryHome> {
               ],
             ),
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(60),
+              preferredSize: Size.fromHeight(50),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 color: Colors.black.withOpacity(0.02),
@@ -647,12 +647,12 @@ class _GroceryHomeState extends State<GroceryHome> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => SearchProduct(
-                                        products: [],
-                                        categoryProducts: [],
-                                        ratingProducts: [],
-                                        discountproducts: [],
-                                        sizeProducts: [],
-                                      )),
+                                    products: [],
+                                    categoryProducts: [],
+                                    ratingProducts: [],
+                                    discountproducts: [],
+                                    sizeProducts: [],
+                                  )),
                             );
                           },
                           child: Row(
@@ -672,7 +672,7 @@ class _GroceryHomeState extends State<GroceryHome> {
                                           color: Colors.grey.withOpacity(0.5)),
                                       border: InputBorder.none,
                                       contentPadding:
-                                          EdgeInsets.only(bottom: 8.0),
+                                      EdgeInsets.only(bottom: 8.0),
                                     ),
                                   ),
                                 ),
@@ -920,10 +920,10 @@ class _GroceryHomeState extends State<GroceryHome> {
                     onTap: _getUserLocation,
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
                         borderRadius:
-                            BorderRadius.circular(20), // Round corners
+                        BorderRadius.circular(20), // Round corners
                         color: Colors.white, // White background
                         border: Border.all(
                           color: Colors.grey[300]!, // Light grey border

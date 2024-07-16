@@ -1,6 +1,12 @@
 import 'dart:convert';
+import 'package:claco_store/Page/home_page.dart';
+import 'package:claco_store/Page/order_details.dart';
+import 'package:claco_store/pageUtills/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'my_order.dart';
 
 class OrderSuccessful extends StatefulWidget {
   @override
@@ -22,12 +28,15 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
   Future<void> fetchData() async {
     // API endpoint URL
     final String apiUrl = 'https://clacostoreapi.onrender.com/getOrderConfirm';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    orderId = prefs.getString('orderId') ??
+        ''; // Get from Shared Preferences or default to empty strin
 
     try {
       // Send POST request with OrderID
       final response = await http.post(
         Uri.parse(apiUrl),
-        body: jsonEncode({'OrderID': 'ORD101001092'}),
+        body: jsonEncode({'OrderID': orderId}),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -35,7 +44,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
         // Parse JSON response
         final jsonData = jsonDecode(response.body);
         final data =
-            jsonData['data'][0]; // Assuming there's only one order in the list
+        jsonData['data'][0]; // Assuming there's only one order in the list
 
         setState(() {
           orderId = data['OrderId'];
@@ -136,7 +145,12 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        // Handle check status action
+                        // Navigate to the OrderDetails page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MyOrderScreen()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFe83e8c),
@@ -148,7 +162,11 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Handle continue action
+                        // Navigate to the OrderDetails page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => BottomPage()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFe83e8c),
@@ -169,7 +187,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                         text: "The payment of ",
                         style: TextStyle(
                             color:
-                                Colors.black), // Default color for other text
+                            Colors.black), // Default color for other text
                       ),
                       TextSpan(
                         text: "₹$netPayable",
@@ -180,10 +198,10 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                       ),
                       TextSpan(
                         text:
-                            " you'll make when the delivery arrives with your order.",
+                        " you'll make when the delivery arrives with your order.",
                         style: TextStyle(
                             color:
-                                Colors.black), // Default color for other text
+                            Colors.black), // Default color for other text
                       ),
                     ],
                   ),

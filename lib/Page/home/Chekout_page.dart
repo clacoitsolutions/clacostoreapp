@@ -1,9 +1,11 @@
+import 'package:claco_store/Page/paymentgateway.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Api services/Checkout_Api.dart';
 import '../../pageUtills/common_appbar.dart';
+import '../OrderSuccesful_page.dart';
 import '../addressscreen.dart';
 import 'order_sucees_summery.dart';
 
@@ -68,7 +70,6 @@ class _MyCartState extends State<MyCart> {
     });
   }
 
-
   Future<void> _fetchAddressData() async {
     final addressData = await CartApiService.fetchAddressData(customerId!);
     if (addressData != null) {
@@ -84,7 +85,7 @@ class _MyCartState extends State<MyCart> {
 
       // Store CustomerId and SrNo in SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('CustomerId',customerId!);
+      await prefs.setString('CustomerId', customerId!);
       await prefs.setString('SrNo', addressData['SrNo']);
 
       // Update global variables
@@ -92,8 +93,6 @@ class _MyCartState extends State<MyCart> {
       _addressId = addressData['SrNo'];
     }
   }
-
-
 
   Future<void> _fetchCartItems() async {
     try {
@@ -109,7 +108,8 @@ class _MyCartState extends State<MyCart> {
 
   Future<void> _fetchTotalAmounts() async {
     try {
-      final jsonData = await TotalAmountApiService.fetchTotalAmount(customerId!);
+      final jsonData =
+      await TotalAmountApiService.fetchTotalAmount(customerId!);
 
       if (jsonData != null &&
           jsonData['addresses'] != null &&
@@ -135,91 +135,98 @@ class _MyCartState extends State<MyCart> {
       print('Error fetching total amounts: $e');
     }
   }
+
   void _handlePayment() async {
-    // Ensure customerId and addressId are not null
-    if (_customerId.isEmpty || _addressId.isEmpty) {
-      print('Customer ID or Address ID is empty');
-      return;
-    }
+    // Ensure customerId and addressId are not nullOnline
+    if (paymentMethod == 'Online') {
+      _navigateToPaymentPage();
+    } else if (paymentMethod == 'Cash on Delivery') {
+      if (_customerId.isEmpty || _addressId.isEmpty) {
+        print('Customer ID or Address ID is empty');
+        return;
+      }
 
-    final grossAmount = totalSalePrice;
-    final netPayable = totalSalePrice + deliveryCharge;
-    final GSTAmount = totalGSTAmount;
+      final grossAmount = totalSalePrice;
+      final netPayable = totalSalePrice + deliveryCharge;
+      final GSTAmount = totalGSTAmount;
 
-    // Debug statements to check the values
-    print('Customer ID: $_customerId');
-    print('Address ID: $_addressId');
-    print('Gross Amount: $grossAmount');
-    print('Net Payable: $netPayable');
-    print('GST Amount: $GSTAmount');
-    print('Payment Method: $paymentMethod');
+      // Debug statements to check the values
+      print('Customer ID: $_customerId');
+      print('Address ID: $_addressId');
+      print('Gross Amount: $grossAmount');
+      print('Net Payable: $netPayable');
+      print('GST Amount: $GSTAmount');
+      print('Payment Method: $paymentMethod');
 
-    // Construct the API request body
-    Map<String, dynamic> requestBody = {
-      "customerid": _customerId,
-      "grossamount": grossAmount,
-      "deliverycharges": deliveryCharge,
-      "iscoupenapplied": true,
-      "coupenamount": null,
-      "discountamount": null,
-      "deliveryaddressid": _addressId,
-      "paymentmode": paymentMethod,
-      "paymentstatus": "Paid",
-      "NetPayable": netPayable,
-      "GSTAmount": GSTAmount
-    };
+      // Construct the API request body
+      Map<String, dynamic> requestBody = {
+        "customerid": _customerId,
+        "grossamount": grossAmount,
+        "deliverycharges": deliveryCharge,
+        "iscoupenapplied": true,
+        "coupenamount": null,
+        "discountamount": null,
+        "deliveryaddressid": _addressId,
+        "paymentmode": paymentMethod,
+        "paymentstatus": "Paid",
+        "NetPayable": netPayable,
+        "GSTAmount": GSTAmount
+      };
 
-    // Convert the request body to JSON
-    String jsonBody = json.encode(requestBody);
+      // Convert the request body to JSON
+      String jsonBody = json.encode(requestBody);
 
-    // Make API call using http package
-    try {
-      final response = await http.post(
-        Uri.parse('https://clacostoreapi.onrender.com/postOnlineOrder1'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonBody,
-      );
-
-      if (response.statusCode == 200) {
-        // Decode the JSON response
-        Map<String, dynamic> responseBody = json.decode(response.body);
-
-        // Extract the message from the response
-        String message = responseBody['message'] ?? 'Order placed successfully';
-
-        // Extract order items if needed
-        List<dynamic> orderItems = responseBody['orderItems'] ?? [];
-
-        // Print the message and order items
-        print('Order placed successfully: $message');
-        print('Order Items: $orderItems');
-
-        // Navigate to OrderSummaryScreen and pass order details
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OrderSummaryScreen(orderDetails: orderItems[0]),
-          ),
+      // Make API call using http package
+      try {
+        final response = await http.post(
+          Uri.parse('https://clacostoreapi.onrender.com/postOnlineOrder1'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonBody,
         );
-      }  else {
-        // Decode the JSON response to extract the error message
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        String errorMessage = responseBody['message'] ?? 'Failed to place order';
-        print('Failed to place order. Status code: ${response.statusCode}. Message: $errorMessage');
+
+        if (response.statusCode == 200) {
+          // Decode the JSON response
+          Map<String, dynamic> responseBody = json.decode(response.body);
+
+          // Extract the message from the response
+          String message =
+              responseBody['message'] ?? 'Order placed successfully';
+
+          // Extract order items if needed
+          List<dynamic> orderItems = responseBody['orderItems'] ?? [];
+
+          // Print the message and order items
+          print('Order placed successfully: $message');
+          print('Order Items: $orderItems');
+
+          // Navigate to OrderSummaryScreen and pass order details
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrderSuccessful(),
+            ),
+          );
+        } else {
+          // Decode the JSON response to extract the error message
+          Map<String, dynamic> responseBody = json.decode(response.body);
+          String errorMessage =
+              responseBody['message'] ?? 'Failed to place order';
+          print(
+              'Failed to place order. Status code: ${response.statusCode}. Message: $errorMessage');
+          // Show error message to user
+        }
+      } catch (e) {
+        // Handle network or unexpected errors
+        print('Error: $e');
         // Show error message to user
       }
-    } catch (e) {
-      // Handle network or unexpected errors
-      print('Error: $e');
-      // Show error message to user
     }
   }
 
-
-
-  Future<void> _updateCartSize(String customerId, String productId, int quantity) async {
+  Future<void> _updateCartSize(
+      String customerId, String productId, int quantity) async {
     try {
       final response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/updatecartsize1'),
@@ -237,23 +244,20 @@ class _MyCartState extends State<MyCart> {
         print('Cart size updated successfully');
         // Update the local cart items with the new quantity
         setState(() {
-          final index = _cartItems.indexWhere((item) => item['ProductID'] == productId);
+          final index =
+          _cartItems.indexWhere((item) => item['ProductID'] == productId);
           if (index != -1) {
             _cartItems[index]['Quantity'] = quantity;
           }
         });
       } else {
-        print('Failed to update cart size. Status code: ${response.statusCode}');
+        print(
+            'Failed to update cart size. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error updating cart size: $e');
     }
   }
-
-
-
-
-
 
   void _toggleSelection(int boxNumber) {
     setState(() {
@@ -264,7 +268,7 @@ class _MyCartState extends State<MyCart> {
       } else {
         _isSelected1 = false;
         _isSelected2 = true;
-        paymentMethod = 'Online Payment';
+        paymentMethod = 'Online';
       }
     });
   }
@@ -285,6 +289,10 @@ class _MyCartState extends State<MyCart> {
     });
   }
 
+  Future<void> _saveTotalAmount(double totalAmount) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('totalAmount', totalAmount);
+  }
 
   bool get _isContinueButtonEnabled => _isSelected1 || _isSelected2;
 
@@ -298,7 +306,7 @@ class _MyCartState extends State<MyCart> {
         final currentQuantity = _cartItems[index]['Quantity'];
 
         return Container(
-          height: 100,
+          height: 120,
           margin: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -343,7 +351,9 @@ class _MyCartState extends State<MyCart> {
                           color: Colors.black.withOpacity(0.6),
                         ),
                       ),
-                      SizedBox(height: 25,),
+                      SizedBox(
+                        height: 15,
+                      ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -358,7 +368,8 @@ class _MyCartState extends State<MyCart> {
                           Row(
                             children: [
                               IconButton(
-                                onPressed: () => _decrementCounter(productId, currentQuantity),
+                                onPressed: () => _decrementCounter(
+                                    productId, currentQuantity),
                                 padding: EdgeInsets.all(0),
                                 constraints: BoxConstraints(),
                                 splashRadius: 20,
@@ -366,7 +377,8 @@ class _MyCartState extends State<MyCart> {
                                 icon: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 3),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey, width: 0.2),
+                                    border: Border.all(
+                                        color: Colors.grey, width: 0.2),
                                     borderRadius: BorderRadius.circular(0),
                                   ),
                                   child: Icon(Icons.remove, color: Colors.grey),
@@ -375,7 +387,8 @@ class _MyCartState extends State<MyCart> {
                               Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey, width: 0.2),
+                                  border: Border.all(
+                                      color: Colors.grey, width: 0.2),
                                   borderRadius: BorderRadius.circular(0),
                                   color: Color(0xFFF5F4F4FF),
                                 ),
@@ -388,7 +401,8 @@ class _MyCartState extends State<MyCart> {
                                 ),
                               ),
                               IconButton(
-                                onPressed: () => _incrementCounter(productId, currentQuantity),
+                                onPressed: () => _incrementCounter(
+                                    productId, currentQuantity),
                                 padding: EdgeInsets.all(0),
                                 constraints: BoxConstraints(),
                                 splashRadius: 20,
@@ -396,7 +410,8 @@ class _MyCartState extends State<MyCart> {
                                 icon: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 3),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey, width: 0.2),
+                                    border: Border.all(
+                                        color: Colors.grey, width: 0.2),
                                     borderRadius: BorderRadius.circular(0),
                                   ),
                                   child: Icon(Icons.add, color: Colors.grey),
@@ -417,88 +432,93 @@ class _MyCartState extends State<MyCart> {
     );
   }
 
-
   Widget _buildSummarySection() {
+    final double totalAmount = totalSalePrice + deliveryCharge;
+
+    // Save the total amount to SharedPreferences
+    _saveTotalAmount(totalAmount);
     return Container(
-        height: 170,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 4,
+      height: 170,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(height: 12),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Items (${_cartItems.length})',
+                    style: TextStyle(color: Colors.grey)),
+                Text('...'),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-            SizedBox(height: 12),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Items (${_cartItems.length})', style: TextStyle(color: Colors.grey)),
-              Text('...'),
-            ],
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Shipping', style: TextStyle(color: Colors.grey)),
-              Text('$totalGSTAmount'),
-            ],
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Shipping', style: TextStyle(color: Colors.grey)),
+                Text('$totalGSTAmount'),
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Delivery charge', style: TextStyle(color: Colors.grey)),
-              Text('₹ ${deliveryCharge.toStringAsFixed(2)}'),
-            ],
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Delivery charge', style: TextStyle(color: Colors.grey)),
+                Text('₹ ${deliveryCharge.toStringAsFixed(2)}'),
+              ],
+            ),
           ),
-        ),
-        Divider(thickness: 1, color: Colors.grey.withOpacity(0.5)),
-        Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-    child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-    Text(  'Total Amount',
-      style: TextStyle(
-        color: Colors.black,
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
+          Divider(thickness: 1, color: Colors.grey.withOpacity(0.5)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Amount',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '₹ ${totalAmount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Colors.pink,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-    ),
-      Text(
-        '₹ ${(totalSalePrice + deliveryCharge).toStringAsFixed(2)}',
-        style: TextStyle(
-          color: Colors.pink,
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ],
-    ),
-        ),
-          ],
-        ),
     );
   }
 
   Widget _buildPaymentSelection() {
     return Container(
-      height: 100,
+      height: 130,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -533,10 +553,6 @@ class _MyCartState extends State<MyCart> {
     );
   }
 
-
-
-
-
   Widget _buildContinueButton() {
     return SizedBox(
       width: double.infinity,
@@ -557,10 +573,9 @@ class _MyCartState extends State<MyCart> {
     );
   }
 
-
   Widget _buildAddressCard() {
     return Container(
-      height: 130,
+      height: 150,
       width: double.infinity,
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -619,6 +634,7 @@ class _MyCartState extends State<MyCart> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -649,11 +665,15 @@ class _MyCartState extends State<MyCart> {
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Text(
                       'Coupons',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.local_offer,color: Colors.pink,),
+                    leading: Icon(
+                      Icons.local_offer,
+                      color: Colors.pink,
+                    ),
                     title: TextField(
                       decoration: InputDecoration(
                         hintText: 'Enter coupon code',
@@ -665,13 +685,17 @@ class _MyCartState extends State<MyCart> {
                         // Handle apply coupon button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink.withOpacity(0.9) ,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        backgroundColor: Colors.pink.withOpacity(0.9),
+                        padding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      child: Text('Apply',style: TextStyle(color: Colors.white),),
+                      child: Text(
+                        'Apply',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
@@ -688,6 +712,14 @@ class _MyCartState extends State<MyCart> {
       ),
     );
   }
+
+  void _navigateToPaymentPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            RazorpayPaymentScreen(), // Replace with your PaymentPage
+      ),
+    );
+  }
 }
-
-

@@ -91,9 +91,12 @@ class _FlippableCardState extends State<FlippableCard> {
   // Function to save order ID and navigate to OrderDetailsScreen
   // Inside _MyOrderScreenState
 
-  Future<void> _saveOrderIdAndNavigate(String orderId) async {
+  Future<void> _saveOrderIdAndNavigate(
+      String orderId, String deliveryStatus) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('orderId', orderId); // Save orderId
+    await prefs.setString(
+        'deliveryStatus', deliveryStatus); // Save deliveryStatus
     Navigator.pushNamed(context, '/orderDetails',
         arguments: orderId); // Navigate with orderId
   }
@@ -102,7 +105,8 @@ class _FlippableCardState extends State<FlippableCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _saveOrderIdAndNavigate(widget.orderId);
+        _saveOrderIdAndNavigate(
+            widget.orderId, widget.items.first.deliveryStatus);
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
@@ -120,7 +124,7 @@ class _FlippableCardState extends State<FlippableCard> {
         ),
         child: _isFrontVisible
             ? _buildOrderItemFront(
-                widget.orderId, widget.items.first.deliveryStatus, widget.items)
+            widget.orderId, widget.items.first.deliveryStatus, widget.items)
             : _buildOrderItemBack(),
       ),
     );

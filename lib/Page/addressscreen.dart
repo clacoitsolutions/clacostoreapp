@@ -68,7 +68,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
   // Function to save addresses to SharedPreferences
   void saveAddressesToSharedPreferences() async {
     final encodedAddresses =
-        addresses.map((address) => jsonEncode(address.toJson())).toList();
+    addresses.map((address) => jsonEncode(address.toJson())).toList();
     await prefs.setStringList('addresses', encodedAddresses);
   }
 
@@ -112,7 +112,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
         // Show error message using snackbar
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
-              Text('Failed to update delivery status. Please try again later.'),
+          Text('Failed to update delivery status. Please try again later.'),
           duration: Duration(seconds: 2),
         ));
       }
@@ -212,7 +212,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
                               ),
                               color: selectedAddressIndex == index
                                   ? Colors.white
-                                  : Colors.white,
+                                  : Colors
+                                  .white, // You may adjust the colors based on your UI design
                               child: InkWell(
                                 onTap: () {
                                   setState(() {
@@ -228,48 +229,63 @@ class _AddAddressPageState extends State<AddAddressPage> {
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(12),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      // Name and Phone Number row
+                                      // First  row for Name, Phone Number, Landmark, City Name, State ID, Pincode
+                                      Row(
                                         children: [
-                                          Text('Name: ${address.name}'),
-                                          SizedBox(height: 8),
                                           Text(
-                                              'Road Name: ${address.landmark}'),
-                                          SizedBox(height: 8),
-                                          Text(
-                                              'House Number: ${address.address}'),
-                                          SizedBox(height: 8),
-                                          Text('City: ${address.cityName}'),
-                                          SizedBox(height: 8),
-                                          Text('State: ${address.stateId}'),
-                                          SizedBox(height: 8),
-                                          Text('Pincode: ${address.pinCode}'),
-                                          SizedBox(height: 8),
-                                          Text(
-                                              'Phone Number: ${address.mobileNo}'),
+                                            '${address.name}, ${address.mobileNo}, ${address.landmark}, ',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
                                         ],
                                       ),
-                                      Radio(
-                                        value: index,
-                                        groupValue: selectedAddressIndex,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedAddressIndex = value
-                                                as int; // Update selected index
-                                          });
-                                          // Call function to save SrNo and CustomerId to SharedPreferences
-                                          saveDataToSharedPreferences(
-                                              address.srNo,
-                                              address.customerCode);
-                                          // Call function to change delivery status via API
-                                          _changeDeliveryStatus(address.srNo,
-                                              address.customerCode);
-                                        },
+                                      // Second  row  City Name, State ID, Pincode
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${address.landmark},${address.cityName},',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ],
+                                      ),
+                                      // Second  row  City Name, State ID, Pincode
+                                      Row(
+                                        children: [
+                                          Text(
+                                            '${address.stateId}, ${address.pinCode}',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ],
+                                      ),
+
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left:
+                                            256.0), // Adjust the padding as needed
+                                        child: Radio(
+                                          value: index,
+                                          groupValue: selectedAddressIndex,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedAddressIndex = value
+                                              as int; // Update selected index
+                                            });
+                                            // Call function to save SrNo and CustomerId to SharedPreferences
+                                            saveDataToSharedPreferences(
+                                                address.srNo,
+                                                address.customerCode);
+                                            // Call function to change delivery status via API
+                                            _changeDeliveryStatus(address.srNo,
+                                                address.customerCode);
+                                          },
+                                        ),
                                       ),
                                     ],
                                   ),

@@ -41,6 +41,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     orderId = prefs.getString('orderId') ??
         ''; // Assuming 'orderId' is stored as a String
     _fetchOrderDetails(orderId); // Fetch order details for initial orderId
+    setState(() {
+      deliveryStatus = prefs.getString('deliveryStatus');
+    });
   }
 
   Future<void> _fetchOrderDetails(String orderId) async {
@@ -56,13 +59,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         var jsonData = json.decode(response.body);
         setState(() {
           orderItems = List<Map<String, dynamic>>.from(jsonData['orderItems']);
-          if (orderItems.isNotEmpty &&
-              orderItems[0]['DeliveryStatus'] != null) {
-            deliveryStatus = orderItems[0]['DeliveryStatus'].toLowerCase();
+          if (orderItems.isNotEmpty) {
+            deliveryStatus =
+                orderItems[0]['DeliveryStatus']?.toLowerCase() ?? 'placed';
             activeStep = _getOrderStatusIndex(deliveryStatus!);
-            _updateOrderStatus(deliveryStatus!);
+            _updateOrderStatus(
+                deliveryStatus!); // Update the UI with new status
           }
         });
+        // Save the status to SharedPreferences
+        prefs.setString('deliveryStatus', deliveryStatus!);
       } else {
         throw Exception('Failed to load order details');
       }
@@ -96,32 +102,31 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               title: StepperText("Packed"),
               subtitle: StepperText("Your order has been packed."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
             StepperData(
               title: StepperText("On the Way"),
               subtitle: StepperText("Your order is on the way."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
             StepperData(
               title: StepperText("Delivered"),
               subtitle: StepperText("Your order has been delivered."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
-            StepperData(
-              title: StepperText("Returned"),
-              subtitle: StepperText("Your order has been returned."),
-              iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
-            ),
-            StepperData(
-              title: StepperText("Cancelled"),
-              subtitle: StepperText("Your order has been cancelled."),
-              iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
-            ),
+            //   StepperData(
+            //     title: StepperText("Returned"),
+            //     subtitle: StepperText("Your order has been returned."),
+            //     iconWidget:
+            //         Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            //   ),
+            //   StepperData(
+            //     title: StepperText("Cancelled"),
+            //     subtitle: StepperText("Your order has been cancelled."),
+            //     iconWidget:
+            //         Icon(Icons.radio_button_unchecked, color: Colors.grey),
           ];
           break;
         case 'ontheway':
@@ -228,7 +233,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               title: StepperText("Cancelled"),
               subtitle: StepperText("Your order has been cancelled."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
           ];
           break;
@@ -269,7 +274,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           ];
           break;
         default:
-          // Default to initial status if none matches
+        // Default to initial status if none matches
           stepData = [
             StepperData(
               title: StepperText("Order Placed"),
@@ -280,31 +285,31 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               title: StepperText("Packed"),
               subtitle: StepperText("Your order has been packed."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
             StepperData(
               title: StepperText("On the Way"),
               subtitle: StepperText("Your order is on the way."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
             StepperData(
               title: StepperText("Delivered"),
               subtitle: StepperText("Your order has been delivered."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
             StepperData(
               title: StepperText("Returned"),
               subtitle: StepperText("Your order has been returned."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
             StepperData(
               title: StepperText("Cancelled"),
               subtitle: StepperText("Your order has been cancelled."),
               iconWidget:
-                  Icon(Icons.radio_button_unchecked, color: Colors.grey),
+              Icon(Icons.radio_button_unchecked, color: Colors.grey),
             ),
           ];
       }
@@ -411,8 +416,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Deliverystatus(
-                            status:
-                                deliveryStatus!, // Pass the current deliveryStatus
+                            status: deliveryStatus ??
+                                '', // Pass the current deliveryStatus
                           ),
                         ),
                       );
@@ -515,7 +520,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       ), // Add space between name and mobile number
                       SizedBox(
                           width:
-                              10), // Add space between name and mobile number
+                          10), // Add space between name and mobile number
                       Padding(
                         padding: const EdgeInsets.only(
                             right: 60), // Add right padding to Mobile No
@@ -554,7 +559,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 children: [
                   Padding(
                     padding:
-                        const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                    const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
                     child: Text(
                       'Payment details',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
@@ -589,7 +594,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     'Delivery Charges:',
                     orderItems.isNotEmpty
                         ? orderItems[0]['DeliveryCharges'].toString() ??
-                            'Loading...'
+                        'Loading...'
                         : 'Loading...',
                   ),
                   _buildDivider(),
@@ -597,7 +602,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     'Gross Amount:',
                     orderItems.isNotEmpty
                         ? orderItems[0]['TotalAmount'].toString() ??
-                            'Loading...'
+                        'Loading...'
                         : 'Loading...',
                   ),
                 ],
