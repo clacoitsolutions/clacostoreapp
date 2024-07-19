@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Api services/Wishlist_API.dart';
+import '../Api services/wishlist_api.dart';
 import '../models/wishlist_model.dart'; // Adjust path as per your project structure
 import '../pageUtills/bottom_navbar.dart'; // Adjust path as per your project structure
 import '../pageUtills/common_appbar.dart'; // Adjust path as per your project structure
@@ -12,6 +12,7 @@ class WishListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'WishList'),
+      body: WishlistPage(),
     );
   }
 }
@@ -54,8 +55,7 @@ class _WishlistPageState extends State<WishlistPage> {
   Future<void> _loadUserDataApi() async {
     print("Loading user data...");
     try {
-      List<WishList> data =
-          await WishlistService.loadWishlistData('ayush@gmail.com');
+      List<WishList> data = await WishlistService.loadWishlistData(customerId!);
       setState(() {
         wishList = data;
         if (wishList.isEmpty) {
@@ -70,24 +70,21 @@ class _WishlistPageState extends State<WishlistPage> {
     } catch (e) {
       print('Error occurred: $e');
       setState(() {
-        message =
-            'Error occurred while loading wishlist. Please check your internet connection.';
+        message = 'Error occurred while loading wishlist. Please check your internet connection.';
       });
     }
   }
 
   Future<void> _removeItemFromWishlist(String productId) async {
     try {
-      String apiMessage =
-          await WishlistService.removeItemFromWishlist(customerId!, productId);
+      String apiMessage = await WishlistService.removeItemFromWishlist(customerId!, productId);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(apiMessage),
       ));
       _loadUserData(); // Reload wishlist after deletion
     } catch (e) {
       print('Error occurred: $e');
-      var errorMessage =
-          'Error occurred while removing item from wishlist. Please check your internet connection.';
+      var errorMessage = 'Error occurred while removing item from wishlist. Please check your internet connection.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
@@ -97,15 +94,13 @@ class _WishlistPageState extends State<WishlistPage> {
 
   Future<void> _addToCart(String productId) async {
     try {
-      String apiMessage =
-          await WishlistService.addToCart(customerId!, productId);
+      String apiMessage = await WishlistService.addToCart(customerId!, productId);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(apiMessage),
       ));
     } catch (e) {
       print('Error occurred: $e');
-      var errorMessage =
-          'Error occurred while adding item to cart. Please check your internet connection.';
+      var errorMessage = 'Error occurred while adding item to cart. Please check your internet connection.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
         backgroundColor: Colors.red,
@@ -216,45 +211,33 @@ class _WishlistPageState extends State<WishlistPage> {
               padding: EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: <Widget>[
                   Text(
-                    wishListItem.ProductName ?? 'ProductName',
+                    wishListItem.ProductName ?? '',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black.withOpacity(0.6),
-                    ),
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 4),
                   Text(
-                    '₹${wishListItem.RegularPrice.toString()}',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      color: Colors.black,
-                    ),
+                    '\₹${wishListItem.amount}',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                   ),
-                  SizedBox(height: 5),
-                  TextButton(
-                    onPressed: () {
-                      _addToCart(wishListItem.productId);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.pink),
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-                      child: const Center(
-                        child: Text(
-                          'Add to Cart',
-                          style: TextStyle(color: Colors.pink),
+                  SizedBox(height: 8),
+                  Center(
+                    child:  ElevatedButton(
+                      onPressed: () {
+                        _addToCart(wishListItem.productId);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink.shade500,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      child: Text('Add to Cart',style: TextStyle(color: Colors.white),),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -269,22 +252,21 @@ class _WishlistPageState extends State<WishlistPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmation'),
-          content:
-              Text('Are you sure you want to remove this item from wishlist?'),
+          title: Text('Remove Item'),
+          content: Text('Are you sure you want to remove this item from your wishlist?'),
           actions: <Widget>[
             TextButton(
+              child: Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
             ),
             TextButton(
+              child: Text('Remove'),
               onPressed: () {
                 Navigator.of(context).pop();
                 _removeItemFromWishlist(productId);
               },
-              child: Text('Yes'),
             ),
           ],
         );

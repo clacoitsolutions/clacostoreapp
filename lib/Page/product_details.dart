@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../Api services/service_api.dart';
 import '../models/product_details_api.dart';
+import '../pageUtills/Product_Rivew.dart';
 import '../pageUtills/Similar_Product.dart';
 import 'home/Chekout_page.dart';
 
@@ -163,15 +164,14 @@ class _ProductDetailsState extends State<ProductDetails> {
   Future<bool> addToCart() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     customerId = prefs.getString('customerId');
-    if (customerId == null || productId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Customer ID or Product ID is missing'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return false; // Indicate failure
+    // Check if customerId is nul
+
+    if (customerId == null) {
+      // Navigate to LoginPage if customerId is null
+      Navigator.pushReplacementNamed(context, '/LoginPage');
+      return false; // Exit function, indicating failure
     }
+
 
     // Default quantity to '1' if not set
     quantity ??= '1';
@@ -761,6 +761,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ],
               ),
             ),
+
+            ReviewSection(reviews: [],),
+            SizedBox(height: 10,),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
               child:Container(

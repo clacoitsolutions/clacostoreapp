@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home:SplashScreen(), // Now starts with SplashScreen
       routes: {
+        '/LoginPage': (context) => LoginPage1(),
         '/orderDetails': (context) =>
             OrderDetailsScreen(orderId: initialOrderId),
         '/home': (context) => const BottomPage(),
