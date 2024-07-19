@@ -1,9 +1,11 @@
-import 'package:claco_store/Page/product_details.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../../Api services/service_api.dart';
-
+import '../product_details.dart';
 
 class CategoryDetailsPage extends StatefulWidget {
   final String categoryName;
@@ -21,6 +23,8 @@ class CategoryDetailsPage extends StatefulWidget {
 class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
   String? selectedCategoryName;
   List<dynamic> products = [];
+  Map<String, bool> favoritedProducts = {}; // Map to store favorited state for each product
+  final String customerId = 'CUST000394';
 
   @override
   void initState() {
@@ -49,11 +53,46 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
     );
   }
 
+  Future<void> _addToWishlist(String variationId, String productId, StateSetter setState) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/AddWishlist1'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'VariationId': variationId,
+          'ProductId': productId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          favoritedProducts[productId] = true; // Mark the product as favorited
+        });
+
+        // Show snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added to wishlist'),
+          ),
+        );
+      } else {
+        print('Failed to add to wishlist: ${response.statusCode}');
+        // Handle error
+      }
+    } catch (e) {
+      print('Error adding to wishlist: $e');
+      // Handle error
+    }
+  }
+
   Future<void> fetchProducts() async {
     try {
-      List<dynamic> fetchProductsdetails = await APIService.fetchProductsdetails(widget.srNoList);
+      List<dynamic> fetchedProducts = await APIService.fetchProductsdetails(widget.srNoList);
       setState(() {
-        products.addAll(fetchProductsdetails);
+        products.addAll(fetchedProducts);
+        // Initialize favoritedProducts map based on fetched products, assuming initially not favorited
+        favoritedProducts = Map.fromIterable(fetchedProducts, key: (product) => product['ProductCode'], value: (_) => false);
       });
     } catch (e) {
       print('Error fetching products: $e');
@@ -81,7 +120,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 4,
-              mainAxisSpacing: 5  ,
+              mainAxisSpacing: 5,
               childAspectRatio: 0.7,
             ),
             itemCount: products.length,
@@ -89,111 +128,112 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
               final product = products[index];
               final regularPrice = product['RegularPrice'];
               final salePrice = product['SalePrice'];
-              final discountPercentage =
-                  ((regularPrice - salePrice) / regularPrice) * 100;
+              final discountPercentage = ((regularPrice - salePrice) / regularPrice) * 100;
+
+              final productId = product['ProductCode'].toString();
+              final isFavorited = favoritedProducts[productId] ?? false;
 
               return GestureDetector(
-                onTap: () => _navigateToProductDetail(
-                  product['ProductCode'],
-                  product['SrNo'],
-                ),
+                onTap: () => _navigateToProductDetail(product['ProductCode'], product['SrNo']),
                 child: Card(
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          spreadRadius: 2,
-                          blurRadius: 7,
-                          offset: Offset(2, 2,),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(8),
+                  child: Stack(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                            child: Image.network(
+                              product['ProductMainImageUrl'] ?? '',
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          child: Image.network(
-                            product['ProductMainImageUrl'] ?? '',
-                            height: 120,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                product['ProductName'] ?? '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product['ProductName'] ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  if (regularPrice != null &&
-                                      salePrice != null &&
-                                      regularPrice > salePrice)
+                                SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    if (regularPrice != null &&
+                                        salePrice != null &&
+                                        regularPrice > salePrice)
+                                      Text(
+                                        '₹${product['RegularPrice']}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.redAccent,
+                                          decoration: TextDecoration.lineThrough,
+                                          decorationColor: Colors.red,
+                                        ),
+                                      ),
+                                    SizedBox(width: 3),
                                     Text(
-                                      '₹${product['RegularPrice']}',
+                                      '₹${product['SalePrice']}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.redAccent,
-                                        decoration:
-                                        TextDecoration.lineThrough,
-                                          decorationColor: Colors.red,
+                                        color: Colors.black87,
                                       ),
                                     ),
-                                  SizedBox(width: 3),
+                                  ],
+                                ),
+                                SizedBox(height: 4),
+                                if (discountPercentage != null && discountPercentage > 0)
                                   Text(
-                                    '₹${product['SalePrice']}',
+                                    '${discountPercentage.toStringAsFixed(2)}% off',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.black87,
+                                      color: Colors.green,
                                     ),
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              if (discountPercentage != null &&
-                                  discountPercentage > 0)
-                                Text(
-                                  '${discountPercentage.toStringAsFixed(2)}% off',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.green,
+                                SizedBox(height: 4),
+                                Row(
+                                  children: List.generate(
+                                    5,
+                                        (index) => Icon(
+                                      Icons.star,
+                                      color: Colors.green,
+                                      size: 15,
+                                    ),
                                   ),
                                 ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: List.generate(
-                                  5,
-                                      (index) => Icon(
-                                    Icons.star,
-                                    color: Colors.green,
-                                    size: 15,
-                                  ),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                        ],
+                      ),
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: IconButton(
+                          icon: Icon(
+                            isFavorited ? Icons.favorite : Icons.favorite_border,
+                            color: isFavorited ? Colors.red : null,
+                          ),
+                          onPressed: () {
+                            _addToWishlist(customerId, productId, setState);
+                            setState(() {
+                              favoritedProducts[productId] = !isFavorited;
+                            });
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );

@@ -17,6 +17,9 @@ class ProductGrid extends StatefulWidget {
 
 class _ProductGridState extends State<ProductGrid> {
   late Future<List<Map<String, dynamic>>> _productListFuture;
+  Map<String, bool> favoritedProducts = {}; // Map to store favorited state for each product
+  bool isFavorited = false;
+  String customerId = '';
 
   @override
   void initState() {
@@ -38,6 +41,8 @@ class _ProductGridState extends State<ProductGrid> {
       throw Exception('Failed to load products');
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +115,8 @@ class ProductCard extends StatefulWidget {
 class _ProductCardState extends State<ProductCard> {
   bool isFavorited = false; // Track favorite status
   final APIService apiService = APIService();
-
-  String customerId = '';
+  String customerId = 'CUST000394';
+  Map<String, bool> favoritedProducts = {}; // Map to store favorited state for each product
 
   double calculateDiscountPercentage(double regularPrice, double salePrice) {
     return ((regularPrice - salePrice) / regularPrice) * 100;
@@ -139,6 +144,41 @@ class _ProductCardState extends State<ProductCard> {
       ),
     );
   }
+
+  Future<void> _addToWishlist(String customerId, String productId, StateSetter setState) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/AddWishlist1'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'VariationId': customerId,
+          'ProductId': productId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          favoritedProducts[productId] = true; // Update the state to show the favorited icon
+        });
+
+        // Show snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added to wishlist'),
+          ),
+        );
+      } else {
+        print('Failed to add to wishlist: ${response.statusCode}');
+        // Handle error
+      }
+    } catch (e) {
+      print('Error adding to wishlist: $e');
+      // Handle error
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -239,25 +279,11 @@ class _ProductCardState extends State<ProductCard> {
                   isFavorited ? Icons.favorite : Icons.favorite_border,
                   color: isFavorited ? Colors.red : null,
                 ),
-                onPressed: () async {
-                  // Handle heart icon click event
-                  try {
-                    await apiService.addToWishlist(customerId, widget.productId);
-                    setState(() {
-                      isFavorited = !isFavorited;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Added to wishlist'),
-                      ),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Failed to add to wishlist'),
-                      ),
-                    );
-                  }
+                onPressed: () {
+                  _addToWishlist(customerId, widget.productId, setState);
+                  setState(() {
+                    favoritedProducts[widget.productId] = !isFavorited;
+                  });
                 },
               ),
             ),

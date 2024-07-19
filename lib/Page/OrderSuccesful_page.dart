@@ -44,7 +44,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
         // Parse JSON response
         final jsonData = jsonDecode(response.body);
         final data =
-        jsonData['data'][0]; // Assuming there's only one order in the list
+            jsonData['data'][0]; // Assuming there's only one order in the list
 
         setState(() {
           orderId = data['OrderId'];
@@ -80,7 +80,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
           'Order Placed',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFFe83e8c),
+        backgroundColor: Colors.pink,
       ),
       body: Center(
         child: Card(
@@ -96,7 +96,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: Color(0xFFe83e8c),
+                  backgroundColor: Colors.pink,
                   child: Icon(
                     Icons.check,
                     size: 40,
@@ -153,7 +153,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFe83e8c),
+                        backgroundColor: Colors.pink,
                       ),
                       child: Text(
                         'Check Status',
@@ -169,7 +169,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFe83e8c),
+                        backgroundColor: Colors.pink,
                       ),
                       child: Text(
                         'Continue',
@@ -187,7 +187,7 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                         text: "The payment of ",
                         style: TextStyle(
                             color:
-                            Colors.black), // Default color for other text
+                                Colors.black), // Default color for other text
                       ),
                       TextSpan(
                         text: "₹$netPayable",
@@ -198,10 +198,10 @@ class _OrderSuccessfulState extends State<OrderSuccessful> {
                       ),
                       TextSpan(
                         text:
-                        " you'll make when the delivery arrives with your order.",
+                            " you'll make when the delivery arrives with your order.",
                         style: TextStyle(
                             color:
-                            Colors.black), // Default color for other text
+                                Colors.black), // Default color for other text
                       ),
                     ],
                   ),

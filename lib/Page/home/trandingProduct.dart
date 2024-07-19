@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Api services/service_api.dart';
 import '../product_details.dart';
+import 'package:http/http.dart' as http;
 
 class TrendingProduct extends StatefulWidget {
   final List<Map<String, String>> categories;
@@ -22,8 +23,9 @@ class TrendingProduct extends StatefulWidget {
 class _TrendingProductState extends State<TrendingProduct> {
   List<Map<String, dynamic>> categoryProducts = [];
   final APIService apiService = APIService();
-  final String customerId = '';
-
+  final String customerId = 'CUST000394';
+  Map<String, bool> favoritedProducts = {}; // Map to store favorited state for each product
+  bool isFavorited = false;
   @override
   void initState() {
     super.initState();
@@ -43,6 +45,39 @@ class _TrendingProductState extends State<TrendingProduct> {
       } catch (e) {
         print('Failed to load products for category: ${category['CatName']}');
       }
+    }
+  }
+
+  Future<void> _addToWishlist(String variationId, String productId, StateSetter setState, String productKey) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://clacostoreapi.onrender.com/AddWishlist1'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode({
+          'VariationId': variationId,
+          'ProductId': productId,
+        }),
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          favoritedProducts[productKey] = true; // Update the state to show the favorited icon
+        });
+
+        // Show snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added to wishlist'),
+          ),
+        );
+      } else {
+        print('Failed to add to wishlist: ${response.statusCode}');
+        // Handle error
+      }
+    } catch (e) {
+      print('Error adding to wishlist: $e');
+      // Handle error
     }
   }
 
@@ -105,7 +140,7 @@ class _TrendingProductState extends State<TrendingProduct> {
       discountPercentage = calculateDiscountPercentage(regularPrice, onlinePrice);
     }
 
-    bool isFavorited = false;
+    final productKey = product['ProductCode'].toString();
 
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
@@ -210,31 +245,21 @@ class _TrendingProductState extends State<TrendingProduct> {
                   top: 0,
                   right: 0,
                   child: IconButton(
+
                     icon: Icon(
                       isFavorited ? Icons.favorite : Icons.favorite_border,
                       color: isFavorited ? Colors.red : null,
                     ),
-                    onPressed: () async {
-                      try {
-                        final productId = product['ProductCode']?.toString();
-                        if (productId != null) {
-                          await apiService.addToWishlist(customerId, productId);
-                          setState(() {
-                            isFavorited = !isFavorited;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Added to wishlist'),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Failed to add to wishlist'),
-                          ),
-                        );
+
+                    onPressed: () {
+                      final productId = product['ProductCode']?.toString();
+                      if (productId != null) {
+                        _addToWishlist(customerId, productId, setState, productKey);
+                        setState(() {
+                          isFavorited = !isFavorited;
+                        });
                       }
+
                     },
                   ),
                 ),
