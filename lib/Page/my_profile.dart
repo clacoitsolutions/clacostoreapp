@@ -1133,10 +1133,17 @@ class _MyProfilePageState extends State<MyProfilePage> {
               margin: EdgeInsets.only(bottom: 10.0),
               color: Colors.white,
               child: TextButton(
-                onPressed: () {
+                onPressed: () async {
+                    // Add functionality for Logout
+                    Navigator.pop(context); // Close the drawer
+
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.clear(); // Clear all data from Shared Preferences
+
+                    // Navigate to the login page after logout
+                    Navigator.pushReplacementNamed(context, '/');
+                  },
                   // Action to perform when the button is pressed
-                  print('Button pressed');
-                },
                 style: ButtonStyle(
                   minimumSize: MaterialStateProperty.all(
                       Size(350, 40)), // Set the width and height of the button
