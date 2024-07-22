@@ -23,13 +23,27 @@ class TrendingProduct extends StatefulWidget {
 class _TrendingProductState extends State<TrendingProduct> {
   List<Map<String, dynamic>> categoryProducts = [];
   final APIService apiService = APIService();
-  final String customerId = 'CUST000394';
+  String?customerId;
+  String? userName;
+  String? userEmail;
+  String? mobileNo;
   Map<String, bool> favoritedProducts = {}; // Map to store favorited state for each product
   bool isFavorited = false;
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     fetchAllProducts();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('name');
+      userEmail = prefs.getString('email');
+      customerId = prefs.getString('customerid');
+      mobileNo = prefs.getString('MobileNumber');
+    });
   }
 
   Future<void> fetchAllProducts() async {
@@ -130,7 +144,6 @@ class _TrendingProductState extends State<TrendingProduct> {
     }
     return null;
   }
-
   Widget buildProductCard(dynamic product) {
     double? regularPrice = parsePrice(product?['RegularPrice']);
     double? onlinePrice = parsePrice(product?['OnlinePrice']);
@@ -141,6 +154,7 @@ class _TrendingProductState extends State<TrendingProduct> {
     }
 
     final productKey = product['ProductCode'].toString();
+    final isFavorited = favoritedProducts[productKey] ?? false;
 
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
@@ -245,21 +259,19 @@ class _TrendingProductState extends State<TrendingProduct> {
                   top: 0,
                   right: 0,
                   child: IconButton(
-
                     icon: Icon(
                       isFavorited ? Icons.favorite : Icons.favorite_border,
                       color: isFavorited ? Colors.red : null,
                     ),
-
                     onPressed: () {
                       final productId = product['ProductCode']?.toString();
                       if (productId != null) {
-                        _addToWishlist(customerId, productId, setState, productKey);
-                        setState(() {
-                          isFavorited = !isFavorited;
+                        _addToWishlist(customerId!, productId, setState, productKey).then((_) {
+                          setState(() {
+                            favoritedProducts[productKey] = !isFavorited;
+                          });
                         });
                       }
-
                     },
                   ),
                 ),
@@ -270,6 +282,7 @@ class _TrendingProductState extends State<TrendingProduct> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

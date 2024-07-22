@@ -1,5 +1,6 @@
 import 'package:claco_store/Page/home/Product_category_wise.dart';
 import 'package:claco_store/Page/login.dart';
+import 'package:claco_store/Page/home/Wallet_Account_Pages/Wallet_Account.dart';
 import 'package:claco_store/pageUtills/bottom_navbar.dart';
 import 'package:claco_store/pageUtills/splashScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.yellow,
       ),
       debugShowCheckedModeBanner: false,
-      home:SplashScreen(), // Now starts with SplashScreen
+      home:WalletAccountPage(), // Now starts with SplashScreen
       routes: {
         '/LoginPage': (context) => LoginPage1(),
         '/orderDetails': (context) =>

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,7 +18,7 @@ class AddAddressFormPage extends StatefulWidget {
 
 class _AddAddressFormPageState extends State<AddAddressFormPage> {
   final _formKey = GlobalKey<FormState>();
-
+String ? customerId;
   final _nameController = TextEditingController();
   final _mobileNoController = TextEditingController();
   final _pinCodeController = TextEditingController();
@@ -31,6 +32,7 @@ class _AddAddressFormPageState extends State<AddAddressFormPage> {
   final _address2Controller = TextEditingController();
   final _StateController = TextEditingController();
   final _CityController = TextEditingController();
+  final _customeridController = TextEditingController();
 
   List<Map<String, String>> _states = [];
   List<Map<String, String>> _cities = [];
@@ -52,6 +54,8 @@ class _AddAddressFormPageState extends State<AddAddressFormPage> {
     setState(() {
       _nameController.text = prefs.getString('name') ?? '';
       _mobileNoController.text = prefs.getString('mobileNo') ?? '';
+      _customeridController.text= prefs.getString('customerId') ?? '';
+
     });
   }
 
@@ -161,7 +165,7 @@ class _AddAddressFormPageState extends State<AddAddressFormPage> {
   Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       final address = Address(
-        customerCode: 'CUST000394',
+        customerCode:_customeridController.text ,
         name: _nameController.text,
         mobileNo: _mobileNoController.text,
         pinCode: _pinCodeController.text,

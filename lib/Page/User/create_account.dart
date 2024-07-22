@@ -17,6 +17,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _showPassword = false;
+  bool _showConfirmPassword = false;
   String _registrationMessage = '';
 
   @override
@@ -45,31 +46,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     };
 
     APIService apiService = APIService();
-    var responseData = await apiService.register(data);
+    try {
+      var responseData = await apiService.register(data);
+      print('Response Data: $responseData');
 
-    // Assuming responseData contains a successful registration response
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Store data in SharedPreferences with the same parameter names
-    prefs.setString('customerId', responseData['data'][0]['customerid']);
-    prefs.setString('name', responseData['data'][0]['name']);
-    prefs.setString('mobileNo', responseData['data'][0]['MobileNumber']);
-    prefs.setString('ReferCode', responseData['data'][0]['CardId']);
-    prefs.setString('emailAddress', _emailController.text);
-    prefs.setString('Password', responseData['data'][0]['Password']);
+      prefs.setString('customerId', responseData['data'][0]['customerid']);
+      prefs.setString('name', responseData['data'][0]['name']);
+      prefs.setString('mobileNo', responseData['data'][0]['MobileNumber']);
+      prefs.setString('ReferCode', responseData['data'][0]['CardId']);
+      prefs.setString('emailAddress', _emailController.text);
+      prefs.setString('Password', responseData['data'][0]['Password']);
 
-    // Split and store first name and last name
-    saveNameToPreferences(responseData['data'][0]['name']);
+      saveNameToPreferences(responseData['data'][0]['name']);
 
-    setState(() {
-      _registrationMessage = responseData['message'] ?? 'Registration Successful!';
-    });
+      setState(() {
+        _registrationMessage = 'Registration Successful!';
+      });
 
-    // Delay the navigation for a second to show the message
-    await Future.delayed(const Duration(seconds: 1));
-    Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pushReplacementNamed(context, '/home'); // Navigate to home
 
-    print(responseData);
+    } catch (e) {
+      print('Error during registration: $e');
+      setState(() {
+        _registrationMessage = 'Registration Failed: ${e.toString()}';
+      });
+    }
   }
 
   void saveNameToPreferences(String fullName) async {
@@ -225,10 +229,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     hintText: 'Re-enter your password',
                     prefixIcon: Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: _showPassword ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
+                      icon: _showConfirmPassword ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
                       onPressed: () {
                         setState(() {
-                          _showPassword = !_showPassword;
+                          _showConfirmPassword = !_showConfirmPassword;
                         });
                       },
                     ),
@@ -238,7 +242,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     filled: true,
                     fillColor: Color.fromRGBO(243, 243, 243, 1),
                   ),
-                  obscureText: !_showPassword,
+                  obscureText: !_showConfirmPassword,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Please confirm your password';
@@ -269,8 +273,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 SizedBox(height: 10),
                 if (_registrationMessage.isNotEmpty)
-                  Text(
-                    _registrationMessage,
+                  Text(                    _registrationMessage,
                     style: TextStyle(
                       color: _registrationMessage.contains('Successful') ? Colors.green : Colors.red,
                     ),
@@ -283,3 +286,5 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 }
+
+

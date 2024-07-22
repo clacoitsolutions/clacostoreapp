@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Review {
@@ -91,8 +90,7 @@ class ReviewSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "",
-                    // Avg.toStringAsFixed(1),
+                    averageRating.toStringAsFixed(1), // Display the average rating
                     style: TextStyle(
                       fontSize: 48.0,
                       fontWeight: FontWeight.bold,
@@ -122,7 +120,7 @@ class ReviewSection extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Row(
                         children: [
-                          // Text('$totalReview '),
+                          Text('$star'), // Display the star value
                           Icon(Icons.star, color: Colors.amber),
                           SizedBox(width: 8.0),
                           Expanded(
@@ -133,7 +131,7 @@ class ReviewSection extends StatelessWidget {
                             ),
                           ),
                           SizedBox(width: 8.0),
-                          // Text('${(totRew ).toStringAsFixed}'),
+                          Text('${(percentage * 100).toStringAsFixed(1)}%'), // Display the percentage
                         ],
                       ),
                     );
@@ -236,7 +234,6 @@ Future<void> _showReviewModal(BuildContext context) async {
       return; // Exit function
     }
 
-    // Your existing submission logic
     const String apiUrl = 'https://clacostoreapi.onrender.com/getreview';
     const String reviewStatus = ''; // Add relevant review status if needed
 
@@ -266,7 +263,7 @@ Future<void> _showReviewModal(BuildContext context) async {
       } else {
         // Handle other responses
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(' ${responseData['message']}')),
+          SnackBar(content: Text('${responseData['message']}')),
         );
       }
     } else {
@@ -276,7 +273,6 @@ Future<void> _showReviewModal(BuildContext context) async {
       );
     }
   }
-
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   customerId = prefs.getString('customerId');
@@ -305,10 +301,10 @@ Future<void> _showReviewModal(BuildContext context) async {
                     ),
                     SizedBox(height: 10),
                     RatingBar.builder(
-                      initialRating: 0,
-                      minRating: 1,
+                      initialRating: 0, // Starting with 0 rating
+                      minRating: 1, // Ensure the minimum rating is 1
                       direction: Axis.horizontal,
-                      allowHalfRating: true,
+                      allowHalfRating: false, // Disallow half ratings for full star selection
                       itemCount: 5,
                       itemBuilder: (context, _) => Icon(
                         Icons.star,
@@ -336,8 +332,8 @@ Future<void> _showReviewModal(BuildContext context) async {
                         ...List.generate(images.length, (index) {
                           return Stack(
                             children: [
-                              Image.network(
-                                images[index],
+                              Image.file(
+                                File(images[index]), // Display image using File widget
                                 height: 100,
                                 width: 100,
                                 fit: BoxFit.cover,
@@ -383,7 +379,10 @@ Future<void> _showReviewModal(BuildContext context) async {
                         onPressed: () {
                           _submitReview(context); // Call function to submit the review
                         },
-                        child: Text('Submit',style: TextStyle(color: Colors.pink),),
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],

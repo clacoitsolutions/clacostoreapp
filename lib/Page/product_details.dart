@@ -762,7 +762,8 @@ class _ProductDetailsState extends State<ProductDetails> {
               ),
             ),
 
-            ReviewSection(reviews: [],),
+            ReviewSection(reviews: []),
+
             SizedBox(height: 10,),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),

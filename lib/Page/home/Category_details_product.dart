@@ -24,13 +24,24 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
   String? selectedCategoryName;
   List<dynamic> products = [];
   Map<String, bool> favoritedProducts = {}; // Map to store favorited state for each product
-  final String customerId = 'CUST000394';
+   String ?customerId;
 
   @override
   void initState() {
     super.initState();
     getCategoryDetails();
     fetchProducts();
+    _loadUserData();
+  }
+
+
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId');
+
+    });
   }
 
   void getCategoryDetails() async {
@@ -53,7 +64,16 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
     );
   }
 
-  Future<void> _addToWishlist(String variationId, String productId, StateSetter setState) async {
+  Future<void> _addToWishlist( String productId) async {
+    if (customerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('User not logged in.'),
+        ),
+      );
+      return;
+    }
+
     try {
       final response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/AddWishlist1'),
@@ -61,7 +81,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: json.encode({
-          'VariationId': variationId,
+          'VariationId': customerId,
           'ProductId': productId,
         }),
       );
@@ -85,6 +105,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
       // Handle error
     }
   }
+
 
   Future<void> fetchProducts() async {
     try {
@@ -131,6 +152,9 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
               final discountPercentage = ((regularPrice - salePrice) / regularPrice) * 100;
 
               final productId = product['ProductCode'].toString();
+
+
+
               final isFavorited = favoritedProducts[productId] ?? false;
 
               return GestureDetector(
@@ -226,7 +250,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                             color: isFavorited ? Colors.red : null,
                           ),
                           onPressed: () {
-                            _addToWishlist(customerId, productId, setState);
+                            _addToWishlist(customerId!, );
                             setState(() {
                               favoritedProducts[productId] = !isFavorited;
                             });
