@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.yellow,
       ),
       debugShowCheckedModeBanner: false,
-      home:WalletAccountPage(), // Now starts with SplashScreen
+      home:SplashScreen(), // Now starts with SplashScreen
       routes: {
         '/LoginPage': (context) => LoginPage1(),
         '/orderDetails': (context) =>

@@ -21,13 +21,18 @@ class _AddAddressPageState extends State<AddAddressPage> {
   int selectedAddressIndex = -1; // Track selected address index
   late SharedPreferences prefs; // SharedPreferences instance
   List<ShowAddress> addresses = []; // List to store addresses
+  String? customerId; // CustomerId from SharedPreferences
 
   @override
   void initState() {
     super.initState();
-    futureAddresses = fetchAddresses();
+    _loadUserData().then((_) {
+      setState(() {
+        futureAddresses = fetchAddresses();
+      });
+    });
     initSharedPreferences();
-    loadAddressesFromSharedPreferences(); // Load from SharedPreferences on init
+    loadAddressesFromSharedPreferences();
   }
 
   // Initialize SharedPreferences instance
@@ -50,6 +55,14 @@ class _AddAddressPageState extends State<AddAddressPage> {
   // Function to fetch CustomerId from SharedPreferences
   String? getStoredCustomerId() {
     return prefs.getString('CustomerCode') ?? '';
+  }
+
+  // Function to load user data from SharedPreferences
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId'); // Ensure this is set
+    });
   }
 
   // Function to load addresses from SharedPreferences
@@ -128,7 +141,31 @@ class _AddAddressPageState extends State<AddAddressPage> {
     }
   }
 
-  @override
+  // Fetch addresses using dynamic CustomerCode
+  Future<List<ShowAddress>> fetchAddresses() async {
+    if (customerId == null) {
+      throw Exception('CustomerId is not set');
+    }
+
+    final response = await http.post(
+      Uri.parse('https://clacostoreapi.onrender.com/displayAddress'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'CustomerCode': customerId!,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final List<dynamic> data = jsonResponse['data'];
+      return data.map((json) => ShowAddress.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load addresses');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

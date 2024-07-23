@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:claco_store/Page/coin_page.dart';
+import 'package:claco_store/Page/home/Wallet_Account_Pages/Wallet_Account.dart';
 import 'package:claco_store/Page/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -629,7 +630,14 @@ class _MyProfilePageState extends State<MyProfilePage> {
                         child: InkWell(
                           onTap: () {
                             // Add your onTap functionality here
+                            Navigator.push(
+                                (context),
+                                MaterialPageRoute(
+                            builder: (context) => WalletAccountPage(),
+                                ));
+
                           },
+
                           child: Container(
                             width: 30.0,
                             height: 30.0,

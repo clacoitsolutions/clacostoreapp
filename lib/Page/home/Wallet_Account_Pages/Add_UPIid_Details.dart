@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 class UPIIDForm extends StatefulWidget {
   @override
   _UPIIDFormState createState() => _UPIIDFormState();
@@ -13,8 +15,20 @@ class _UPIIDFormState extends State<UPIIDForm> {
   final _holderNameController = TextEditingController();
   final _upiIdController = TextEditingController();
   final _mobileNumberController = TextEditingController();
+  String? customerId;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
 
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId');
+    });
+  }
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
@@ -24,7 +38,7 @@ class _UPIIDFormState extends State<UPIIDForm> {
           'UPI_ID': _upiIdController.text,
           'Mobile_Number': _mobileNumberController.text,
           'AccountName': _holderNameController.text,
-          'CustomerId': '',
+          'CustomerId': customerId,
         }),
       );
 

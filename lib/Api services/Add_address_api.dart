@@ -64,7 +64,7 @@ Future<List<ShowAddress>> fetchAddresses() async {
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
-      'CustomerCode': 'CUST000394',
+      'CustomerCode': 'CUSTO000638',
     }),
   );
 

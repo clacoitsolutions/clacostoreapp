@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountDetailsForm extends StatefulWidget {
   @override
@@ -17,14 +18,29 @@ class _AccountDetailsFormState extends State<AccountDetailsForm> {
   final _bankNameController = TextEditingController();
   final _ifscCodeController = TextEditingController();
 
+  String? _customerId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomerId();
+  }
+
+  Future<void> _loadCustomerId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _customerId = prefs.getString('customerId');
+    });
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final response = await http.post(
         Uri.parse('https://clacostoreapi.onrender.com/getbankpayment'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'CustomerId': '', // Add the customer ID if you have it
-          'Holder_Name':_accountHolderNameController,
+          'CustomerId': _customerId ?? '', // Add the customer ID if you have it
+          'Holder_Name': _accountHolderNameController.text,
           'AccountNumber': _accountNumberController.text,
           'IFSC_Number': _ifscCodeController.text,
           'Bank_Name': _bankNameController.text,

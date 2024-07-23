@@ -1,6 +1,7 @@
 import 'package:claco_store/Page/home/Wallet_Account_Pages/Wallet_Account.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class CardForm extends StatefulWidget {
@@ -14,6 +15,20 @@ class _CardFormState extends State<CardForm> {
   final _expiryDateController = TextEditingController();
   final _cvvController = TextEditingController();
   final _holderNameController = TextEditingController();
+  String? customerId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId');
+    });
+  }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -21,7 +36,7 @@ class _CardFormState extends State<CardForm> {
         Uri.parse('https://clacostoreapi.onrender.com/cardapi'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'CustomerId': 'CUST000394', // Add the customer ID if you have it
+          'CustomerId': customerId,
           'CardNumber': _cardNumberController.text,
           'CVV': _cvvController.text,
           'ExpireDate': _expiryDateController.text,

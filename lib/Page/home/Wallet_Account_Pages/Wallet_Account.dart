@@ -3,98 +3,133 @@ import 'package:claco_store/Page/home/Wallet_Account_Pages/Add_CardDetails.dart'
 import 'package:claco_store/Page/home/Wallet_Account_Pages/Add_UPIid_Details.dart';
 import 'package:claco_store/pageUtills/common_appbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class WalletAccountPage extends StatelessWidget {
+class WalletAccountPage extends StatefulWidget {
+  @override
+  _WalletAccountPageState createState() => _WalletAccountPageState();
+}
+
+class _WalletAccountPageState extends State<WalletAccountPage> {
+  String? customerId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      customerId = prefs.getString('customerId');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:CommonAppBar(title: 'Wallet Account',),
-      body:SingleChildScrollView(
-     child:  Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton(
-        // Handle form submission
-              onPressed: () => _showAccountDetailsForm(context),
-
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.pink, backgroundColor: Colors.white, // Border color (pink)
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.0), // Rounded corners
-            side: BorderSide(color: Colors.pink, width: 2), // Border width and color
+      appBar: CommonAppBar(title: 'Wallet Account'),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ElevatedButton(
+                // Handle form submission
+                onPressed: () => _showAccountDetailsForm(context),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.pink,
+                  backgroundColor: Colors.white,
+                  // Border color (pink)
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                    // Rounded corners
+                    side: BorderSide(color: Colors.pink, width: 2),
+                    // Border width and color
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+                  // Padding around the button content
+                ),
+                child: Text(
+                  'Add Account',
+                  style: TextStyle(
+                    color: Colors.pink,
+                    // Text color (pink)
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                // Handle form submission
+                onPressed: () => _showCardForm(context),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.pink,
+                  backgroundColor: Colors.white,
+                  // Border color (pink)
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                    // Rounded corners
+                    side: BorderSide(color: Colors.pink, width: 2),
+                    // Border width and color
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+                  // Padding around the button content
+                ),
+                child: Text(
+                  'Add Card',
+                  style: TextStyle(
+                    color: Colors.pink,
+                    // Text color (pink)
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                // Handle form submission
+                onPressed: () => _showUPIIDForm(context),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.pink,
+                  backgroundColor: Colors.white,
+                  // Border color (pink)
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                    // Rounded corners
+                    side: BorderSide(color: Colors.pink, width: 2),
+                    // Border width and color
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+                  // Padding around the button content
+                ),
+                child: Text(
+                  'Add UPIID',
+                  style: TextStyle(
+                    color: Colors.pink,
+                    // Text color (pink)
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              if (customerId != null) ...[
+                BankAccountCard(customerId: customerId!),
+                SizedBox(height: 16.0),
+                DebitCard(customerId: customerId!),
+              ] else
+                Center(child: CircularProgressIndicator()),
+              SizedBox(height: 16.0),
+              UpiDetailsCard(),
+            ],
           ),
-          padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10), // Padding around the button content
         ),
-        child: Text(
-          'Add Account',
-          style: TextStyle(
-            color: Colors.pink, // Text color (pink)
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-      ),
-
-            SizedBox(height: 16),
-
-
-            ElevatedButton(
-              // Handle form submission
-              onPressed: () => _showCardForm(context),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.pink, backgroundColor: Colors.white, // Border color (pink)
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0), // Rounded corners
-                  side: BorderSide(color: Colors.pink, width: 2), // Border width and color
-                ),
-                padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10), // Padding around the button content
-              ),
-              child: Text(
-                'Add Card',
-                style: TextStyle(
-                  color: Colors.pink, // Text color (pink)
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-
-            ElevatedButton(
-              // Handle form submission
-              onPressed: () => _showUPIIDForm(context),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.pink, backgroundColor: Colors.white, // Border color (pink)
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0), // Rounded corners
-                  side: BorderSide(color: Colors.pink, width: 2), // Border width and color
-                ),
-                padding: EdgeInsets.symmetric(vertical: 18, horizontal: 10), // Padding around the button content
-              ),
-              child: Text(
-                'Add UPIID',
-                style: TextStyle(
-                  color: Colors.pink, // Text color (pink)
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            SizedBox(height: 16.0),
-
-            BankAccountCard(),
-            SizedBox(height: 16.0),
-            DebitCard(),
-            SizedBox(height: 16.0),
-            UpiDetailsCard(),
-          ],
-        ),
-      ),
       ),
     );
   }
@@ -124,10 +159,10 @@ class WalletAccountPage extends StatelessWidget {
   }
 }
 
-
-
 class BankAccountCard extends StatelessWidget {
-  final String customerId = "CUST000394"; // This should be dynamic as per your requirement
+  final String customerId;
+
+  BankAccountCard({required this.customerId});
 
   Future<Map<String, dynamic>> fetchBankDetails() async {
     final response = await http.post(
@@ -203,7 +238,6 @@ class BankAccountCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8.0),
-
                     RichText(
                       text: TextSpan(
                         text: 'Account Number:     ',
@@ -217,7 +251,6 @@ class BankAccountCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8.0),
-
                     RichText(
                       text: TextSpan(
                         text: 'Bank Name:     ',
@@ -231,7 +264,6 @@ class BankAccountCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8.0),
-
                     RichText(
                       text: TextSpan(
                         text: 'IFSC Code:     ',
@@ -257,7 +289,9 @@ class BankAccountCard extends StatelessWidget {
 
 
 class DebitCard extends StatelessWidget {
-  final String customerId = "CUST000394"; // This should be dynamic as per your requirement
+  final String customerId;
+
+  DebitCard({required this.customerId});
 
   Future<Map<String, dynamic>> fetchCardDetails() async {
     final response = await http.post(
@@ -385,26 +419,23 @@ class UpiDetailsCard extends StatelessWidget {
     return Card(
       elevation: 5,
       margin: EdgeInsets.all(0),
-      child:  Container(
-    padding: EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-    gradient: LinearGradient(
-    colors: [Color(0xFFCBBFA8), Color(0xFFA4B3D9)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    ),
-    borderRadius: BorderRadius.circular(12.0),
-    boxShadow: [
-    BoxShadow(
-    color: Colors.black26,
-    offset: Offset(0, 4),
-    blurRadius: 8,
-    ),
-    ],
-    ),
-
-    child:   Padding(
-        padding: const EdgeInsets.all(16.0),
+      child: Container(
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFf8d7e8), Color(0xFF9bdde2)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 4),
+              blurRadius: 8,
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -413,17 +444,47 @@ class UpiDetailsCard extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16.0),
-            Text('Full Name: John Doe'),
-            Text('UPI ID: johndoe@upi'),
-            Text('Mobile Number: +91 9876543210'),
+            RichText(
+              text: TextSpan(
+                text: 'UPI ID:     ',
+                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black87),
+                children: [
+                  TextSpan(
+                    text: 'sample@upi',
+                    style: TextStyle(fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 8.0),
+            RichText(
+              text: TextSpan(
+                text: 'Mobile Number:     ',
+                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black87),
+                children: [
+                  TextSpan(
+                    text: '1234567890',
+                    style: TextStyle(fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 8.0),
+            RichText(
+              text: TextSpan(
+                text: 'Account Holder Name:     ',
+                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black87),
+                children: [
+                  TextSpan(
+                    text: 'John Doe',
+                    style: TextStyle(fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      )
     );
   }
 }
-
-
-
-
