@@ -126,7 +126,7 @@ class _WalletAccountPageState extends State<WalletAccountPage> {
               ] else
                 Center(child: CircularProgressIndicator()),
               SizedBox(height: 16.0),
-              UpiDetailsCard(),
+              UpiDetailsCard(customerId: '',),
             ],
           ),
         ),
@@ -413,10 +413,55 @@ class DebitCard extends StatelessWidget {
   }
 }
 
-class UpiDetailsCard extends StatelessWidget {
+
+
+
+class UpiDetailsCard extends StatefulWidget {
+  final String customerId;
+
+  UpiDetailsCard({required this.customerId});
+
+  @override
+  _UpiDetailsCardState createState() => _UpiDetailsCardState();
+}
+
+class _UpiDetailsCardState extends State<UpiDetailsCard> {
+  String upiId = '';
+  String mobileNumber = '';
+  String accountHolderName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUpiDetails();
+  }
+
+  Future<void> fetchUpiDetails() async {
+    const String apiUrl = 'https://clacostoreapi.onrender.com/showUPI';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'CustomerId': widget.customerId}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final orderItem = data['orderItems'][0];
+
+      setState(() {
+        upiId = orderItem['UPI_Number'] ?? '';
+        mobileNumber = orderItem['MobileNo'] ?? '';
+        accountHolderName = orderItem['AccountName'] ?? '';
+      });
+    } else {
+      throw Exception('Failed to load UPI details');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return (upiId.isNotEmpty && mobileNumber.isNotEmpty && accountHolderName.isNotEmpty)
+        ? Card(
       elevation: 5,
       margin: EdgeInsets.all(0),
       child: Container(
@@ -447,10 +492,11 @@ class UpiDetailsCard extends StatelessWidget {
             RichText(
               text: TextSpan(
                 text: 'UPI ID:     ',
-                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black87),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, color: Colors.black87),
                 children: [
                   TextSpan(
-                    text: 'sample@upi',
+                    text: upiId,
                     style: TextStyle(fontWeight: FontWeight.normal),
                   ),
                 ],
@@ -460,10 +506,11 @@ class UpiDetailsCard extends StatelessWidget {
             RichText(
               text: TextSpan(
                 text: 'Mobile Number:     ',
-                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black87),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, color: Colors.black87),
                 children: [
                   TextSpan(
-                    text: '1234567890',
+                    text: mobileNumber,
                     style: TextStyle(fontWeight: FontWeight.normal),
                   ),
                 ],
@@ -473,10 +520,11 @@ class UpiDetailsCard extends StatelessWidget {
             RichText(
               text: TextSpan(
                 text: 'Account Holder Name:     ',
-                style: TextStyle(fontWeight: FontWeight.w700, color: Colors.black87),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, color: Colors.black87),
                 children: [
                   TextSpan(
-                    text: 'John Doe',
+                    text: accountHolderName,
                     style: TextStyle(fontWeight: FontWeight.normal),
                   ),
                 ],
@@ -485,6 +533,7 @@ class UpiDetailsCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    )
+        : Container(); // Return an empty container if data is null
   }
 }
