@@ -22,24 +22,22 @@ class APIService {
     }
   }
 
-  Future<Map<String, dynamic>> register(Map<String, dynamic> data) async {
-    var url = '$apiUrl/getregister';
-    var body = json.encode(data);
-    var urlParse = Uri.parse(url);
-    var response = await http.post(
-      urlParse,
-      body: body,
-      headers: {
-        "Content-Type": "application/json",
+  Future<Map<String, dynamic>> register(Map<String, String> data) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/getregister'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
       },
+      body: jsonEncode(data),
     );
 
-    var responseData = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      return responseData;
+    // Handle both 200 and 201 status codes as successful
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to register user');
+      print('Failed to register: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to register');
     }
   }
 

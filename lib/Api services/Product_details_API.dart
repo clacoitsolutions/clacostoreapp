@@ -50,7 +50,7 @@ class APIServices {
   }
 
   Future<Map<String, dynamic>> addToCart(String customerId, String productId, String quantity,String sizename,String colorname ) async {
-    final url = Uri.parse('$baseUrl/addtocart3');
+      final url = Uri.parse('$baseUrl/addtocart3');
     final response = await http.post(
       url,
       body: jsonEncode({

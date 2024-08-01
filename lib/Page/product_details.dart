@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:claco_store/Api%20services/Product_details_API.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -9,7 +10,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../Api services/service_api.dart';
-import '../models/product_details_api.dart';
 import '../pageUtills/Product_Rivew.dart';
 import '../pageUtills/Similar_Product.dart';
 import 'home/Chekout_page.dart';
